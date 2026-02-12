@@ -342,6 +342,13 @@ if not df.empty:
         st.warning("Booking dihapus!")
         st.rerun()
 
+    if st.button("🔄 Reset Semua Data & ID"):
+    cursor.execute("DELETE FROM bookings")
+    cursor.execute("DELETE FROM sqlite_sequence WHERE name='bookings'")
+    conn.commit()
+    st.success("Database berhasil direset. ID kembali ke 1.")
+    st.rerun()
+
     # ============================
     # DASHBOARD
     # ============================
