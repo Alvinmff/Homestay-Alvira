@@ -1,3 +1,9 @@
+from io import BytesIO
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import pagesizes
+
 import streamlit as st
 import pandas as pd
 import sqlite3
@@ -85,6 +91,44 @@ def load_data():
     return df
 
 # ============================
+# EXPORT FUNCTIONS
+# ============================
+
+def generate_excel(df):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Laporan Booking')
+    return output.getvalue()
+
+
+def generate_pdf(df):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=pagesizes.A4)
+    elements = []
+
+    styles = getSampleStyleSheet()
+    elements.append(Paragraph("Laporan Booking Homestay", styles["Title"]))
+    elements.append(Spacer(1, 12))
+
+    data = [df.columns.tolist()] + df.values.tolist()
+    table = Table(data)
+
+    table.setStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+    ])
+
+    elements.append(table)
+    doc.build(elements)
+
+    pdf = buffer.getvalue()
+    buffer.close()
+    return pdf
+
+
+# ============================
 # TAMBAH BOOKING
 # ============================
 st.sidebar.header("➕ Tambah Booking")
@@ -128,6 +172,32 @@ if st.sidebar.button("Simpan Booking"):
 df = load_data()
 
 if not df.empty:
+    
+# ============================
+# DOWNLOAD LAPORAN
+# ============================
+st.subheader("📥 Download Laporan")
+
+col1, col2 = st.columns(2)
+
+excel_file = generate_excel(df)
+pdf_file = generate_pdf(df)
+
+with col1:
+    st.download_button(
+        label="⬇️ Download Excel",
+        data=excel_file,
+        file_name="laporan_booking.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+with col2:
+    st.download_button(
+        label="⬇️ Download PDF",
+        data=pdf_file,
+        file_name="laporan_booking.pdf",
+        mime="application/pdf"
+    )
 
     # ============================
     # UPDATE STATUS OTOMATIS
