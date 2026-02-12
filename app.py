@@ -55,14 +55,23 @@ except:
 # ============================
 def get_status(checkin, checkout, sisa):
     today = date.today()
+
     if sisa <= 0:
         return "Lunas"
-    elif today < checkin:
+
+    if today < checkin:
         return "Booked"
-    elif checkin <= today <= checkout:
+
+    if checkin <= today < checkout:
         return "Check-in"
-    else:
+
+    if today == checkout:
+        return "Check-out"
+
+    if today > checkout:
         return "Selesai"
+
+    return "Booked"
 
 def is_double_booking(kamar, checkin, checkout, booking_id=None):
     query = """
