@@ -200,11 +200,26 @@ if not df.empty:
 
     df = load_data()
 
+    def format_rupiah(x):
+    try:
+        return f"Rp {int(x):,}".replace(",", ".")
+    except:
+        return x
+
     # ============================
     # DATA TABLE
     # ============================
     st.subheader("📋 Data Booking (Tabel Utama)")
     
+    # Copy dataframe supaya tidak mengubah data asli
+    df_display = df.copy()
+    
+    # Format kolom uang
+    for col in ["harga", "total", "dp", "sisa"]:
+        if col in df_display.columns:
+            df_display[col] = df_display[col].apply(format_rupiah)
+    
+    # Styling status
     def highlight_status(val):
         if val == "Check-in":
             return "background-color: #b6f2b6; color: #0f5132; font-weight: bold;"
@@ -218,10 +233,10 @@ if not df.empty:
             return "background-color: #c8f7c5; color: #0a3622; font-weight: bold;"
         return ""
     
-    styled_df = df.style.applymap(highlight_status, subset=["status"])
+    styled_df = df_display.style.applymap(highlight_status, subset=["status"])
     
     st.dataframe(styled_df, use_container_width=True)
-
+    
     # ============================
     # DOWNLOAD LAPORAN
     # ============================
