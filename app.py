@@ -203,8 +203,24 @@ if not df.empty:
     # ============================
     # DATA TABLE
     # ============================
-    st.subheader("📋 Data Booking (Tabel Utama)")
-    st.dataframe(df, use_container_width=True)
+   st.subheader("📋 Data Booking (Tabel Utama)")
+
+    def highlight_status(val):
+        if val == "Check-in":
+            return "background-color: #b6f2b6"
+        elif val == "Booked":
+            return "background-color: #fff3b0"
+        elif val == "Check-out":
+            return "background-color: #a0e7ff"
+        elif val == "Selesai":
+            return "background-color: #d3d3d3"
+        elif val == "Lunas":
+            return "background-color: #c8f7c5"
+        return ""
+    
+    styled_df = df.style.applymap(highlight_status, subset=["status"])
+    
+    st.dataframe(styled_df, use_container_width=True)
 
     # ============================
     # DOWNLOAD LAPORAN
