@@ -323,37 +323,5 @@ with col2:
     ax.set_ylabel("Total Pendapatan")
     st.pyplot(fig)
 
-    # =============================
-    # DOWNLOAD PDF
-    # =============================
-    def generate_pdf(data):
-        buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=pagesizes.A4)
-        elements = []
-        styles = getSampleStyleSheet()
-
-        elements.append(Paragraph("Laporan Booking Homestay", styles["Title"]))
-        elements.append(Spacer(1, 12))
-
-        table_data = [list(data.columns)] + data.values.tolist()
-        table = Table(table_data)
-        table.setStyle([
-            ('BACKGROUND', (0,0), (-1,0), colors.grey),
-            ('GRID', (0,0), (-1,-1), 1, colors.black)
-        ])
-
-        elements.append(table)
-        doc.build(elements)
-        return buffer.getvalue()
-
-    pdf_data = generate_pdf(df)
-
-    st.download_button(
-        label="Download PDF",
-        data=pdf_data,
-        file_name="laporan_homestay.pdf",
-        mime="application/pdf"
-    )
-
 else:
     st.info("Belum ada data booking.")
