@@ -203,7 +203,7 @@ if not df.empty:
     # ============================
     # DATA TABLE
     # ============================
-   st.subheader("📋 Data Booking (Tabel Utama)")
+    st.subheader("📋 Data Booking (Tabel Utama)")
 
     def highlight_status(val):
         if val == "Check-in":
@@ -217,9 +217,9 @@ if not df.empty:
         elif val == "Lunas":
             return "background-color: #c8f7c5"
         return ""
-    
+
     styled_df = df.style.applymap(highlight_status, subset=["status"])
-    
+
     st.dataframe(styled_df, use_container_width=True)
 
     # ============================
