@@ -172,32 +172,6 @@ if st.sidebar.button("Simpan Booking"):
 df = load_data()
 
 if not df.empty:
-    
-# ============================
-# DOWNLOAD LAPORAN
-# ============================
-st.subheader("📥 Download Laporan")
-
-col1, col2 = st.columns(2)
-
-excel_file = generate_excel(df)
-pdf_file = generate_pdf(df)
-
-with col1:
-    st.download_button(
-        label="⬇️ Download Excel",
-        data=excel_file,
-        file_name="laporan_booking.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
-with col2:
-    st.download_button(
-        label="⬇️ Download PDF",
-        data=pdf_file,
-        file_name="laporan_booking.pdf",
-        mime="application/pdf"
-    )
 
     # ============================
     # UPDATE STATUS OTOMATIS
@@ -205,9 +179,9 @@ with col2:
     for index, row in df.iterrows():
         checkin_date = datetime.strptime(row["checkin"], "%Y-%m-%d").date()
         checkout_date = datetime.strptime(row["checkout"], "%Y-%m-%d").date()
-        sisa = row["sisa"]
+        sisa_value = row["sisa"] if row["sisa"] is not None else 0
 
-        new_status = get_status(checkin_date, checkout_date, sisa)
+        new_status = get_status(checkin_date, checkout_date, sisa_value)
 
         cursor.execute(
             "UPDATE bookings SET status=? WHERE id=?",
@@ -222,6 +196,32 @@ with col2:
     # ============================
     st.subheader("📋 Data Booking (Tabel Utama)")
     st.dataframe(df, use_container_width=True)
+
+    # ============================
+    # DOWNLOAD LAPORAN
+    # ============================
+    st.subheader("📥 Download Laporan")
+
+    col_dl1, col_dl2 = st.columns(2)
+
+    excel_file = generate_excel(df)
+    pdf_file = generate_pdf(df)
+
+    with col_dl1:
+        st.download_button(
+            label="⬇️ Download Excel",
+            data=excel_file,
+            file_name="laporan_booking.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+    with col_dl2:
+        st.download_button(
+            label="⬇️ Download PDF",
+            data=pdf_file,
+            file_name="laporan_booking.pdf",
+            mime="application/pdf"
+        )
 
     # ============================
     # EDIT / DELETE
