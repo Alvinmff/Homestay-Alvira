@@ -1,40 +1,66 @@
 import streamlit as st
 import pandas as pd
+import sqlite3
 from datetime import datetime
-import os
 
-st.set_page_config(page_title="Homestay Management System", layout="wide")
+st.set_page_config(page_title="Homestay Management", layout="wide")
 
-st.title("🏠 Homestay Management Dashboard")
+st.title("🏠 Homestay Management System")
 
-DATA_FILE = "bookings.csv"
+# ==============================
+# DATABASE CONNECTION
+# ==============================
+conn = sqlite3.connect("homestay.db", check_same_thread=False)
+cursor = conn.cursor()
 
-# ----------------------------
-# Load Data
-# ----------------------------
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS bookings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nama TEXT,
+    hp TEXT,
+    kamar TEXT,
+    checkin DATE,
+    checkout DATE,
+    harga INTEGER,
+    total INTEGER,
+    status TEXT
+)
+""")
+conn.commit()
+
+# ==============================
+# FUNCTIONS
+# ==============================
+def insert_booking(nama, hp, kamar, checkin, checkout, harga, total):
+    cursor.execute("""
+    INSERT INTO bookings (nama, hp, kamar, checkin, checkout, harga, total, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (nama, hp, kamar, checkin, checkout, harga, total, "Booked"))
+    conn.commit()
+
 def load_data():
-    if os.path.exists(DATA_FILE):
-        return pd.read_csv(DATA_FILE, parse_dates=["Check-in", "Check-out"])
-    else:
-        return pd.DataFrame(columns=[
-            "Nama Tamu", "No HP", "Kamar",
-            "Check-in", "Check-out",
-            "Harga per Malam", "Total Bayar", "Status"
-        ])
+    return pd.read_sql_query("SELECT * FROM bookings", conn)
 
-def save_data(df):
-    df.to_csv(DATA_FILE, index=False)
+def delete_booking(id):
+    cursor.execute("DELETE FROM bookings WHERE id = ?", (id,))
+    conn.commit()
 
-df = load_data()
+def update_booking(id, nama, hp, kamar, checkin, checkout, harga, total):
+    cursor.execute("""
+    UPDATE bookings
+    SET nama=?, hp=?, kamar=?, checkin=?, checkout=?, harga=?, total=?
+    WHERE id=?
+    """, (nama, hp, kamar, checkin, checkout, harga, total, id))
+    conn.commit()
 
-# ----------------------------
-# Sidebar - Input Booking
-# ----------------------------
-st.sidebar.header("➕ Tambah Booking Baru")
+# ==============================
+# SIDEBAR - ADD BOOKING
+# ==============================
+st.sidebar.header("➕ Tambah Booking")
 
 nama = st.sidebar.text_input("Nama Tamu")
 hp = st.sidebar.text_input("No HP")
-kamar = st.sidebar.selectbox("Pilih Kamar", ["Kamar 1", "Kamar 2", "Kamar 3", "Family Room"])
+kamar = st.sidebar.selectbox("Kamar", ["Kamar 1", "Kamar 2", "Kamar 3", "Family Room"])
 checkin = st.sidebar.date_input("Check-in")
 checkout = st.sidebar.date_input("Check-out")
 harga = st.sidebar.number_input("Harga per Malam", min_value=0)
@@ -43,64 +69,58 @@ if st.sidebar.button("Simpan Booking"):
     if checkout > checkin:
         malam = (checkout - checkin).days
         total = malam * harga
-
-        new_data = pd.DataFrame([{
-            "Nama Tamu": nama,
-            "No HP": hp,
-            "Kamar": kamar,
-            "Check-in": checkin,
-            "Check-out": checkout,
-            "Harga per Malam": harga,
-            "Total Bayar": total,
-            "Status": "Booked"
-        }])
-
-        df = pd.concat([df, new_data], ignore_index=True)
-        save_data(df)
-        st.success("Booking berhasil disimpan!")
+        insert_booking(nama, hp, kamar, checkin, checkout, harga, total)
+        st.success("Booking berhasil ditambahkan!")
     else:
-        st.error("Tanggal check-out harus setelah check-in.")
+        st.error("Tanggal tidak valid.")
 
-# ----------------------------
-# Dashboard Metrics
-# ----------------------------
-st.subheader("📊 Ringkasan Bisnis")
-
-total_pendapatan = df["Total Bayar"].sum()
-total_booking = len(df)
-kamar_terpakai = df[df["Status"] == "Booked"]["Kamar"].nunique()
-
-col1, col2, col3 = st.columns(3)
-col1.metric("Total Pendapatan", f"Rp {total_pendapatan:,.0f}")
-col2.metric("Total Booking", total_booking)
-col3.metric("Kamar Terpakai", kamar_terpakai)
-
-st.write("---")
-
-# ----------------------------
-# Data Table
-# ----------------------------
+# ==============================
+# DISPLAY DATA
+# ==============================
 st.subheader("📋 Data Booking")
 
-st.dataframe(df, use_container_width=True)
-
-# ----------------------------
-# Grafik Pendapatan
-# ----------------------------
-st.subheader("📈 Grafik Pendapatan per Booking")
+df = load_data()
 
 if not df.empty:
-    chart_data = df.groupby("Kamar")["Total Bayar"].sum()
-    st.bar_chart(chart_data)
+    for index, row in df.iterrows():
+        with st.expander(f"{row['nama']} - {row['kamar']} (ID: {row['id']})"):
 
-# ----------------------------
-# Download Report
-# ----------------------------
-st.subheader("📥 Download Laporan")
+            col1, col2 = st.columns(2)
 
-st.download_button(
-    label="Download CSV",
-    data=df.to_csv(index=False),
-    file_name="laporan_homestay.csv",
-    mime="text/csv"
-)
+            with col1:
+                new_nama = st.text_input("Nama", row["nama"], key=f"nama{row['id']}")
+                new_hp = st.text_input("No HP", row["hp"], key=f"hp{row['id']}")
+                new_kamar = st.selectbox(
+                    "Kamar",
+                    ["Kamar 1", "Kamar 2", "Kamar 3", "Family Room"],
+                    index=["Kamar 1", "Kamar 2", "Kamar 3", "Family Room"].index(row["kamar"]),
+                    key=f"kamar{row['id']}"
+                )
+
+            with col2:
+                new_checkin = st.date_input("Check-in", pd.to_datetime(row["checkin"]), key=f"checkin{row['id']}")
+                new_checkout = st.date_input("Check-out", pd.to_datetime(row["checkout"]), key=f"checkout{row['id']}")
+                new_harga = st.number_input("Harga per Malam", value=row["harga"], key=f"harga{row['id']}")
+
+            malam = (new_checkout - new_checkin).days
+            new_total = malam * new_harga if malam > 0 else 0
+
+            st.write(f"💰 Total Baru: Rp {new_total:,.0f}")
+
+            col_update, col_delete = st.columns(2)
+
+            if col_update.button("💾 Update", key=f"update{row['id']}"):
+                if new_checkout > new_checkin:
+                    update_booking(row["id"], new_nama, new_hp, new_kamar, new_checkin, new_checkout, new_harga, new_total)
+                    st.success("Booking berhasil diupdate!")
+                    st.rerun()
+                else:
+                    st.error("Tanggal tidak valid.")
+
+            if col_delete.button("🗑 Hapus", key=f"delete{row['id']}"):
+                delete_booking(row["id"])
+                st.warning("Booking dihapus!")
+                st.rerun()
+
+else:
+    st.info("Belum ada data booking.")
