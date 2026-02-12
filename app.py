@@ -201,10 +201,10 @@ if not df.empty:
     df = load_data()
 
     def format_rupiah(x):
-    try:
-        return f"Rp {int(x):,}".replace(",", ".")
-    except:
-        return x
+        try:
+            return f"Rp {int(x):,}".replace(",", ".")
+        except:
+            return x
 
     # ============================
     # DATA TABLE
