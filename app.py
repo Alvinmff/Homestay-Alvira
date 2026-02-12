@@ -19,12 +19,12 @@ CREATE TABLE IF NOT EXISTS bookings (
     nama TEXT,
     hp TEXT,
     kamar TEXT,
-    checkin DATE,
-    checkout DATE,
+    checkin TEXT,
+    checkout TEXT,
     harga INTEGER,
     total INTEGER,
-    dp INTEGER,
-    sisa INTEGER,
+    dp INTEGER DEFAULT 0,
+    sisa INTEGER DEFAULT 0,
     status TEXT
 )
 """)
@@ -50,11 +50,11 @@ def is_double_booking(kamar, checkin, checkout, booking_id=None):
     WHERE kamar = ?
     AND (? IS NULL OR id != ?)
     AND (
-        (checkin <= ? AND checkout >= ?)
+        (date(checkin) <= date(?) AND date(checkout) >= date(?))
         OR
-        (checkin <= ? AND checkout >= ?)
+        (date(checkin) <= date(?) AND date(checkout) >= date(?))
         OR
-        (? <= checkin AND ? >= checkout)
+        (date(?) <= date(checkin) AND date(?) >= date(checkout))
     )
     """
     result = cursor.execute(query, (
@@ -67,7 +67,8 @@ def is_double_booking(kamar, checkin, checkout, booking_id=None):
     return len(result) > 0
 
 def load_data():
-    return pd.read_sql_query("SELECT * FROM bookings", conn)
+    df = pd.read_sql_query("SELECT * FROM bookings", conn)
+    return df
 
 # ============================
 # TAMBAH BOOKING
@@ -76,7 +77,8 @@ st.sidebar.header("➕ Tambah Booking")
 
 nama = st.sidebar.text_input("Nama Tamu")
 hp = st.sidebar.text_input("No HP")
-kamar = st.sidebar.selectbox("Kamar", ["Kamar 1", "Kamar 2", "Kamar 3", "Family Room"])
+kamar_list = ["Kamar 1", "Kamar 2", "Kamar 3", "Family Room"]
+kamar = st.sidebar.selectbox("Kamar", kamar_list)
 checkin = st.sidebar.date_input("Check-in")
 checkout = st.sidebar.date_input("Check-out")
 harga = st.sidebar.number_input("Harga per Malam", min_value=0)
@@ -97,11 +99,14 @@ if st.sidebar.button("Simpan Booking"):
             INSERT INTO bookings 
             (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (nama, hp, kamar, checkin, checkout, harga,
-                  total, dp, sisa, status))
+            """, (nama, hp, kamar,
+                  str(checkin), str(checkout),
+                  harga, total, dp, sisa, status))
             conn.commit()
             st.sidebar.success("Booking berhasil!")
             st.rerun()
+    else:
+        st.sidebar.error("Tanggal tidak valid")
 
 # ============================
 # LOAD DATA
@@ -110,19 +115,36 @@ df = load_data()
 
 if not df.empty:
 
+    # ============================
+    # UPDATE STATUS OTOMATIS
+    # ============================
+    for index, row in df.iterrows():
+        checkin_date = datetime.strptime(row["checkin"], "%Y-%m-%d").date()
+        checkout_date = datetime.strptime(row["checkout"], "%Y-%m-%d").date()
+        sisa = row["sisa"]
+
+        new_status = get_status(checkin_date, checkout_date, sisa)
+
+        cursor.execute(
+            "UPDATE bookings SET status=? WHERE id=?",
+            (new_status, row["id"])
+        )
+    conn.commit()
+
+    df = load_data()
+
+    # ============================
+    # DATA TABLE
+    # ============================
     st.subheader("📋 Data Booking (Tabel Utama)")
     st.dataframe(df, use_container_width=True)
 
     # ============================
-    # PILIH BOOKING UNTUK EDIT
+    # EDIT / DELETE
     # ============================
     st.subheader("✏️ Edit / Hapus Booking")
 
-    selected_id = st.selectbox(
-        "Pilih ID Booking",
-        df["id"]
-    )
-
+    selected_id = st.selectbox("Pilih ID Booking", df["id"])
     selected_data = df[df["id"] == selected_id].iloc[0]
 
     col1, col2 = st.columns(2)
@@ -132,9 +154,8 @@ if not df.empty:
         edit_hp = st.text_input("HP", selected_data["hp"])
         edit_kamar = st.selectbox(
             "Kamar",
-            ["Kamar 1", "Kamar 2", "Kamar 3", "Family Room"],
-            index=["Kamar 1", "Kamar 2", "Kamar 3", "Family Room"]
-            .index(selected_data["kamar"])
+            kamar_list,
+            index=kamar_list.index(selected_data["kamar"])
         )
 
     with col2:
@@ -146,8 +167,14 @@ if not df.empty:
             "Check-out",
             datetime.strptime(selected_data["checkout"], "%Y-%m-%d").date()
         )
-        edit_harga = st.number_input("Harga per Malam", value=int(selected_data["harga"]))
-        edit_dp = st.number_input("DP", value=int(selected_data["dp"]))
+        edit_harga = st.number_input(
+            "Harga per Malam",
+            value=int(selected_data["harga"])
+        )
+        edit_dp = st.number_input(
+            "DP",
+            value=int(selected_data["dp"])
+        )
 
     malam = (edit_checkout - edit_checkin).days
     edit_total = malam * edit_harga if malam > 0 else 0
@@ -174,7 +201,7 @@ if not df.empty:
                 WHERE id=?
                 """, (
                     edit_nama, edit_hp, edit_kamar,
-                    edit_checkin, edit_checkout,
+                    str(edit_checkin), str(edit_checkout),
                     edit_harga, edit_total,
                     edit_dp, edit_sisa,
                     edit_status,
@@ -201,7 +228,9 @@ if not df.empty:
     colB.metric("Total Pendapatan", f"Rp {df['total'].sum():,.0f}")
     colC.metric("Total DP Masuk", f"Rp {df['dp'].sum():,.0f}")
 
-    # Grafik
+    # ============================
+    # GRAFIK
+    # ============================
     st.subheader("📈 Grafik Pendapatan per Kamar")
     chart_data = df.groupby("kamar")["total"].sum()
 
