@@ -30,6 +30,20 @@ CREATE TABLE IF NOT EXISTS bookings (
 """)
 conn.commit()
 
+# Tambah kolom jika belum ada (untuk database lama)
+try:
+    cursor.execute("ALTER TABLE bookings ADD COLUMN dp INTEGER DEFAULT 0")
+    conn.commit()
+except:
+    pass
+
+try:
+    cursor.execute("ALTER TABLE bookings ADD COLUMN sisa INTEGER DEFAULT 0")
+    conn.commit()
+except:
+    pass
+
+
 # ============================
 # FUNCTIONS
 # ============================
