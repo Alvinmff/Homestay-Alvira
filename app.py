@@ -144,7 +144,7 @@ st.sidebar.header("➕ Tambah Booking")
 
 nama = st.sidebar.text_input("Nama Tamu")
 hp = st.sidebar.text_input("No HP")
-kamar_list = ["Alvira 1", "Alvira 2", "Alvira 3", "Alvira 4", "Alvira 5"]
+kamar_list = ["Kamar 1", "Kamar 2", "Kamar 3", "Family Room"]
 kamar = st.sidebar.selectbox("Kamar", kamar_list)
 checkin = st.sidebar.date_input("Check-in")
 checkout = st.sidebar.date_input("Check-out")
