@@ -167,7 +167,7 @@ def generate_invoice(selected_data):
     data = [
         ["Nama Tamu", selected_data["nama"]],
         ["No HP", selected_data["hp"]],
-        ["Kamar", selected_data["nama_kamar"]],
+        ["Kamar", selected_data["kamar"]],
         ["Check-in", selected_data["checkin"]],
         ["Check-out", selected_data["checkout"]],
         ["Total", f"Rp {selected_data['total']:,.0f}"],
