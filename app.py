@@ -1,3 +1,12 @@
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import inch
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
+import io
+from datetime import datetime
+
 from io import BytesIO
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
 from reportlab.lib import colors
@@ -136,6 +145,49 @@ def generate_pdf(df):
     buffer.close()
     return pdf
 
+def generate_invoice(selected_data):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    elements = []
+
+    # Gunakan font unicode (support Rp dll)
+    pdfmetrics.registerFont(UnicodeCIDFont('STSong-Light'))
+
+    style = ParagraphStyle(
+        name='Normal',
+        fontName='STSong-Light',
+        fontSize=12
+    )
+
+    elements.append(Paragraph("INVOICE HOMESTAY ALVIRA", style))
+    elements.append(Spacer(1, 0.3 * inch))
+
+    sisa = selected_data["total"] - selected_data["dp"]
+
+    data = [
+        ["Nama Tamu", selected_data["nama"]],
+        ["No HP", selected_data["hp"]],
+        ["Kamar", selected_data["nama_kamar"]],
+        ["Check-in", selected_data["checkin"]],
+        ["Check-out", selected_data["checkout"]],
+        ["Total", f"Rp {selected_data['total']:,.0f}"],
+        ["DP", f"Rp {selected_data['dp']:,.0f}"],
+        ["Sisa", f"Rp {sisa:,.0f}"],
+        ["Status", selected_data["status"]],
+        ["Tanggal Cetak", datetime.now().strftime("%d-%m-%Y %H:%M")]
+    ]
+
+    table = Table(data, colWidths=[150, 300])
+    table.setStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.grey)
+    ])
+
+    elements.append(table)
+    doc.build(elements)
+
+    buffer.seek(0)
+    return buffer
 
 # ============================
 # TAMBAH BOOKING
@@ -341,7 +393,18 @@ if not df.empty:
         conn.commit()
         st.warning("Booking dihapus!")
         st.rerun()
+        
+    if st.button("🧾 Generate Invoice"):
+        pdf_file = generate_invoice(selected_data)
+    
+        st.download_button(
+            label="📥 Download Invoice PDF",
+            data=pdf_file,
+            file_name=f"invoice_{selected_data['nama']}.pdf",
+            mime="application/pdf"
+        )
 
+    
     # ============================
     # RESET DATABASE
     # ============================
