@@ -20,9 +20,6 @@ import pandas as pd
 import sqlite3
 from datetime import datetime, date
 import matplotlib.pyplot as plt
-import locale
-locale.setlocale(locale.LC_TIME, "id_ID")
-
 
 st.set_page_config(page_title="Homestay Pro System", layout="wide")
 st.title("🏠 Homestay Management System Pro")
@@ -49,6 +46,22 @@ CREATE TABLE IF NOT EXISTS bookings (
     status TEXT
 )
 """)
+
+bulan_indonesia = {
+    1: "JANUARI",
+    2: "FEBRUARI",
+    3: "MARET",
+    4: "APRIL",
+    5: "MEI",
+    6: "JUNI",
+    7: "JULI",
+    8: "AGUSTUS",
+    9: "SEPTEMBER",
+    10: "OKTOBER",
+    11: "NOVEMBER",
+    12: "DESEMBER"
+}
+
 
 # ============================
 # FIX DATABASE STRUCTURE
@@ -500,24 +513,23 @@ df = load_data()
 
 if not df.empty:
     
-    # Ubah checkin jadi datetime
     df["checkin"] = pd.to_datetime(df["checkin"])
+df = df.sort_values("checkin")
 
-    # Tambah kolom bulan
-    df["bulan"] = df["checkin"].dt.to_period("M")
+df["bulan"] = df["checkin"].dt.month
+df["tahun"] = df["checkin"].dt.year
 
-    # Urutkan berdasarkan tanggal
-    df = df.sort_values("checkin")
+grouped = df.groupby(["tahun", "bulan"])
 
-    # Group per bulan
-    grouped = df.groupby("bulan")
+for (tahun, bulan), data_bulan in grouped:
 
-    for bulan, data_bulan in grouped:
+    nama_bulan = bulan_indonesia[bulan]
 
-        nama_bulan = bulan.strftime("%B %Y")
+    st.markdown("---")
+    st.markdown(f"## 📅 {nama_bulan} {tahun}")
+    st.markdown("---")
 
-        st.markdown(f"## 📅 {nama_bulan.upper()}")
-        st.dataframe(data_bulan.drop(columns=["bulan"]))
+    st.dataframe(data_bulan.drop(columns=["bulan", "tahun"]))
 
     # ============================
     # UPDATE STATUS OTOMATIS
