@@ -575,64 +575,6 @@ if st.sidebar.button("Simpan Booking"):
         st.rerun()
 
 # ============================
-# LOAD DATA
-# ============================
-df = load_data()
-
-if not df.empty:
-
-    # Pastikan datetime dulu
-    df["checkin"] = pd.to_datetime(df["checkin"])
-    
-    # Urutkan berdasarkan tanggal
-    df = df.sort_values("checkin")
-    
-    # Tambahkan kolom periode bulan
-    df["bulan"] = df["checkin"].dt.to_period("M")
-    
-    # Group berdasarkan bulan + tahun
-    for periode, group in df.groupby("bulan"):
-    
-        nama_bulan = periode.strftime("%B %Y").upper()
-    
-        st.markdown(f"## 📅 {nama_bulan}")
-        st.markdown("---")
-    
-        group = group.sort_values("checkin").reset_index(drop=True)
-    
-        # Buat nomor urut mulai dari 1
-        group.insert(0, "No", range(1, len(group) + 1))
-    
-        # Hapus kolom bulan
-        group_display = group.drop(columns=["bulan"])
-    
-        st.dataframe(group_display, use_container_width=True, hide_index=True)
-
-    # ============================
-    # UPDATE STATUS OTOMATIS
-    # ============================
-    for index, row in df.iterrows():
-        checkin_date = pd.to_datetime(row["checkin"]).date()
-        checkout_date = pd.to_datetime(row["checkout"]).date()
-        sisa_value = row["sisa"] if row["sisa"] is not None else 0
-
-        new_status = get_status(checkin_date, checkout_date, sisa_value)
-
-        cursor.execute(
-            "UPDATE bookings SET status=? WHERE id=?",
-            (new_status, row["id"])
-        )
-    conn.commit()
-
-    df = load_data()
-
-    def format_rupiah(x):
-        try:
-            return f"Rp {int(x):,}".replace(",", ".")
-        except:
-            return x
-
-    # ============================
     # DATA TABLE
     # ============================
     st.subheader("📋 Data Booking (Tabel Utama)")
@@ -728,6 +670,64 @@ if not df.empty:
             file_name="jadwal_booking_public.pdf",
             mime="application/pdf"
         )
+        
+# ============================
+# LOAD DATA
+# ============================
+df = load_data()
+
+if not df.empty:
+
+    # Pastikan datetime dulu
+    df["checkin"] = pd.to_datetime(df["checkin"])
+    
+    # Urutkan berdasarkan tanggal
+    df = df.sort_values("checkin")
+    
+    # Tambahkan kolom periode bulan
+    df["bulan"] = df["checkin"].dt.to_period("M")
+    
+    # Group berdasarkan bulan + tahun
+    for periode, group in df.groupby("bulan"):
+    
+        nama_bulan = periode.strftime("%B %Y").upper()
+    
+        st.markdown(f"## 📅 {nama_bulan}")
+        st.markdown("---")
+    
+        group = group.sort_values("checkin").reset_index(drop=True)
+    
+        # Buat nomor urut mulai dari 1
+        group.insert(0, "No", range(1, len(group) + 1))
+    
+        # Hapus kolom bulan
+        group_display = group.drop(columns=["bulan"])
+    
+        st.dataframe(group_display, use_container_width=True, hide_index=True)
+
+    # ============================
+    # UPDATE STATUS OTOMATIS
+    # ============================
+    for index, row in df.iterrows():
+        checkin_date = pd.to_datetime(row["checkin"]).date()
+        checkout_date = pd.to_datetime(row["checkout"]).date()
+        sisa_value = row["sisa"] if row["sisa"] is not None else 0
+
+        new_status = get_status(checkin_date, checkout_date, sisa_value)
+
+        cursor.execute(
+            "UPDATE bookings SET status=? WHERE id=?",
+            (new_status, row["id"])
+        )
+    conn.commit()
+
+    df = load_data()
+
+    def format_rupiah(x):
+        try:
+            return f"Rp {int(x):,}".replace(",", ".")
+        except:
+            return x
 
     # ============================
     # EDIT / DELETE
