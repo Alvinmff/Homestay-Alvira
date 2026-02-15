@@ -107,6 +107,21 @@ def is_double_booking(kamar, checkin, checkout, booking_id=None):
     return len(result) > 0
 
 # ============================
+# LOAD DATA FUNCTION
+# ============================
+def load_data():
+    query = """
+    SELECT 
+        bookings.*,
+        rooms.nama_kamar
+    FROM bookings
+    LEFT JOIN rooms ON bookings.room_id = rooms.id
+    """
+    df = pd.read_sql_query(query, conn)
+    return df
+
+
+# ============================
 # EXPORT FUNCTIONS
 # ============================
 
@@ -422,7 +437,7 @@ if st.sidebar.button("Simpan Booking"):
 # ============================
 # LOAD DATA
 # ============================
-def load_data():
+df = load_data()
 
 if not df.empty:
 
