@@ -588,6 +588,16 @@ if not df.empty:
     
     # Group berdasarkan bulan + tahun
     for periode, group in df.groupby("bulan"):
+
+        group = group.sort_values("checkin").reset_index(drop=True)
+
+        # Buat nomor urut mulai dari 1
+        group.insert(0, "No", range(1, len(group) + 1))
+        
+        # Hapus kolom bulan
+        group_display = group.drop(columns=["bulan"])
+        
+        st.dataframe(group_display, hide_index=True)
     
         nama_bulan = periode.strftime("%B %Y").upper()
     
