@@ -329,7 +329,14 @@ if not df.empty:
     
     # Copy dataframe supaya tidak mengubah data asli
     df_display = df.copy()
+
+    # Reset index supaya mulai dari 0 lalu tambah 1
+    df_display = df_display.reset_index(drop=True)
+    df_display.index = df_display.index + 1
     
+    # Tambahkan nama kolom index
+    df_display.index.name = "No"
+        
     # Format kolom uang
     for col in ["harga", "total", "dp", "sisa"]:
         if col in df_display.columns:
