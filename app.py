@@ -378,6 +378,10 @@ if not df.empty:
 
     col_dl1, col_dl2, col_dl3 = st.columns(3)
 
+    # ❌ HIDE KOLOM ID
+    if "id" in df_export.columns:
+        df_export = df_export.drop(columns=["id"])
+
     # Tambah nomor urut untuk export
     df_export = df.copy()
     df_export = df_export.reset_index(drop=True)
