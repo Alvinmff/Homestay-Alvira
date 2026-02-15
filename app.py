@@ -535,8 +535,8 @@ for (tahun, bulan), data_bulan in grouped:
     # UPDATE STATUS OTOMATIS
     # ============================
     for index, row in df.iterrows():
-        checkin_date = datetime.strptime(row["checkin"], "%Y-%m-%d").date()
-        checkout_date = datetime.strptime(row["checkout"], "%Y-%m-%d").date()
+        checkin_date = pd.to_datetime(row["checkin"]).date()
+        checkout_date = pd.to_datetime(row["checkout"]).date()
         sisa_value = row["sisa"] if row["sisa"] is not None else 0
 
         new_status = get_status(checkin_date, checkout_date, sisa_value)
