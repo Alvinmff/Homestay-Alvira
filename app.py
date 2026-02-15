@@ -422,7 +422,7 @@ if st.sidebar.button("Simpan Booking"):
 # ============================
 # LOAD DATA
 # ============================
-df = load_data()
+def load_data():
 
 if not df.empty:
 
