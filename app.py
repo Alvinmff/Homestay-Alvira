@@ -223,26 +223,37 @@ def generate_invoice(selected_data):
     return pdf
 
 def generate_pdf_public(df):
-
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=pagesizes.A4)
     elements = []
 
     styles = getSampleStyleSheet()
-    elements.append(Paragraph("Daftar Booking Homestay", styles["Title"]))
+    elements.append(Paragraph("Jadwal Booking Homestay", styles["Title"]))
     elements.append(Spacer(1, 12))
 
-    # HANYA KOLOM PUBLIK
-    df_public = df[["nama", "kamar", "checkin", "checkout", "status"]]
+    # 🔒 HANYA KOLOM PUBLIK (TANPA HARGA)
+    df_public = df[[
+        "nama",
+        "kamar",
+        "checkin",
+        "checkout",
+        "status"
+    ]].copy()
+
+    # Tambah nomor urut
+    df_public = df_public.reset_index(drop=True)
+    df_public.index += 1
+    df_public.index.name = "No"
+    df_public = df_public.reset_index()
 
     data = [df_public.columns.tolist()] + df_public.values.tolist()
-    table = Table(data)
 
+    table = Table(data, repeatRows=1)
     table.setStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER')
     ])
 
     elements.append(table)
