@@ -409,6 +409,9 @@ def generate_pdf_public(df):
     # Loop per bulan
     for periode, group in df_pdf.groupby("bulan"):
 
+        group = group.sort_values("checkin").reset_index(drop=True)
+        group.insert(0, "No", range(1, len(group) + 1))
+
         nama_bulan = periode.strftime("%B %Y").upper()
 
         elements.append(Paragraph(f"📅 {nama_bulan}", styles["Heading2"]))
