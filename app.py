@@ -236,43 +236,41 @@ def generate_pdf(df):
 
     df_pdf = df.copy()
 
-    df_pdf["checkin"] = pd.to_datetime(df_pdf["checkin"])
-    df_pdf["checkout"] = pd.to_datetime(df_pdf["checkout"])
-
-    # Pastikan checkin dalam format datetime
+    # 🔥 WAJIB: convert datetime dulu
     df_pdf["checkin"] = pd.to_datetime(df_pdf["checkin"], errors="coerce")
+    df_pdf["checkout"] = pd.to_datetime(df_pdf["checkout"], errors="coerce")
+
+    # Urutkan berdasarkan checkin
     df_pdf = df_pdf.sort_values("checkin")
 
-    df_pdf["checkin"] = pd.to_datetime(df_pdf["checkin"]).dt.strftime("%d-%m-%Y")
-    df_pdf["checkout"] = pd.to_datetime(df_pdf["checkout"]).dt.strftime("%d-%m-%Y")
-
-    # Tambah kolom bulan
+    # Buat kolom bulan SEBELUM format string
     df_pdf["bulan"] = df_pdf["checkin"].dt.to_period("M")
-
-    # Format kolom uang
-    for col in ["harga", "total", "dp", "sisa"]:
-        if col in df_pdf.columns:
-            df_pdf[col] = df_pdf[col].apply(rupiah)
 
     # Loop per bulan
     for periode, group in df_pdf.groupby("bulan"):
 
         nama_bulan = periode.strftime("%B %Y").upper()
-    
         elements.append(Paragraph(f"📅 {nama_bulan}", styles["Heading2"]))
         elements.append(Spacer(1, 10))
-    
-        # Urutkan dalam bulan berdasarkan tanggal checkin
-        group = group.sort_values("checkin")
-    
+
         # Reset nomor urut khusus bulan ini
-        group = group.reset_index(drop=True)
+        group = group.sort_values("checkin").reset_index(drop=True)
         group.index = group.index + 1
         group.index.name = "No"
         group = group.reset_index()
-    
+
+        # Format tanggal ke string SETELAH grouping
+        group["checkin"] = group["checkin"].dt.strftime("%d-%m-%Y")
+        group["checkout"] = group["checkout"].dt.strftime("%d-%m-%Y")
+
+        # Format rupiah
+        for col in ["harga", "total", "dp", "sisa"]:
+            if col in group.columns:
+                group[col] = group[col].apply(rupiah)
+
+        # Hapus kolom bulan
         group_export = group.drop(columns=["bulan"])
-    
+
         data = [group_export.columns.tolist()] + group_export.values.tolist()
 
         table = Table(data, repeatRows=1)
