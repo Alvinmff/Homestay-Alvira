@@ -581,82 +581,87 @@ df = load_data()
 
 if not df.empty:
 
-    # Pastikan datetime dulu
-    df["checkin"] = pd.to_datetime(df["checkin"])
-    
-    # Urutkan berdasarkan tanggal
-    df = df.sort_values("checkin")
+    # Pastikan datetime
+    df["checkin"] = pd.to_datetime(df["checkin"], errors="coerce")
+    df["checkout"] = pd.to_datetime(df["checkout"], errors="coerce")
+
+    # Urutkan berdasarkan checkin
+    df = df.sort_values("checkin").reset_index(drop=True)
 
     # ============================
-    # DATA TABLE
+    # DATA TABLE (UTAMA DI ATAS)
     # ============================
     st.subheader("📋 Data Booking (Tabel Utama)")
-    
-    # Copy dataframe supaya tidak mengubah data asli
+
     df_display = df.copy()
 
-    # Pastikan datetime
-    df_display["checkin"] = pd.to_datetime(df_display["checkin"])
-    df_display["checkout"] = pd.to_datetime(df_display["checkout"])
-    
-    # Hilangkan jam
+    # Format tanggal tanpa jam
     df_display["checkin"] = df_display["checkin"].dt.strftime("%d-%m-%Y")
     df_display["checkout"] = df_display["checkout"].dt.strftime("%d-%m-%Y")
 
-    # Reset index supaya mulai dari 0 lalu tambah 1
-    df_display = df.reset_index(drop=True)
-    df_display.index = df_display.index + 1
-    
-    # Tambahkan nama kolom index
-    df_display.index.name = "No"
-        
-    # Format kolom uang
+    # Tambahkan nomor urut mulai dari 1
+    df_display.insert(0, "No", range(1, len(df_display) + 1))
+
+    # Format rupiah
+    def format_rupiah(x):
+        try:
+            return f"Rp {int(x):,}".replace(",", ".")
+        except:
+            return x
+
     for col in ["harga", "total", "dp", "sisa"]:
         if col in df_display.columns:
             df_display[col] = df_display[col].apply(format_rupiah)
-    
+
     # Styling status
     def highlight_status(val):
         if val == "Check-in":
-            return "background-color: #b6f2b6; color: #0f5132; font-weight: bold;"
+            return "background-color: #b6f2b6; font-weight: bold;"
         elif val == "Booked":
-            return "background-color: #fff3b0; color: #664d03; font-weight: bold;"
+            return "background-color: #fff3b0; font-weight: bold;"
         elif val == "Check-out":
-            return "background-color: #a0e7ff; color: #055160; font-weight: bold;"
+            return "background-color: #a0e7ff; font-weight: bold;"
         elif val == "Selesai":
-            return "background-color: #d3d3d3; color: #41464b; font-weight: bold;"
+            return "background-color: #d3d3d3; font-weight: bold;"
         elif val == "Lunas":
-            return "background-color: #c8f7c5; color: #0a3622; font-weight: bold;"
+            return "background-color: #c8f7c5; font-weight: bold;"
         return ""
-    
+
     styled_df = df_display.style.applymap(highlight_status, subset=["status"])
-    
-    st.dataframe(styled_df, use_container_width=True)
-    
-    # Tambahkan kolom periode bulan
+
+    st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+    st.markdown("---")
+
+    # ============================
+    # TAMPIL PER BULAN
+    # ============================
+
     df["bulan"] = df["checkin"].dt.to_period("M")
-    
-    # Group berdasarkan bulan + tahun
+
     for periode, group in df.groupby("bulan"):
-    
+
         nama_bulan = periode.strftime("%B %Y").upper()
-    
         st.markdown(f"## 📅 {nama_bulan}")
         st.markdown("---")
-    
+
         group = group.sort_values("checkin").reset_index(drop=True)
-    
-        # Buat nomor urut mulai dari 1
+
+        # Nomor urut mulai 1
         group.insert(0, "No", range(1, len(group) + 1))
-    
-        # Hapus kolom bulan
+
+        # Format tanggal
+        group["checkin"] = group["checkin"].dt.strftime("%d-%m-%Y")
+        group["checkout"] = group["checkout"].dt.strftime("%d-%m-%Y")
+
         group_display = group.drop(columns=["bulan"])
-    
+
         st.dataframe(group_display, use_container_width=True, hide_index=True)
 
     # ============================
     # UPDATE STATUS OTOMATIS
     # ============================
+
     for index, row in df.iterrows():
         checkin_date = pd.to_datetime(row["checkin"]).date()
         checkout_date = pd.to_datetime(row["checkout"]).date()
@@ -668,6 +673,7 @@ if not df.empty:
             "UPDATE bookings SET status=? WHERE id=?",
             (new_status, row["id"])
         )
+
     conn.commit()
 
     df = load_data()
