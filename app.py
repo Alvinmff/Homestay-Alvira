@@ -98,10 +98,6 @@ try:
 except:
     pass
 
-df_display = df.reset_index(drop=True)
-df_display.index = df_display.index + 1
-st.dataframe(df_display)
-
 # ============================
 # FUNCTIONS
 # ============================
@@ -641,8 +637,9 @@ if not df.empty:
     df_display["checkout"] = df_display["checkout"].dt.strftime("%d-%m-%Y")
 
     # Reset index supaya mulai dari 0 lalu tambah 1
-    df_display = df_display.reset_index(drop=True)
+    df_display = df.reset_index(drop=True)
     df_display.index = df_display.index + 1
+    st.dataframe(df_display)
     
     # Tambahkan nama kolom index
     df_display.index.name = "No"
