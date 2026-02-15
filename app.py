@@ -165,7 +165,7 @@ def generate_invoice(selected_data):
     # HEADER
     # ============================
     title_style = styles["Heading1"]
-    elements.append(Paragraph("HOMESTAY MANAGEMENT PRO", title_style))
+    elements.append(Paragraph("Homestay Alvira", title_style))
     elements.append(Spacer(1, 10))
 
     elements.append(Paragraph(f"<b>Invoice:</b> {invoice_number}", styles["Normal"]))
