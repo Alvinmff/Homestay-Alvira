@@ -252,13 +252,23 @@ def generate_pdf(df):
     for periode, group in df_pdf.groupby("bulan"):
 
         nama_bulan = periode.strftime("%B %Y").upper()
-
+    
         elements.append(Paragraph(f"📅 {nama_bulan}", styles["Heading2"]))
         elements.append(Spacer(1, 10))
-
+    
+        # Urutkan dalam bulan berdasarkan tanggal checkin
+        group = group.sort_values("checkin")
+    
+        # Reset nomor urut khusus bulan ini
+        group = group.reset_index(drop=True)
+        group.index = group.index + 1
+        group.index.name = "No"
+        group = group.reset_index()
+    
         group_export = group.drop(columns=["bulan"])
-
+    
         data = [group_export.columns.tolist()] + group_export.values.tolist()
+
         table = Table(data, repeatRows=1)
 
         style = [
