@@ -1,3 +1,6 @@
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import Image
+
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
@@ -8,7 +11,6 @@ import io
 from datetime import datetime
 
 from io import BytesIO
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import pagesizes
@@ -146,47 +148,79 @@ def generate_pdf(df):
     return pdf
 
 def generate_invoice(selected_data):
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4)
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=pagesizes.A4)
     elements = []
 
-    # Gunakan font unicode (support Rp dll)
-    pdfmetrics.registerFont(UnicodeCIDFont('STSong-Light'))
+    styles = getSampleStyleSheet()
 
-    style = ParagraphStyle(
-        name='Normal',
-        fontName='STSong-Light',
-        fontSize=12
-    )
+    # ============================
+    # NOMOR INVOICE OTOMATIS
+    # ============================
+    tahun = datetime.now().year
+    invoice_number = f"INV-{tahun}-{int(selected_data['id']):04d}"
 
-    elements.append(Paragraph("INVOICE HOMESTAY ALVIRA", style))
-    elements.append(Spacer(1, 0.3 * inch))
+    # ============================
+    # HEADER
+    # ============================
+    title_style = styles["Heading1"]
+    elements.append(Paragraph("HOMESTAY MANAGEMENT PRO", title_style))
+    elements.append(Spacer(1, 10))
 
-    sisa = selected_data["sisa"] if "sisa" in selected_data else selected_data["total"] - selected_data["dp"]
+    elements.append(Paragraph(f"<b>Invoice:</b> {invoice_number}", styles["Normal"]))
+    elements.append(Paragraph(f"<b>Tanggal Cetak:</b> {datetime.now().strftime('%d-%m-%Y')}", styles["Normal"]))
+    elements.append(Spacer(1, 15))
 
+    # ============================
+    # FORMAT RUPIAH
+    # ============================
+    def rupiah(x):
+        return f"Rp {int(x):,}".replace(",", ".")
+
+    # ============================
+    # DATA TABEL
+    # ============================
     data = [
-        ["Nama Tamu", selected_data.get("nama", "-")],
-        ["No HP", selected_data.get("hp", "-")],
-        ["Kamar", selected_data.get("kamar", "-")],
-        ["Check-in", selected_data.get("checkin", "-")],
-        ["Check-out", selected_data.get("checkout", "-")],
-        ["Total", f"Rp {selected_data.get('total',0):,.0f}"],
-        ["DP", f"Rp {selected_data.get('dp',0):,.0f}"],
-        ["Sisa", f"Rp {selected_data.get('sisa',0):,.0f}"],
-        ["Status", selected_data.get("status","-")],
+        ["Nama Tamu", selected_data["nama"]],
+        ["No HP", selected_data["hp"]],
+        ["Kamar", selected_data["kamar"]],
+        ["Check-in", selected_data["checkin"]],
+        ["Check-out", selected_data["checkout"]],
+        ["Total", rupiah(selected_data["total"])],
+        ["DP", rupiah(selected_data["dp"])],
+        ["Sisa", rupiah(selected_data["sisa"])],
+        ["Status", selected_data["status"]],
     ]
 
-    table = Table(data, colWidths=[150, 300])
-    table.setStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.grey)
-    ])
+    table = Table(data, colWidths=[2.5*inch, 3.5*inch])
+
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
 
     elements.append(table)
-    doc.build(elements)
+    elements.append(Spacer(1, 30))
 
-    buffer.seek(0)
-    return buffer
+    # ============================
+    # WATERMARK LUNAS
+    # ============================
+    if selected_data["sisa"] <= 0:
+        lunas_style = ParagraphStyle(
+            'LunasStyle',
+            parent=styles['Heading1'],
+            textColor=colors.green
+        )
+        elements.append(Paragraph("✔ LUNAS", lunas_style))
+
+    doc.build(elements)
+    pdf = buffer.getvalue()
+    buffer.close()
+    return pdf
 
 # ============================
 # TAMBAH BOOKING
