@@ -20,6 +20,10 @@ import pandas as pd
 import sqlite3
 from datetime import datetime, date
 import matplotlib.pyplot as plt
+import streamlit as st
+
+if "keep_alive" not in st.session_state:
+    st.session_state.keep_alive = True
 
 st.set_page_config(page_title="Homestay Pro System", layout="wide")
 st.title("🏠 Homestay Management System Pro")
