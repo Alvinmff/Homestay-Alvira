@@ -576,7 +576,11 @@ if st.sidebar.button("Simpan Booking"):
 df = load_data()
 
 if not df.empty:
-    
+
+    df_display = df.reset_index(drop=True)
+    df_display.insert(0, "No", range(1, len(df_display) + 1))
+    st.dataframe(df_display, hide_index=True)
+
     # Pastikan datetime dulu
     df["checkin"] = pd.to_datetime(df["checkin"])
     
@@ -716,7 +720,6 @@ if not df.empty:
             file_name="jadwal_booking_public.pdf",
             mime="application/pdf"
         )
-
 
     # ============================
     # EDIT / DELETE
