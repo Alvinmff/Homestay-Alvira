@@ -135,26 +135,24 @@ def load_data():
     try:
         query = """
         SELECT 
-            bookings.id,
-            bookings.nama,
-            bookings.hp,
-            rooms.nama_kamar,
-            bookings.checkin,
-            bookings.checkout,
-            bookings.harga,
-            bookings.total,
-            bookings.dp,
-            bookings.sisa,
-            bookings.status
+            id,
+            nama,
+            hp,
+            kamar,
+            checkin,
+            checkout,
+            harga,
+            total,
+            dp,
+            sisa,
+            status
         FROM bookings
-        LEFT JOIN rooms ON bookings.room_id = rooms.id
         """
         df = pd.read_sql_query(query, conn)
         return df
     except Exception as e:
         st.error(f"Database error: {e}")
         return pd.DataFrame()
-
 
 # ============================
 # EXPORT FUNCTIONS
