@@ -426,9 +426,22 @@ jumlah_kamar = len(kamar)
 total_harga = sum(harga_kamar[k] for k in kamar)
 
 st.sidebar.markdown(f"🛏 Jumlah Kamar: **{jumlah_kamar}**")
-st.sidebar.markdown(f"💰 Total per Malam: **Rp {total_harga:,.0f}**".replace(",", "."))
+if kamar:
+    st.sidebar.markdown("### 💰 Rincian Harga")
 
-st.sidebar.markdown(f"💰 Harga: **Rp {harga:,.0f}**".replace(",", "."))
+    total_semua = 0
+    for k in kamar:
+        harga_k = harga_kamar[k]
+        total_semua += harga_k
+        st.sidebar.markdown(
+            f"{k} : Rp {harga_k:,.0f}".replace(",", ".")
+        )
+
+    st.sidebar.markdown("---")
+    st.sidebar.markdown(
+        f"💵 Total per Malam: **Rp {total_semua:,.0f}**".replace(",", ".")
+    )
+
 st.sidebar.markdown(f"💳 DP: **Rp {dp:,.0f}**".replace(",", "."))
 
 if st.sidebar.button("Simpan Booking"):
