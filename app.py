@@ -354,7 +354,7 @@ st.sidebar.header("➕ Tambah Booking")
 nama = st.sidebar.text_input("Nama Tamu")
 hp = st.sidebar.text_input("No HP")
 kamar_list = ["Alvira 1", "Alvira 2", "Alvira 3", "Alvira 4", "Alvira 5"]
-kamar = st.sidebar.selectbox("Kamar", kamar_list)
+kamar = st.sidebar.multiselect("Pilih Kamar", kamar_list)
 checkin = st.sidebar.date_input("Check-in")
 checkout = st.sidebar.date_input("Check-out")
 harga = st.sidebar.number_input(
@@ -371,32 +371,60 @@ dp = st.sidebar.number_input(
     format="%d"
 )
 
+jumlah_kamar = len(kamar)
+total_harga = harga * jumlah_kamar
+
+st.sidebar.markdown(f"🛏 Jumlah Kamar: **{jumlah_kamar}**")
+st.sidebar.markdown(f"💰 Total Harga: **Rp {total_harga:,.0f}**".replace(",", "."))
+
 st.sidebar.markdown(f"💰 Harga: **Rp {harga:,.0f}**".replace(",", "."))
 st.sidebar.markdown(f"💳 DP: **Rp {dp:,.0f}**".replace(",", "."))
 
 if st.sidebar.button("Simpan Booking"):
-    if checkout > checkin:
 
-        if is_double_booking(kamar, checkin, checkout):
-            st.sidebar.error("❌ Kamar sudah dibooking di tanggal tersebut!")
-        else:
-            malam = (checkout - checkin).days
-            total = malam * harga
-            sisa = total - dp
-            status = get_status(checkin, checkout, sisa)
+    if not kamar:
+        st.sidebar.error("Pilih minimal 1 kamar!")
+    
+    elif checkout <= checkin:
+        st.sidebar.error("Tanggal tidak valid")
+
+    else:
+        malam = (checkout - checkin).days
+        total = malam * harga
+        sisa = total - dp
+        status = get_status(checkin, checkout, sisa)
+
+        berhasil = True
+
+        for k in kamar:
+
+            # cek double booking per kamar
+            if is_double_booking(k, checkin, checkout):
+                st.sidebar.error(f"❌ {k} sudah dibooking di tanggal tersebut!")
+                berhasil = False
+                break
 
             cursor.execute("""
             INSERT INTO bookings 
             (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (nama, hp, kamar,
-                  str(checkin), str(checkout),
-                  harga, total, dp, sisa, status))
+            """, (
+                nama,
+                hp,
+                k,  # ✅ sekarang 1 kamar per row
+                str(checkin),
+                str(checkout),
+                harga,
+                total,
+                dp,
+                sisa,
+                status
+            ))
+
+        if berhasil:
             conn.commit()
-            st.sidebar.success("Booking berhasil!")
+            st.sidebar.success("Booking berhasil untuk semua kamar!")
             st.rerun()
-    else:
-        st.sidebar.error("Tanggal tidak valid")
 
 # ============================
 # LOAD DATA
