@@ -367,6 +367,17 @@ if not df.empty:
 
     col_dl1, col_dl2 = st.columns(2)
 
+    # Tambah nomor urut untuk export
+    df_export = df.copy()
+    df_export = df_export.reset_index(drop=True)
+    df_export.index = df_export.index + 1
+    df_export.index.name = "No"
+    df_export = df_export.reset_index()
+    
+    excel_file = generate_excel(df_export)
+    pdf_file = generate_pdf(df_export)
+    public_pdf = generate_pdf_public(df_export)
+
     excel_file = generate_excel(df)
     pdf_file = generate_pdf(df)
 
