@@ -577,10 +577,6 @@ df = load_data()
 
 if not df.empty:
 
-    df_display = df.reset_index(drop=True)
-    df_display.insert(0, "No", range(1, len(df_display) + 1))
-    st.dataframe(df_display, hide_index=True)
-
     # Pastikan datetime dulu
     df["checkin"] = pd.to_datetime(df["checkin"])
     
