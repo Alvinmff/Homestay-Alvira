@@ -375,26 +375,30 @@ if not df.empty:
     # DOWNLOAD LAPORAN
     # ============================
     st.subheader("📥 Download Laporan")
-
-    # ❌ HIDE KOLOM ID
+    
+    col_dl1, col_dl2, col_dl3 = st.columns(3)
+    
+    # ============================
+    # SIAPKAN DATA EXPORT
+    # ============================
+    
+    df_export = df.copy()
+    
+    # Hide kolom id
     if "id" in df_export.columns:
         df_export = df_export.drop(columns=["id"])
-
-    # Tambah nomor urut untuk export
-    df_export = df.copy()
+    
+    # Tambah nomor urut
     df_export = df_export.reset_index(drop=True)
-    df_export.index = df_export.index + 1
+    df_export.index += 1
     df_export.index.name = "No"
     df_export = df_export.reset_index()
     
+    # Generate file
     excel_file = generate_excel(df_export)
     pdf_file = generate_pdf(df_export)
     public_pdf = generate_pdf_public(df_export)
-
-    excel_file = generate_excel(df_export)
-    pdf_file = generate_pdf(df_export)
-    public_pdf = generate_pdf_public(df_export)
-
+    
     with col_dl1:
         st.download_button(
             label="⬇️ Download Excel",
@@ -402,7 +406,7 @@ if not df.empty:
             file_name="laporan_booking.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
+    
     with col_dl2:
         st.download_button(
             label="⬇️ Download PDF",
@@ -410,14 +414,15 @@ if not df.empty:
             file_name="laporan_booking.pdf",
             mime="application/pdf"
         )
-
+    
     with col_dl3:
         st.download_button(
             label="📅 Download Jadwal (Tanpa Harga)",
             data=public_pdf,
             file_name="jadwal_booking_public.pdf",
             mime="application/pdf"
-    )
+        )
+
 
     # ============================
     # EDIT / DELETE
