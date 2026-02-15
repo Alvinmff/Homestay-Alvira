@@ -513,23 +513,25 @@ df = load_data()
 
 if not df.empty:
     
-    df["checkin"] = pd.to_datetime(df["checkin"])
+    # Pastikan datetime dulu
+df["checkin"] = pd.to_datetime(df["checkin"])
+
+# Urutkan berdasarkan tanggal
 df = df.sort_values("checkin")
 
-df["bulan"] = df["checkin"].dt.month
-df["tahun"] = df["checkin"].dt.year
+# Tambahkan kolom periode bulan
+df["bulan"] = df["checkin"].dt.to_period("M")
 
-grouped = df.groupby(["tahun", "bulan"])
+# Group berdasarkan bulan + tahun
+for periode, group in df.groupby("bulan"):
 
-for (tahun, bulan), data_bulan in grouped:
+    nama_bulan = periode.strftime("%B %Y").upper()
 
-    nama_bulan = bulan_indonesia[bulan]
-
-    st.markdown("---")
-    st.markdown(f"## 📅 {nama_bulan} {tahun}")
+    st.markdown(f"## 📅 {nama_bulan}")
     st.markdown("---")
 
-    st.dataframe(data_bulan.drop(columns=["bulan", "tahun"]))
+    st.dataframe(group.drop(columns=["bulan"]), use_container_width=True)
+
 
     # ============================
     # UPDATE STATUS OTOMATIS
