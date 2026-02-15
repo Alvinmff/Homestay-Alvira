@@ -398,14 +398,14 @@ def generate_pdf_public(df):
 
     df_pdf = df.copy()
 
-    # 🔥 WAJIB: convert datetime dulu
+    # Convert ke datetime dulu
     df_pdf["checkin"] = pd.to_datetime(df_pdf["checkin"], errors="coerce")
     df_pdf["checkout"] = pd.to_datetime(df_pdf["checkout"], errors="coerce")
 
     # Urutkan berdasarkan checkin
     df_pdf = df_pdf.sort_values("checkin")
 
-    # Buat kolom bulan SEBELUM format string
+    # Buat kolom bulan
     df_pdf["bulan"] = df_pdf["checkin"].dt.to_period("M")
 
     # Loop per bulan
@@ -415,28 +415,28 @@ def generate_pdf_public(df):
         elements.append(Paragraph(f"📅 {nama_bulan}", styles["Heading2"]))
         elements.append(Spacer(1, 10))
 
-        # Reset nomor urut khusus bulan ini
         group = group.sort_values("checkin").reset_index(drop=True)
+
+        # Nomor urut per bulan
         group.index = group.index + 1
         group.index.name = "No"
         group = group.reset_index()
 
-        # Format tanggal ke string SETELAH grouping
+        # Format tanggal
         group["checkin"] = group["checkin"].dt.strftime("%d-%m-%Y")
         group["checkout"] = group["checkout"].dt.strftime("%d-%m-%Y")
 
-        # Format rupiah
-        for col in ["harga", "total", "dp", "sisa"]:
+        # ❌ HIDE KOLOM HARGA UNTUK PUBLIC
+        for col in ["harga", "total", "dp", "sisa", "id"]:
             if col in group.columns:
-                group[col] = group[col].apply(rupiah)
+                group = group.drop(columns=[col])
 
-        # Hapus kolom bulan
         group_export = group.drop(columns=["bulan"])
 
         data = [group_export.columns.tolist()] + group_export.values.tolist()
 
         table = Table(data, repeatRows=1)
-        
+
         style = [
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -444,7 +444,7 @@ def generate_pdf_public(df):
             ('FONTSIZE', (0, 0), (-1, -1), 8),
         ]
 
-        # Warna status
+        # 🎨 Warna Status
         if "status" in group_export.columns:
             status_index = group_export.columns.get_loc("status")
 
@@ -470,7 +470,6 @@ def generate_pdf_public(df):
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
-
 
 # ============================
 # MASTER HARGA KAMAR
