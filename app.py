@@ -365,7 +365,7 @@ if not df.empty:
     # ============================
     st.subheader("📥 Download Laporan")
 
-    col_dl1, col_dl2 = st.columns(2)
+    col_dl1, col_dl2, col_dl3 = st.columns(3)
 
     # Tambah nomor urut untuk export
     df_export = df.copy()
@@ -397,6 +397,14 @@ if not df.empty:
             file_name="laporan_booking.pdf",
             mime="application/pdf"
         )
+
+    with col_dl3:
+    st.download_button(
+        label="📅 Download Jadwal (Tanpa Harga)",
+        data=public_pdf,
+        file_name="jadwal_booking_public.pdf",
+        mime="application/pdf"
+    )
 
     # ============================
     # EDIT / DELETE
@@ -486,16 +494,6 @@ if not df.empty:
             file_name=f"invoice_{selected_data['nama']}.pdf",
             mime="application/pdf"
         )
-        
-    public_pdf = generate_pdf_public(df)
-    
-    st.download_button(
-        label="📅 Download Jadwal (Tanpa Harga)",
-        data=public_pdf,
-        file_name="jadwal_booking_public.pdf",
-        mime="application/pdf"
-    )
-
     
     # ============================
     # RESET DATABASE
