@@ -20,6 +20,9 @@ import pandas as pd
 import sqlite3
 from datetime import datetime, date
 import matplotlib.pyplot as plt
+import locale
+locale.setlocale(locale.LC_TIME, "id_ID")
+
 
 st.set_page_config(page_title="Homestay Pro System", layout="wide")
 st.title("🏠 Homestay Management System Pro")
@@ -496,6 +499,25 @@ if st.sidebar.button("Simpan Booking"):
 df = load_data()
 
 if not df.empty:
+    
+    # Ubah checkin jadi datetime
+    df["checkin"] = pd.to_datetime(df["checkin"])
+
+    # Tambah kolom bulan
+    df["bulan"] = df["checkin"].dt.to_period("M")
+
+    # Urutkan berdasarkan tanggal
+    df = df.sort_values("checkin")
+
+    # Group per bulan
+    grouped = df.groupby("bulan")
+
+    for bulan, data_bulan in grouped:
+
+        nama_bulan = bulan.strftime("%B %Y")
+
+        st.markdown(f"## 📅 {nama_bulan.upper()}")
+        st.dataframe(data_bulan.drop(columns=["bulan"]))
 
     # ============================
     # UPDATE STATUS OTOMATIS
