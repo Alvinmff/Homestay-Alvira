@@ -162,19 +162,18 @@ def generate_invoice(selected_data):
     elements.append(Paragraph("INVOICE HOMESTAY ALVIRA", style))
     elements.append(Spacer(1, 0.3 * inch))
 
-    sisa = selected_data["total"] - selected_data["dp"]
+    sisa = selected_data["sisa"] if "sisa" in selected_data else selected_data["total"] - selected_data["dp"]
 
     data = [
-        ["Nama Tamu", selected_data["nama"]],
-        ["No HP", selected_data["hp"]],
-        ["Kamar", selected_data["kamar"]],
-        ["Check-in", selected_data["checkin"]],
-        ["Check-out", selected_data["checkout"]],
-        ["Total", f"Rp {selected_data['total']:,.0f}"],
-        ["DP", f"Rp {selected_data['dp']:,.0f}"],
-        ["Sisa", f"Rp {sisa:,.0f}"],
-        ["Status", selected_data["status"]],
-        ["Tanggal Cetak", datetime.now().strftime("%d-%m-%Y %H:%M")]
+        ["Nama Tamu", selected_data.get("nama", "-")],
+        ["No HP", selected_data.get("hp", "-")],
+        ["Kamar", selected_data.get("kamar", "-")],
+        ["Check-in", selected_data.get("checkin", "-")],
+        ["Check-out", selected_data.get("checkout", "-")],
+        ["Total", f"Rp {selected_data.get('total',0):,.0f}"],
+        ["DP", f"Rp {selected_data.get('dp',0):,.0f}"],
+        ["Sisa", f"Rp {selected_data.get('sisa',0):,.0f}"],
+        ["Status", selected_data.get("status","-")],
     ]
 
     table = Table(data, colWidths=[150, 300])
