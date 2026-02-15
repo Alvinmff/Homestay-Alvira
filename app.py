@@ -301,44 +301,41 @@ def generate_pdf_public(df):
     elements.append(Paragraph("Jadwal Booking Homestay", styles["Title"]))
     elements.append(Spacer(1, 12))
 
-    # 🔒 HANYA KOLOM PUBLIK (TANPA HARGA)
-    df_public = df[[
-        "nama",
-        "kamar",
-        "checkin",
-        "checkout",
-        "status"
-    ]].copy()
+    # Copy dataframe supaya aman
+    df_pdf = df.copy()
 
-    # Tambah nomor urut
-    df_public = df_public.reset_index(drop=True)
-    df_public.index += 1
-    df_public.index.name = "No"
-    df_public = df_public.reset_index()
+    # HAPUS KOLOM HARGA UNTUK PUBLIC
+    for col in ["harga", "total", "dp", "sisa"]:
+        if col in df_pdf.columns:
+            df_pdf = df_pdf.drop(columns=[col])
 
-    data = [df_public.columns.tolist()] + df_public.values.tolist()
+    # Siapkan data table
+    data = [df_pdf.columns.tolist()] + df_pdf.values.tolist()
 
-    table = Table(data, repeatRows=1)
-    table.setStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+    table = Table(data)
+
+    style = [
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER')
-    ])
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+    ]
 
-    status_index = df_pdf.columns.get_loc("status")
+    # Cari kolom status
+    if "status" in df_pdf.columns:
+        status_index = df_pdf.columns.get_loc("status")
 
-    for i, status in enumerate(df_pdf["status"], start=1):
-        if status == "Booked":
-            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#FFF3B0")))
-        elif status == "Check-in":
-            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#B6F2B6")))
-        elif status == "Check-out":
-            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#A0E7FF")))
-        elif status == "Selesai":
-            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#D3D3D3")))
-        elif status == "Lunas":
-            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#C8F7C5")))
+        for i, status in enumerate(df_pdf["status"], start=1):
+            if status == "Booked":
+                style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#FFF3B0")))
+            elif status == "Check-in":
+                style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#B6F2B6")))
+            elif status == "Check-out":
+                style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#A0E7FF")))
+            elif status == "Selesai":
+                style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#D3D3D3")))
+            elif status == "Lunas":
+                style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#C8F7C5")))
 
     table.setStyle(style)
 
@@ -348,7 +345,6 @@ def generate_pdf_public(df):
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
-
 
 # ============================
 # TAMBAH BOOKING
