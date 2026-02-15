@@ -298,7 +298,7 @@ def generate_pdf_public(df):
     elements = []
 
     styles = getSampleStyleSheet()
-    elements.append(Paragraph("Jadwal Booking Homestay", styles["Title"]))
+    elements.append(Paragraph("List Homestay Alvira 2026", styles["Title"]))
     elements.append(Spacer(1, 12))
 
     # Copy dataframe supaya aman
