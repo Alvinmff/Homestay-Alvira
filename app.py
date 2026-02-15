@@ -222,6 +222,37 @@ def generate_invoice(selected_data):
     buffer.close()
     return pdf
 
+def generate_pdf_public(df):
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=pagesizes.A4)
+    elements = []
+
+    styles = getSampleStyleSheet()
+    elements.append(Paragraph("Daftar Booking Homestay", styles["Title"]))
+    elements.append(Spacer(1, 12))
+
+    # HANYA KOLOM PUBLIK
+    df_public = df[["nama", "kamar", "checkin", "checkout", "status"]]
+
+    data = [df_public.columns.tolist()] + df_public.values.tolist()
+    table = Table(data)
+
+    table.setStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+    ])
+
+    elements.append(table)
+    doc.build(elements)
+
+    pdf = buffer.getvalue()
+    buffer.close()
+    return pdf
+
+
 # ============================
 # TAMBAH BOOKING
 # ============================
@@ -436,6 +467,15 @@ if not df.empty:
             file_name=f"invoice_{selected_data['nama']}.pdf",
             mime="application/pdf"
         )
+        
+    public_pdf = generate_pdf_public(df)
+    
+    st.download_button(
+        label="📅 Download Jadwal (Tanpa Harga)",
+        data=public_pdf,
+        file_name="jadwal_booking_public.pdf",
+        mime="application/pdf"
+    )
 
     
     # ============================
