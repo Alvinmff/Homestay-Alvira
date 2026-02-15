@@ -574,6 +574,52 @@ if st.sidebar.button("Simpan Booking"):
         st.sidebar.success("Booking berhasil!")
         st.rerun()
 
+    # ============================
+    # DATA TABLE
+    # ============================
+    st.subheader("📋 Data Booking (Tabel Utama)")
+    
+    # Copy dataframe supaya tidak mengubah data asli
+    df_display = df.copy()
+
+    # Pastikan datetime
+    df_display["checkin"] = pd.to_datetime(df_display["checkin"])
+    df_display["checkout"] = pd.to_datetime(df_display["checkout"])
+    
+    # Hilangkan jam
+    df_display["checkin"] = df_display["checkin"].dt.strftime("%d-%m-%Y")
+    df_display["checkout"] = df_display["checkout"].dt.strftime("%d-%m-%Y")
+
+    # Reset index supaya mulai dari 0 lalu tambah 1
+    df_display = df.reset_index(drop=True)
+    df_display.index = df_display.index + 1
+    
+    # Tambahkan nama kolom index
+    df_display.index.name = "No"
+        
+    # Format kolom uang
+    for col in ["harga", "total", "dp", "sisa"]:
+        if col in df_display.columns:
+            df_display[col] = df_display[col].apply(format_rupiah)
+    
+    # Styling status
+    def highlight_status(val):
+        if val == "Check-in":
+            return "background-color: #b6f2b6; color: #0f5132; font-weight: bold;"
+        elif val == "Booked":
+            return "background-color: #fff3b0; color: #664d03; font-weight: bold;"
+        elif val == "Check-out":
+            return "background-color: #a0e7ff; color: #055160; font-weight: bold;"
+        elif val == "Selesai":
+            return "background-color: #d3d3d3; color: #41464b; font-weight: bold;"
+        elif val == "Lunas":
+            return "background-color: #c8f7c5; color: #0a3622; font-weight: bold;"
+        return ""
+    
+    styled_df = df_display.style.applymap(highlight_status, subset=["status"])
+    
+    st.dataframe(styled_df, use_container_width=True)
+
 # ============================
 # LOAD DATA
 # ============================
@@ -631,52 +677,6 @@ if not df.empty:
             return f"Rp {int(x):,}".replace(",", ".")
         except:
             return x
-
-    # ============================
-    # DATA TABLE
-    # ============================
-    st.subheader("📋 Data Booking (Tabel Utama)")
-    
-    # Copy dataframe supaya tidak mengubah data asli
-    df_display = df.copy()
-
-    # Pastikan datetime
-    df_display["checkin"] = pd.to_datetime(df_display["checkin"])
-    df_display["checkout"] = pd.to_datetime(df_display["checkout"])
-    
-    # Hilangkan jam
-    df_display["checkin"] = df_display["checkin"].dt.strftime("%d-%m-%Y")
-    df_display["checkout"] = df_display["checkout"].dt.strftime("%d-%m-%Y")
-
-    # Reset index supaya mulai dari 0 lalu tambah 1
-    df_display = df.reset_index(drop=True)
-    df_display.index = df_display.index + 1
-    
-    # Tambahkan nama kolom index
-    df_display.index.name = "No"
-        
-    # Format kolom uang
-    for col in ["harga", "total", "dp", "sisa"]:
-        if col in df_display.columns:
-            df_display[col] = df_display[col].apply(format_rupiah)
-    
-    # Styling status
-    def highlight_status(val):
-        if val == "Check-in":
-            return "background-color: #b6f2b6; color: #0f5132; font-weight: bold;"
-        elif val == "Booked":
-            return "background-color: #fff3b0; color: #664d03; font-weight: bold;"
-        elif val == "Check-out":
-            return "background-color: #a0e7ff; color: #055160; font-weight: bold;"
-        elif val == "Selesai":
-            return "background-color: #d3d3d3; color: #41464b; font-weight: bold;"
-        elif val == "Lunas":
-            return "background-color: #c8f7c5; color: #0a3622; font-weight: bold;"
-        return ""
-    
-    styled_df = df_display.style.applymap(highlight_status, subset=["status"])
-    
-    st.dataframe(styled_df, use_container_width=True)
     
     # ============================
     # DOWNLOAD LAPORAN
