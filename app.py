@@ -226,7 +226,7 @@ def generate_pdf(df):
 
     styles = getSampleStyleSheet()
     elements.append(Paragraph("Laporan Booking Homestay", styles["Title"]))
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 20))
 
     def rupiah(x):
         try:
@@ -236,38 +236,59 @@ def generate_pdf(df):
 
     df_pdf = df.copy()
 
+    # Pastikan checkin dalam format datetime
+    df_pdf["checkin"] = pd.to_datetime(df_pdf["checkin"], errors="coerce")
+    df_pdf = df_pdf.sort_values("checkin")
+
+    # Tambah kolom bulan
+    df_pdf["bulan"] = df_pdf["checkin"].dt.to_period("M")
+
+    # Format kolom uang
     for col in ["harga", "total", "dp", "sisa"]:
         if col in df_pdf.columns:
             df_pdf[col] = df_pdf[col].apply(rupiah)
 
-    data = [df_pdf.columns.tolist()] + df_pdf.values.tolist()
+    # Loop per bulan
+    for periode, group in df_pdf.groupby("bulan"):
 
-    table = Table(data)
+        nama_bulan = periode.strftime("%B %Y").upper()
 
-    style = [
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('FONTSIZE', (0, 0), (-1, -1), 8),
-    ]
+        elements.append(Paragraph(f"📅 {nama_bulan}", styles["Heading2"]))
+        elements.append(Spacer(1, 10))
 
-    status_index = df_pdf.columns.get_loc("status")
+        group_export = group.drop(columns=["bulan"])
 
-    for i, status in enumerate(df_pdf["status"], start=1):
-        if status == "Booked":
-            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#FFF3B0")))
-        elif status == "Check-in":
-            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#B6F2B6")))
-        elif status == "Check-out":
-            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#A0E7FF")))
-        elif status == "Selesai":
-            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#D3D3D3")))
-        elif status == "Lunas":
-            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#C8F7C5")))
+        data = [group_export.columns.tolist()] + group_export.values.tolist()
+        table = Table(data, repeatRows=1)
 
-    table.setStyle(style)
+        style = [
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ]
 
-    elements.append(table)
+        # Warna status
+        if "status" in group_export.columns:
+            status_index = group_export.columns.get_loc("status")
+
+            for i, status in enumerate(group_export["status"], start=1):
+                if status == "Booked":
+                    style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#FFF3B0")))
+                elif status == "Check-in":
+                    style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#B6F2B6")))
+                elif status == "Check-out":
+                    style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#A0E7FF")))
+                elif status == "Selesai":
+                    style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#D3D3D3")))
+                elif status == "Lunas":
+                    style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#C8F7C5")))
+
+        table.setStyle(style)
+
+        elements.append(table)
+        elements.append(Spacer(1, 20))
+
     doc.build(elements)
 
     pdf = buffer.getvalue()
@@ -359,52 +380,70 @@ def generate_pdf_public(df):
 
     styles = getSampleStyleSheet()
     elements.append(Paragraph("List Homestay Alvira 2026", styles["Title"]))
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 20))
 
-    # Copy dataframe supaya aman
     df_pdf = df.copy()
 
-    # HAPUS KOLOM HARGA UNTUK PUBLIC
+    # Pastikan checkin datetime
+    df_pdf["checkin"] = pd.to_datetime(df_pdf["checkin"], errors="coerce")
+    df_pdf = df_pdf.sort_values("checkin")
+
+    # Tambah kolom bulan
+    df_pdf["bulan"] = df_pdf["checkin"].dt.to_period("M")
+
+    # Hapus kolom harga untuk public
     for col in ["harga", "total", "dp", "sisa"]:
         if col in df_pdf.columns:
             df_pdf = df_pdf.drop(columns=[col])
 
-    # Siapkan data table
-    data = [df_pdf.columns.tolist()] + df_pdf.values.tolist()
+    # Loop per bulan
+    for periode, group in df_pdf.groupby("bulan"):
 
-    table = Table(data)
+        nama_bulan = periode.strftime("%B %Y").upper()
 
-    style = [
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('FONTSIZE', (0, 0), (-1, -1), 8),
-    ]
+        elements.append(Paragraph(f"📅 {nama_bulan}", styles["Heading2"]))
+        elements.append(Spacer(1, 10))
 
-    # Cari kolom status
-    if "status" in df_pdf.columns:
-        status_index = df_pdf.columns.get_loc("status")
+        group_export = group.drop(columns=["bulan"])
 
-        for i, status in enumerate(df_pdf["status"], start=1):
-            if status == "Booked":
-                style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#FFF3B0")))
-            elif status == "Check-in":
-                style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#B6F2B6")))
-            elif status == "Check-out":
-                style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#A0E7FF")))
-            elif status == "Selesai":
-                style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#D3D3D3")))
-            elif status == "Lunas":
-                style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#C8F7C5")))
+        data = [group_export.columns.tolist()] + group_export.values.tolist()
 
-    table.setStyle(style)
+        table = Table(data, repeatRows=1)
 
-    elements.append(table)
+        style = [
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ]
+
+        # Warna status
+        if "status" in group_export.columns:
+            status_index = group_export.columns.get_loc("status")
+
+            for i, status in enumerate(group_export["status"], start=1):
+                if status == "Booked":
+                    style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#FFF3B0")))
+                elif status == "Check-in":
+                    style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#B6F2B6")))
+                elif status == "Check-out":
+                    style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#A0E7FF")))
+                elif status == "Selesai":
+                    style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#D3D3D3")))
+                elif status == "Lunas":
+                    style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#C8F7C5")))
+
+        table.setStyle(style)
+
+        elements.append(table)
+        elements.append(Spacer(1, 20))
+
     doc.build(elements)
 
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
+
 
 # ============================
 # MASTER HARGA KAMAR
