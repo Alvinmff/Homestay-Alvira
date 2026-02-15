@@ -454,24 +454,24 @@ if st.sidebar.button("Simpan Booking"):
 
     else:
         malam = (checkout - checkin).days
-        total = malam * harga
-        sisa = total - dp
-        status = get_status(checkin, checkout, sisa)
 
-        berhasil = True
+        total_semua = 0
 
         for k in kamar:
 
             if is_double_booking(k, checkin, checkout):
                 st.sidebar.error(f"❌ {k} sudah dibooking di tanggal tersebut!")
                 st.stop()
-        
-            harga = harga_kamar[k]
-            malam = (checkout - checkin).days
-            total = malam * harga
-            sisa = total - dp
-            status = get_status(checkin, checkout, sisa)
-        
+
+            harga_k = harga_kamar[k]
+            total_semua += harga_k * malam
+
+        sisa = total_semua - dp
+        status = get_status(checkin, checkout, sisa)
+
+        for k in kamar:
+            harga_k = harga_kamar[k]
+
             cursor.execute("""
                 INSERT INTO bookings
                 (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
@@ -479,10 +479,13 @@ if st.sidebar.button("Simpan Booking"):
             """, (
                 nama, hp, k,
                 str(checkin), str(checkout),
-                harga, total,
-                dp, sisa, status
+                harga_k,
+                harga_k * malam,
+                dp,  # kalau mau DP dibagi rata nanti kita atur
+                sisa,
+                status
             ))
-        
+
         conn.commit()
         st.sidebar.success("Booking berhasil!")
         st.rerun()
