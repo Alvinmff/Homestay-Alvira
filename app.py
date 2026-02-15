@@ -376,8 +376,6 @@ if not df.empty:
     # ============================
     st.subheader("📥 Download Laporan")
 
-    col_dl1, col_dl2, col_dl3 = st.columns(3)
-
     # ❌ HIDE KOLOM ID
     if "id" in df_export.columns:
         df_export = df_export.drop(columns=["id"])
