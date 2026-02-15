@@ -399,11 +399,11 @@ if not df.empty:
         )
 
     with col_dl3:
-    st.download_button(
-        label="📅 Download Jadwal (Tanpa Harga)",
-        data=public_pdf,
-        file_name="jadwal_booking_public.pdf",
-        mime="application/pdf"
+        st.download_button(
+            label="📅 Download Jadwal (Tanpa Harga)",
+            data=public_pdf,
+            file_name="jadwal_booking_public.pdf",
+            mime="application/pdf"
     )
 
     # ============================
