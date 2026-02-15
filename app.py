@@ -85,30 +85,26 @@ def get_status(checkin, checkout, sisa):
     return "Booked"
 
 def is_double_booking(kamar, checkin, checkout, booking_id=None):
+
     query = """
     SELECT * FROM bookings
     WHERE kamar = ?
     AND (? IS NULL OR id != ?)
     AND (
-        (date(checkin) <= date(?) AND date(checkout) >= date(?))
-        OR
-        (date(checkin) <= date(?) AND date(checkout) >= date(?))
-        OR
-        (date(?) <= date(checkin) AND date(?) >= date(checkout))
+        date(checkin) < date(?)
+        AND
+        date(checkout) > date(?)
     )
     """
+
     result = cursor.execute(query, (
         kamar,
         booking_id, booking_id,
-        checkin, checkin,
-        checkout, checkout,
-        checkin, checkout
+        checkout,   # untuk date(checkin) < date(checkout_baru)
+        checkin     # untuk date(checkout) > date(checkin_baru)
     )).fetchall()
-    return len(result) > 0
 
-def load_data():
-    df = pd.read_sql_query("SELECT * FROM bookings", conn)
-    return df
+    return len(result) > 0
 
 # ============================
 # EXPORT FUNCTIONS
@@ -398,33 +394,30 @@ if st.sidebar.button("Simpan Booking"):
 
         for k in kamar:
 
-            # cek double booking per kamar
             if is_double_booking(k, checkin, checkout):
                 st.sidebar.error(f"❌ {k} sudah dibooking di tanggal tersebut!")
-                berhasil = False
-                break
-
+                st.stop()
+        
+            harga = harga_kamar[k]
+            malam = (checkout - checkin).days
+            total = malam * harga
+            sisa = total - dp
+            status = get_status(checkin, checkout, sisa)
+        
             cursor.execute("""
-            INSERT INTO bookings 
-            (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO bookings
+                (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                nama,
-                hp,
-                k,  # ✅ sekarang 1 kamar per row
-                str(checkin),
-                str(checkout),
-                harga,
-                total,
-                dp,
-                sisa,
-                status
+                nama, hp, k,
+                str(checkin), str(checkout),
+                harga, total,
+                dp, sisa, status
             ))
-
-        if berhasil:
-            conn.commit()
-            st.sidebar.success("Booking berhasil untuk semua kamar!")
-            st.rerun()
+        
+        conn.commit()
+        st.sidebar.success("Booking berhasil!")
+        st.rerun()
 
 # ============================
 # LOAD DATA
