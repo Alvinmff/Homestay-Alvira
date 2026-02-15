@@ -574,6 +574,19 @@ if st.sidebar.button("Simpan Booking"):
         st.sidebar.success("Booking berhasil!")
         st.rerun()
 
+# ============================
+# LOAD DATA
+# ============================
+df = load_data()
+
+if not df.empty:
+
+    # Pastikan datetime dulu
+    df["checkin"] = pd.to_datetime(df["checkin"])
+    
+    # Urutkan berdasarkan tanggal
+    df = df.sort_values("checkin")
+
     # ============================
     # DATA TABLE
     # ============================
@@ -619,19 +632,6 @@ if st.sidebar.button("Simpan Booking"):
     styled_df = df_display.style.applymap(highlight_status, subset=["status"])
     
     st.dataframe(styled_df, use_container_width=True)
-
-# ============================
-# LOAD DATA
-# ============================
-df = load_data()
-
-if not df.empty:
-
-    # Pastikan datetime dulu
-    df["checkin"] = pd.to_datetime(df["checkin"])
-    
-    # Urutkan berdasarkan tanggal
-    df = df.sort_values("checkin")
     
     # Tambahkan kolom periode bulan
     df["bulan"] = df["checkin"].dt.to_period("M")
