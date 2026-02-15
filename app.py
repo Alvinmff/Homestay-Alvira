@@ -118,6 +118,16 @@ def generate_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False, sheet_name='Laporan Booking')
+
+        workbook = writer.book
+        worksheet = writer.sheets['Laporan Booking']
+
+        rupiah_format = workbook.add_format({'num_format': '"Rp" #,##0'})
+
+        for col_num, column in enumerate(df.columns):
+            if column in ["harga", "total", "dp", "sisa"]:
+                worksheet.set_column(col_num, col_num, 18, rupiah_format)
+
     return output.getvalue()
 
 
@@ -176,7 +186,10 @@ def generate_invoice(selected_data):
     # FORMAT RUPIAH
     # ============================
     def rupiah(x):
-        return f"Rp {int(x):,}".replace(",", ".")
+        try:
+            return f"Rp {int(x):,}".replace(",", ".")
+        except:
+            return x
 
     # ============================
     # DATA TABEL
@@ -275,8 +288,22 @@ kamar_list = ["Alvira 1", "Alvira 2", "Alvira 3", "Alvira 4", "Alvira 5"]
 kamar = st.sidebar.selectbox("Kamar", kamar_list)
 checkin = st.sidebar.date_input("Check-in")
 checkout = st.sidebar.date_input("Check-out")
-harga = st.sidebar.number_input("Harga per Malam", min_value=0)
-dp = st.sidebar.number_input("DP (Uang Muka)", min_value=0)
+harga = st.sidebar.number_input(
+    "Harga per Malam",
+    min_value=0,
+    step=50000,
+    format="%d"
+)
+
+dp = st.sidebar.number_input(
+    "DP (Uang Muka)",
+    min_value=0,
+    step=50000,
+    format="%d"
+)
+
+st.sidebar.markdown(f"💰 Harga: **Rp {harga:,.0f}**".replace(",", "."))
+st.sidebar.markdown(f"💳 DP: **Rp {dp:,.0f}**".replace(",", "."))
 
 if st.sidebar.button("Simpan Booking"):
     if checkout > checkin:
@@ -352,6 +379,8 @@ if not df.empty:
     for col in ["harga", "total", "dp", "sisa"]:
         if col in df_display.columns:
             df_display[col] = df_display[col].apply(format_rupiah)
+
+    data = [df_pdf.columns.tolist()] + df_pdf.values.tolist()
     
     # Styling status
     def highlight_status(val):
