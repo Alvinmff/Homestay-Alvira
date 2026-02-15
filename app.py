@@ -391,6 +391,18 @@ def generate_pdf_public(df):
     return pdf
 
 # ============================
+# MASTER HARGA KAMAR
+# ============================
+harga_kamar = {
+    "Alvira 1": 0,
+    "Alvira 2": 0,
+    "Alvira 3": 0,
+    "Alvira 4": 0,
+    "Alvira 5": 0,
+}
+
+
+# ============================
 # TAMBAH BOOKING
 # ============================
 st.sidebar.header("➕ Tambah Booking")
@@ -401,12 +413,6 @@ kamar_list = ["Alvira 1", "Alvira 2", "Alvira 3", "Alvira 4", "Alvira 5"]
 kamar = st.sidebar.multiselect("Pilih Kamar", kamar_list)
 checkin = st.sidebar.date_input("Check-in")
 checkout = st.sidebar.date_input("Check-out")
-harga = st.sidebar.number_input(
-    "Harga per Malam",
-    min_value=0,
-    step=50000,
-    format="%d"
-)
 
 dp = st.sidebar.number_input(
     "DP (Uang Muka)",
@@ -416,10 +422,11 @@ dp = st.sidebar.number_input(
 )
 
 jumlah_kamar = len(kamar)
-total_harga = harga * jumlah_kamar
+
+total_harga = sum(harga_kamar[k] for k in kamar)
 
 st.sidebar.markdown(f"🛏 Jumlah Kamar: **{jumlah_kamar}**")
-st.sidebar.markdown(f"💰 Total Harga: **Rp {total_harga:,.0f}**".replace(",", "."))
+st.sidebar.markdown(f"💰 Total per Malam: **Rp {total_harga:,.0f}**".replace(",", "."))
 
 st.sidebar.markdown(f"💰 Harga: **Rp {harga:,.0f}**".replace(",", "."))
 st.sidebar.markdown(f"💳 DP: **Rp {dp:,.0f}**".replace(",", "."))
