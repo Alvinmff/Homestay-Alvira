@@ -27,6 +27,26 @@ st.title("🏠 Homestay Management System Pro")
 # ============================
 # DATABASE
 # ============================
+
+conn = sqlite3.connect("homestay.db", check_same_thread=False)
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS bookings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nama TEXT,
+    hp TEXT,
+    kamar TEXT,
+    checkin TEXT,
+    checkout TEXT,
+    harga INTEGER,
+    total INTEGER,
+    dp INTEGER DEFAULT 0,
+    sisa INTEGER DEFAULT 0,
+    status TEXT
+)
+""")
+
 # ============================
 # FIX DATABASE STRUCTURE
 # ============================
@@ -45,27 +65,6 @@ CREATE TABLE IF NOT EXISTS rooms (
     nama_kamar TEXT UNIQUE,
     harga INTEGER,
     aktif INTEGER DEFAULT 1
-)
-""")
-conn.commit()
-
-
-conn = sqlite3.connect("homestay.db", check_same_thread=False)
-cursor = conn.cursor()
-
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS bookings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nama TEXT,
-    hp TEXT,
-    kamar TEXT,
-    checkin TEXT,
-    checkout TEXT,
-    harga INTEGER,
-    total INTEGER,
-    dp INTEGER DEFAULT 0,
-    sisa INTEGER DEFAULT 0,
-    status TEXT
 )
 """)
 conn.commit()
