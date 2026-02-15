@@ -98,6 +98,9 @@ try:
 except:
     pass
 
+df_display = df.reset_index(drop=True)
+df_display.index = df_display.index + 1
+st.dataframe(df_display)
 
 # ============================
 # FUNCTIONS
