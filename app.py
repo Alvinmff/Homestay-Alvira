@@ -236,6 +236,9 @@ def generate_pdf(df):
 
     df_pdf = df.copy()
 
+    df_pdf["checkin"] = pd.to_datetime(df_pdf["checkin"])
+    df_pdf["checkout"] = pd.to_datetime(df_pdf["checkout"])
+
     # Pastikan checkin dalam format datetime
     df_pdf["checkin"] = pd.to_datetime(df_pdf["checkin"], errors="coerce")
     df_pdf = df_pdf.sort_values("checkin")
