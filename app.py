@@ -130,7 +130,6 @@ def generate_excel(df):
 
     return output.getvalue()
 
-
 def generate_pdf(df):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=pagesizes.A4)
@@ -140,7 +139,24 @@ def generate_pdf(df):
     elements.append(Paragraph("Laporan Booking Homestay", styles["Title"]))
     elements.append(Spacer(1, 12))
 
-    data = [df.columns.tolist()] + df.values.tolist()
+    # ============================
+    # FORMAT RUPIAH DI PDF
+    # ============================
+
+    def rupiah(x):
+        try:
+            return f"Rp {int(x):,}".replace(",", ".")
+        except:
+            return x
+
+    df_pdf = df.copy()
+
+    for col in ["harga", "total", "dp", "sisa"]:
+        if col in df_pdf.columns:
+            df_pdf[col] = df_pdf[col].apply(rupiah)
+
+    data = [df_pdf.columns.tolist()] + df_pdf.values.tolist()
+
     table = Table(data)
 
     table.setStyle([
@@ -379,8 +395,6 @@ if not df.empty:
     for col in ["harga", "total", "dp", "sisa"]:
         if col in df_display.columns:
             df_display[col] = df_display[col].apply(format_rupiah)
-
-    data = [df_pdf.columns.tolist()] + df_pdf.values.tolist()
     
     # Styling status
     def highlight_status(val):
