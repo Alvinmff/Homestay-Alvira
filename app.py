@@ -116,17 +116,46 @@ def load_data():
 
 def generate_excel(df):
     output = BytesIO()
+
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='Laporan Booking')
+        df_excel = df.copy()
+
+        # Format rupiah
+        def rupiah(x):
+            try:
+                return f"Rp {int(x):,}".replace(",", ".")
+            except:
+                return x
+
+        for col in ["harga", "total", "dp", "sisa"]:
+            if col in df_excel.columns:
+                df_excel[col] = df_excel[col].apply(rupiah)
+
+        df_excel.to_excel(writer, index=False, sheet_name='Laporan Booking')
 
         workbook = writer.book
         worksheet = writer.sheets['Laporan Booking']
 
-        rupiah_format = workbook.add_format({'num_format': '"Rp" #,##0'})
+        # Format warna status
+        format_booked = workbook.add_format({'bg_color': '#FFF3B0'})
+        format_checkin = workbook.add_format({'bg_color': '#B6F2B6'})
+        format_checkout = workbook.add_format({'bg_color': '#A0E7FF'})
+        format_selesai = workbook.add_format({'bg_color': '#D3D3D3'})
+        format_lunas = workbook.add_format({'bg_color': '#C8F7C5'})
 
-        for col_num, column in enumerate(df.columns):
-            if column in ["harga", "total", "dp", "sisa"]:
-                worksheet.set_column(col_num, col_num, 18, rupiah_format)
+        status_col = df_excel.columns.get_loc("status")
+
+        for row_num, value in enumerate(df_excel["status"], start=1):
+            if value == "Booked":
+                worksheet.write(row_num, status_col, value, format_booked)
+            elif value == "Check-in":
+                worksheet.write(row_num, status_col, value, format_checkin)
+            elif value == "Check-out":
+                worksheet.write(row_num, status_col, value, format_checkout)
+            elif value == "Selesai":
+                worksheet.write(row_num, status_col, value, format_selesai)
+            elif value == "Lunas":
+                worksheet.write(row_num, status_col, value, format_lunas)
 
     return output.getvalue()
 
@@ -138,10 +167,6 @@ def generate_pdf(df):
     styles = getSampleStyleSheet()
     elements.append(Paragraph("Laporan Booking Homestay", styles["Title"]))
     elements.append(Spacer(1, 12))
-
-    # ============================
-    # FORMAT RUPIAH DI PDF
-    # ============================
 
     def rupiah(x):
         try:
@@ -159,12 +184,28 @@ def generate_pdf(df):
 
     table = Table(data)
 
-    table.setStyle([
+    style = [
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('FONTSIZE', (0, 0), (-1, -1), 8),
-    ])
+    ]
+
+    status_index = df_pdf.columns.get_loc("status")
+
+    for i, status in enumerate(df_pdf["status"], start=1):
+        if status == "Booked":
+            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#FFF3B0")))
+        elif status == "Check-in":
+            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#B6F2B6")))
+        elif status == "Check-out":
+            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#A0E7FF")))
+        elif status == "Selesai":
+            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#D3D3D3")))
+        elif status == "Lunas":
+            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#C8F7C5")))
+
+    table.setStyle(style)
 
     elements.append(table)
     doc.build(elements)
@@ -284,6 +325,22 @@ def generate_pdf_public(df):
         ('FONTSIZE', (0, 0), (-1, -1), 9),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER')
     ])
+
+    status_index = df_pdf.columns.get_loc("status")
+
+    for i, status in enumerate(df_pdf["status"], start=1):
+        if status == "Booked":
+            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#FFF3B0")))
+        elif status == "Check-in":
+            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#B6F2B6")))
+        elif status == "Check-out":
+            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#A0E7FF")))
+        elif status == "Selesai":
+            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#D3D3D3")))
+        elif status == "Lunas":
+            style.append(('BACKGROUND', (status_index, i), (status_index, i), colors.HexColor("#C8F7C5")))
+
+    table.setStyle(style)
 
     elements.append(table)
     doc.build(elements)
