@@ -27,6 +27,29 @@ st.title("🏠 Homestay Management System Pro")
 # ============================
 # DATABASE
 # ============================
+# ============================
+# FIX DATABASE STRUCTURE
+# ============================
+
+# Pastikan kolom room_id ada
+try:
+    cursor.execute("ALTER TABLE bookings ADD COLUMN room_id INTEGER")
+    conn.commit()
+except:
+    pass
+
+# Pastikan tabel rooms ada
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS rooms (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nama_kamar TEXT UNIQUE,
+    harga INTEGER,
+    aktif INTEGER DEFAULT 1
+)
+""")
+conn.commit()
+
+
 conn = sqlite3.connect("homestay.db", check_same_thread=False)
 cursor = conn.cursor()
 
@@ -110,15 +133,28 @@ def is_double_booking(kamar, checkin, checkout, booking_id=None):
 # LOAD DATA FUNCTION
 # ============================
 def load_data():
-    query = """
-    SELECT 
-        bookings.*,
-        rooms.nama_kamar
-    FROM bookings
-    LEFT JOIN rooms ON bookings.room_id = rooms.id
-    """
-    df = pd.read_sql_query(query, conn)
-    return df
+    try:
+        query = """
+        SELECT 
+            bookings.id,
+            bookings.nama,
+            bookings.hp,
+            rooms.nama_kamar,
+            bookings.checkin,
+            bookings.checkout,
+            bookings.harga,
+            bookings.total,
+            bookings.dp,
+            bookings.sisa,
+            bookings.status
+        FROM bookings
+        LEFT JOIN rooms ON bookings.room_id = rooms.id
+        """
+        df = pd.read_sql_query(query, conn)
+        return df
+    except Exception as e:
+        st.error(f"Database error: {e}")
+        return pd.DataFrame()
 
 
 # ============================
