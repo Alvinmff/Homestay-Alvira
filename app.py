@@ -378,8 +378,9 @@ if not df.empty:
     pdf_file = generate_pdf(df_export)
     public_pdf = generate_pdf_public(df_export)
 
-    excel_file = generate_excel(df)
-    pdf_file = generate_pdf(df)
+    excel_file = generate_excel(df_export)
+    pdf_file = generate_pdf(df_export)
+    public_pdf = generate_pdf_public(df_export)
 
     with col_dl1:
         st.download_button(
