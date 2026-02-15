@@ -667,7 +667,6 @@ if not df.empty:
     df_export = df_export.reset_index(drop=True)
     df_export.index += 1
     df_export.index.name = "No"
-    df_export = df_export.reset_index()
     
     # Generate file
     excel_file = generate_excel(df_export)
