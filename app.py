@@ -240,6 +240,9 @@ def generate_pdf(df):
     df_pdf["checkin"] = pd.to_datetime(df_pdf["checkin"], errors="coerce")
     df_pdf = df_pdf.sort_values("checkin")
 
+    df_pdf["checkin"] = pd.to_datetime(df_pdf["checkin"]).dt.strftime("%d-%m-%Y")
+    df_pdf["checkout"] = pd.to_datetime(df_pdf["checkout"]).dt.strftime("%d-%m-%Y")
+
     # Tambah kolom bulan
     df_pdf["bulan"] = df_pdf["checkin"].dt.to_period("M")
 
@@ -615,6 +618,14 @@ if not df.empty:
     
     # Copy dataframe supaya tidak mengubah data asli
     df_display = df.copy()
+
+    # Pastikan datetime
+    df_display["checkin"] = pd.to_datetime(df_display["checkin"])
+    df_display["checkout"] = pd.to_datetime(df_display["checkout"])
+    
+    # Hilangkan jam
+    df_display["checkin"] = df_display["checkin"].dt.strftime("%d-%m-%Y")
+    df_display["checkout"] = df_display["checkout"].dt.strftime("%d-%m-%Y")
 
     # Reset index supaya mulai dari 0 lalu tambah 1
     df_display = df_display.reset_index(drop=True)
