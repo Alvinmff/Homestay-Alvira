@@ -26,9 +26,20 @@ from reportlab.pdfgen import canvas
 
 def add_watermark(canvas, doc):
     canvas.saveState()
-    canvas.setFont("Helvetica", 60)
-    canvas.setFillColorRGB(0.9, 0.9, 0.9)
-    canvas.drawCentredString(300, 400, "Homestay Alvira")
+    
+    # Transparansi
+    canvas.setFillAlpha(0.08)
+
+    # Font besar
+    canvas.setFont("Helvetica-Bold", 70)
+    canvas.setFillColor(colors.HexColor("#B0B0B0"))
+
+    # Rotasi diagonal
+    canvas.translate(300, 400)
+    canvas.rotate(45)
+
+    canvas.drawCentredString(0, 0, "HOMESTAY ALVIRA")
+
     canvas.restoreState()
 
 logo = Image.open("assets/logo.png")
