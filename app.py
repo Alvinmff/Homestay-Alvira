@@ -26,7 +26,7 @@ if "keep_alive" not in st.session_state:
     st.session_state.keep_alive = True
 
 st.set_page_config(page_title="Homestay Pro System", layout="wide")
-st.title("🏠 Homestay Management System Pro")
+st.title("🏠 Homestay Alvira Management System Pro")
 
 # ============================
 # DATABASE
@@ -105,6 +105,26 @@ except:
 # ============================
 # FUNCTIONS
 # ============================
+
+from datetime import timedelta
+
+def hitung_total(kamar, checkin, checkout):
+    total = 0
+    current = checkin
+
+    while current < checkout:
+        weekday_number = current.weekday()  # 0=Senin, 6=Minggu
+
+        if weekday_number <= 3:  # Senin-Kamis
+            harga = harga_kamar[kamar]["weekday"]
+        else:  # Jumat-Minggu
+            harga = harga_kamar[kamar]["weekend"]
+
+        total += harga
+        current += timedelta(days=1)
+
+    return total
+
 def get_status(checkin, checkout, sisa):
     today = date.today()
 
@@ -485,13 +505,27 @@ def generate_pdf_public(df):
 # MASTER HARGA KAMAR
 # ============================
 harga_kamar = {
-    "Alvira 1": 0,
-    "Alvira 2": 0,
-    "Alvira 3": 0,
-    "Alvira 4": 0,
-    "Alvira 5": 0,
+    "Alvira 1": {
+        "weekday": 350000,
+        "weekend": 400000
+    },
+    "Alvira 2": {
+        "weekday": 300000,
+        "weekend": 350000
+    },
+    "Alvira 3": {
+        "weekday": 190000,
+        "weekend": 225000
+    },
+    "Alvira 4": {
+        "weekday": 300000,
+        "weekend": 350000
+    },
+    "Alvira 5": {
+        "weekday": 450000,
+        "weekend": 500000
+    },
 }
-
 
 # ============================
 # TAMBAH BOOKING
@@ -520,13 +554,15 @@ st.sidebar.markdown(f"🛏 Jumlah Kamar: **{jumlah_kamar}**")
 if kamar:
     st.sidebar.markdown("### 💰 Rincian Harga")
 
-    total_semua = 0
+    if kamar and checkout > checkin:
+    preview_total = 0
     for k in kamar:
-        harga_k = harga_kamar[k]
-        total_semua += harga_k
-        st.sidebar.markdown(
-            f"{k} : Rp {harga_k:,.0f}".replace(",", ".")
-        )
+        preview_total += hitung_total_kamar(k, checkin, checkout)
+
+    st.sidebar.markdown("---")
+    st.sidebar.markdown(
+        f"💵 Estimasi Total Booking: **Rp {preview_total:,.0f}**".replace(",", ".")
+    )
 
     st.sidebar.markdown("---")
     st.sidebar.markdown(
@@ -544,8 +580,7 @@ if st.sidebar.button("Simpan Booking"):
         st.sidebar.error("Tanggal tidak valid")
 
     else:
-        malam = (checkout - checkin).days
-
+        
         total_semua = 0
 
         for k in kamar:
@@ -554,15 +589,16 @@ if st.sidebar.button("Simpan Booking"):
                 st.sidebar.error(f"❌ {k} sudah dibooking di tanggal tersebut!")
                 st.stop()
 
-            harga_k = harga_kamar[k]
-            total_semua += harga_k * malam
+        total_kamar = hitung_total_kamar(k, checkin, checkout)
+        total_semua += total_kamar
 
         sisa = total_semua - dp
         status = get_status(checkin, checkout, sisa)
 
         for k in kamar:
-            harga_k = harga_kamar[k]
 
+            total_kamar = hitung_total_kamar(k, checkin, checkout)
+        
             cursor.execute("""
                 INSERT INTO bookings
                 (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
@@ -570,9 +606,9 @@ if st.sidebar.button("Simpan Booking"):
             """, (
                 nama, hp, k,
                 str(checkin), str(checkout),
-                harga_k,
-                harga_k * malam,
-                dp,  # kalau mau DP dibagi rata nanti kita atur
+                0,  # harga per malam tidak tetap lagi
+                total_kamar,
+                dp,
                 sisa,
                 status
             ))
