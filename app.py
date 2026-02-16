@@ -108,7 +108,7 @@ except:
 
 from datetime import timedelta
 
-def hitung_total(kamar, checkin, checkout):
+def hitung_total_kamar(nama_kamar, checkin, checkout):
     total = 0
     current = checkin
 
