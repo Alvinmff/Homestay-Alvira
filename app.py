@@ -359,7 +359,7 @@ def generate_pdf(df):
 
         elements.append(Spacer(1, 15))
         elements.append(Paragraph(
-            "<i>Harga dapat berubah sewaktu-waktu</i>",
+            "<i>*harga dapat berubah sewaktu-waktu</i>",
             styles["Normal"]
         ))
 
