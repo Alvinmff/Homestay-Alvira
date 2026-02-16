@@ -150,6 +150,13 @@ def is_double_booking(kamar, checkin, checkout, booking_id=None):
 # ============================
 # LOAD DATA FUNCTION
 # ============================
+
+@st.cache_data(ttl=60)
+def load_data():
+    query = "SELECT * FROM bookings ORDER BY checkin ASC"
+    df = pd.read_sql_query(query, conn)
+    return df
+
 def load_data():
     try:
         query = """
