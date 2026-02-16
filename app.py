@@ -31,7 +31,7 @@ def add_watermark(canvas, doc):
     canvas.setFillAlpha(0.08)
 
     # Font besar
-    canvas.setFont("Helvetica-Bold", 70)
+    canvas.setFont("Helvetica", 70)
     canvas.setFillColor(colors.HexColor("#B0B0B0"))
 
     # Rotasi diagonal
