@@ -548,21 +548,8 @@ dp = st.sidebar.number_input(
 
 jumlah_kamar = len(kamar)
 
-total_harga = sum(harga_kamar[k] for k in kamar)
-
 st.sidebar.markdown(f"🛏 Jumlah Kamar: **{jumlah_kamar}**")
-if kamar:
-    st.sidebar.markdown("### 💰 Rincian Harga")
-
-    if kamar and checkout > checkin:
-        preview_total = 0
-        for k in kamar:
-            preview_total += hitung_total_kamar(k, checkin, checkout)
-    
-        st.sidebar.markdown("---")
-        st.sidebar.markdown(
-            f"💵 Estimasi Total Booking: **Rp {preview_total:,.0f}**".replace(",", ".")
-        )
+if kamar and checkout > checkin:
 
     st.sidebar.markdown("---")
     st.sidebar.markdown(
