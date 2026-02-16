@@ -555,14 +555,14 @@ if kamar:
     st.sidebar.markdown("### 💰 Rincian Harga")
 
     if kamar and checkout > checkin:
-    preview_total = 0
-    for k in kamar:
-        preview_total += hitung_total_kamar(k, checkin, checkout)
-
-    st.sidebar.markdown("---")
-    st.sidebar.markdown(
-        f"💵 Estimasi Total Booking: **Rp {preview_total:,.0f}**".replace(",", ".")
-    )
+        preview_total = 0
+        for k in kamar:
+            preview_total += hitung_total_kamar(k, checkin, checkout)
+    
+        st.sidebar.markdown("---")
+        st.sidebar.markdown(
+            f"💵 Estimasi Total Booking: **Rp {preview_total:,.0f}**".replace(",", ".")
+        )
 
     st.sidebar.markdown("---")
     st.sidebar.markdown(
