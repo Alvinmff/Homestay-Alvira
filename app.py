@@ -1,5 +1,4 @@
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.platypus import Image
 
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.pagesizes import A4
@@ -21,6 +20,27 @@ import sqlite3
 from datetime import datetime, date
 import matplotlib.pyplot as plt
 import streamlit as st
+from PIL import Image
+from reportlab.platypus import Image as RLImage
+from reportlab.pdfgen import canvas
+
+def add_watermark(canvas, doc):
+    canvas.saveState()
+    canvas.setFont("Helvetica", 60)
+    canvas.setFillColorRGB(0.9, 0.9, 0.9)
+    canvas.drawCentredString(300, 400, "Homestay Alvira")
+    canvas.restoreState()
+
+logo = Image.open("assets/logo.png")
+
+col1, col2 = st.columns([1,4])
+
+with col1:
+    st.image(logo, width=120)
+
+with col2:
+    st.title("HOMESTAY ALVIRA")
+    st.caption("Sistem Manajemen Booking Profesional")
 
 if "keep_alive" not in st.session_state:
     st.session_state.keep_alive = True
@@ -255,6 +275,10 @@ def generate_pdf(df):
     elements = []
 
     styles = getSampleStyleSheet()
+    logo = RLImage("assets/logo.png", width=1.5*inch, height=1.5*inch)
+    elements.append(logo)
+    elements.append(Spacer(1, 10))
+
     elements.append(Paragraph("Laporan Booking Homestay", styles["Title"]))
     elements.append(Spacer(1, 20))
 
@@ -333,7 +357,13 @@ def generate_pdf(df):
         elements.append(table)
         elements.append(Spacer(1, 20))
 
-    doc.build(elements)
+        elements.append(Spacer(1, 15))
+        elements.append(Paragraph(
+            "<i>Harga dapat berubah sewaktu-waktu</i>",
+            styles["Normal"]
+        ))
+
+    doc.build(elements, onFirstPage=add_watermark, onLaterPages=add_watermark)
 
     pdf = buffer.getvalue()
     buffer.close()
@@ -346,6 +376,9 @@ def generate_invoice(selected_data):
     elements = []
 
     styles = getSampleStyleSheet()
+    logo = RLImage("assets/logo.png", width=1.5*inch, height=1.5*inch)
+    elements.append(logo)
+    elements.append(Spacer(1, 10))
 
     # ============================
     # NOMOR INVOICE OTOMATIS
@@ -412,7 +445,7 @@ def generate_invoice(selected_data):
         )
         elements.append(Paragraph("✔ LUNAS", lunas_style))
 
-    doc.build(elements)
+    doc.build(elements, onFirstPage=add_watermark, onLaterPages=add_watermark)
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
@@ -423,6 +456,10 @@ def generate_pdf_public(df):
     elements = []
 
     styles = getSampleStyleSheet()
+    logo = RLImage("assets/logo.png", width=1.5*inch, height=1.5*inch)
+    elements.append(logo)
+    elements.append(Spacer(1, 10))
+
     elements.append(Paragraph("List Homestay Alvira 2026", styles["Title"]))
     elements.append(Spacer(1, 20))
 
@@ -495,7 +532,13 @@ def generate_pdf_public(df):
         elements.append(table)
         elements.append(Spacer(1, 20))
 
-    doc.build(elements)
+        elements.append(Spacer(1, 15))
+        elements.append(Paragraph(
+            "<i>Harga dapat berubah sewaktu-waktu</i>",
+            styles["Normal"]
+        ))
+
+    doc.build(elements, onFirstPage=add_watermark, onLaterPages=add_watermark)
 
     pdf = buffer.getvalue()
     buffer.close()
