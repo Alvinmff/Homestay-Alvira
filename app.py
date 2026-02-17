@@ -573,12 +573,6 @@ def generate_pdf_public(df):
         elements.append(table)
         elements.append(Spacer(1, 20))
 
-        elements.append(Spacer(1, 15))
-        elements.append(Paragraph(
-            "<i>Harga dapat berubah sewaktu-waktu</i>",
-            styles["Normal"]
-        ))
-
     doc.build(elements, onFirstPage=add_watermark, onLaterPages=add_watermark)
 
     pdf = buffer.getvalue()
