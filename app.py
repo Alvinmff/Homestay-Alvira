@@ -102,57 +102,60 @@ import streamlit as st
 if "DATABASE_URL" not in st.secrets:
     st.error("DATABASE_URL tidak ditemukan di secrets. Periksa konfigurasi Streamlit.")
 else:
-    conn = None  # Inisialisasi untuk menghindari error jika gagal
+    conn = None
+    cursor = None  # Inisialisasi untuk menghindari NameError
     try:
         # Coba buat koneksi
         conn = psycopg2.connect(
             st.secrets["DATABASE_URL"],
-            sslmode="require"
+            sslmode="require"  # Atau ubah ke "prefer" jika masih gagal
         )
         st.success("Koneksi ke database berhasil!")
         
-        # Buat cursor untuk operasi database
+        # Buat cursor HANYA jika koneksi berhasil
         cursor = conn.cursor()
         
-        # Contoh query sederhana (opsional, untuk test)
-        cursor.execute("SELECT version();")
-        result = cursor.fetchone()
-        st.write(f"Versi PostgreSQL: {result[0]}")
+        # Sekarang lakukan semua operasi database di sini (di dalam try)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS bookings (
+                id SERIAL PRIMARY KEY AUTOINCREMENT,
+                nama TEXT,
+                hp TEXT,
+                kamar TEXT,
+                checkin TEXT,
+                checkout TEXT,
+                harga INTEGER,
+                total INTEGER,
+                dp INTEGER DEFAULT 0,
+                sisa INTEGER DEFAULT 0,
+                status TEXT
+            )
+            """)
         
-        # Lakukan operasi database lainnya di sini (misalnya, SELECT, INSERT, dll.)
-        # Contoh: cursor.execute("SELECT * FROM your_table;")
-        # results = cursor.fetchall()
-        # st.write(results)
+        # Commit perubahan (penting untuk DDL seperti CREATE TABLE)
+        conn.commit()
+        st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
+        
+        # Tambahkan query lain di sini jika diperlukan, misalnya:
+        # cursor.execute("INSERT INTO bookings (nama) VALUES (%s);", ("Nama Contoh",))
+        # conn.commit()
+        # st.write("Data berhasil dimasukkan!")
         
     except psycopg2.OperationalError as e:
         st.error(f"Kesalahan operasional koneksi: {e}")
-        # Saran: Periksa kredensial, URL, atau akses jaringan di Supabase
+        st.info("Saran: Periksa akses IP di Supabase atau gunakan connection pooling.")
     except psycopg2.DatabaseError as e:
         st.error(f"Kesalahan database: {e}")
     except Exception as e:
         st.error(f"Kesalahan umum: {e}")
     finally:
-        # Pastikan koneksi dan cursor ditutup, bahkan jika error
+        # Tutup cursor dan koneksi jika ada
+        if cursor:
+            cursor.close()
         if conn:
             conn.close()
             st.info("Koneksi database ditutup.")
 
-
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS bookings (
-    id SERIAL PRIMARY KEY AUTOINCREMENT,
-    nama TEXT,
-    hp TEXT,
-    kamar TEXT,
-    checkin TEXT,
-    checkout TEXT,
-    harga INTEGER,
-    total INTEGER,
-    dp INTEGER DEFAULT 0,
-    sisa INTEGER DEFAULT 0,
-    status TEXT
-)
-""")
 
 bulan_indonesia = {
     1: "JANUARI",
