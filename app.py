@@ -1,4 +1,4 @@
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.pagesizes import A4
@@ -377,8 +377,6 @@ def generate_pdf(df):
 
         elements.append(table)
         elements.append(Spacer(1, 20))
-
-    from reportlab.lib.styles import ParagraphStyle
 
         disclaimer_style = ParagraphStyle(
             'Disclaimer',
