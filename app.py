@@ -319,13 +319,12 @@ def generate_pdf(df):
         leading=24,
         textColor=colors.HexColor("#1B5E20"),
         alignment=1,
-        spaceAfter=12
+        spaceAfter=5
     )
     
     subtitle_style = ParagraphStyle(
         "SubtitleStyle",
         parent=styles["Normal"],
-        fontName="Poppins-SemiBold",
         fontSize=12,
         leading=16,
         textColor=colors.black,
@@ -345,14 +344,13 @@ def generate_pdf(df):
     )
      
     header_text = [
-        Paragraph("<b>Homestay Alvira Sidoarjo</b>", title_style),
-        Spacer(1, 4),  # 🔥 tambahan jarak manual
-        Paragraph("Laporan List Booking 2026", subtitle_style),
+        Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", title_style),
+        Spacer(1, 2),  # 🔥 tambahan jarak manual
+        Paragraph("<b>LAPORAN BOOKING</b>", subtitle_style),
         Spacer(1, 4),  # 🔥 tambahan jarak manual
         Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
         Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", info_style),
     ]
-
 
     header_table = Table(
         [[logo, header_text]],
@@ -361,13 +359,17 @@ def generate_pdf(df):
     
     header_table.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("ALIGN", (1, 0), (1, 0), "CENTER"),
-        ("LEFTPADDING", (0,0), (-1,-1), 6),
+    
+        # Logo kolom 0
+        ("LEFTPADDING", (0,0), (0,0), 0),
+    
+        # Text kolom 1 → geser ke kanan
+        ("LEFTPADDING", (1,0), (1,0), 20),
+    
         ("RIGHTPADDING", (0,0), (-1,-1), 6),
         ("TOPPADDING", (0,0), (-1,-1), 6),
         ("BOTTOMPADDING", (0,0), (-1,-1), 6),
     ]))
-
     
     elements.append(header_table)
     elements.append(Spacer(1, 6))
@@ -482,12 +484,82 @@ def generate_invoice(selected_data):
 
     styles = getSampleStyleSheet()
 
-    logo = RLImage("assets/logo.png", width=1.5*inch, height=1.5*inch)
-    elements.append(logo)
-    elements.append(Spacer(1, 10))
+    # ======================
+    # HEADER PREMIUM
+    # ======================
+    
+    logo = RLImage("assets/logo.png", width=1.3*inch, height=1.3*inch)
+    
+    title_style = ParagraphStyle(
+        "TitleStyle",
+        parent=styles["Normal"],
+        fontName="Playfair-Bold",
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor("#1B5E20"),
+        alignment=1,
+        spaceAfter=5
+    )
+    
+    subtitle_style = ParagraphStyle(
+        "SubtitleStyle",
+        parent=styles["Normal"],
+        fontSize=12,
+        leading=16,
+        textColor=colors.black,
+        alignment=1,
+        spaceAfter=6
+    )
+    
+    info_style = ParagraphStyle(
+        "InfoStyle",
+        parent=styles["Normal"],
+        fontName="Poppins-Regular",
+        fontSize=8,
+        leading=10,
+        textColor=colors.grey,
+        alignment=1,
+        spaceAfter=3
+    )
+     
+    header_text = [
+        Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", title_style),
+        Spacer(1, 2),  # 🔥 tambahan jarak manual
+        Paragraph("<b>INVOICE</b>", subtitle_style),
+        Spacer(1, 4),  # 🔥 tambahan jarak manual
+        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
+        Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", info_style),
+    ]
 
-    elements.append(Paragraph("<b>INVOICE</b>", styles["Title"]))
-    elements.append(Spacer(1, 20))
+    header_table = Table(
+        [[logo, header_text]],
+        colWidths=[3*cm, 12*cm]
+    )
+    
+    header_table.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+    
+        # Logo kolom 0
+        ("LEFTPADDING", (0,0), (0,0), 0),
+    
+        # Text kolom 1 → geser ke kanan
+        ("LEFTPADDING", (1,0), (1,0), 20),
+    
+        ("RIGHTPADDING", (0,0), (-1,-1), 6),
+        ("TOPPADDING", (0,0), (-1,-1), 6),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 6),
+    ]))
+    
+    elements.append(header_table)
+    elements.append(Spacer(1, 6))
+    
+    gold_line = Table([[""]], colWidths=[17*cm])
+    gold_line.setStyle(TableStyle([
+        ('LINEBELOW', (0,0), (-1,-1), 1, colors.HexColor("#C6A700"))
+    ]))
+    
+    elements.append(gold_line)
+    elements.append(Spacer(1, 15))
 
      # ============================
     # NOMOR INVOICE OTOMATIS
@@ -727,7 +799,7 @@ def generate_pdf_public(df):
     header_text = [
         Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", title_style),
         Spacer(1, 2),  # 🔥 tambahan jarak manual
-        Paragraph("<b>LAPORAN BOOKING 2026</b>", subtitle_style),
+        Paragraph("<b>LAPORAN BOOKING</b>", subtitle_style),
         Spacer(1, 4),  # 🔥 tambahan jarak manual
         Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
         Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", info_style),
