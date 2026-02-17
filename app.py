@@ -513,8 +513,8 @@ def generate_invoice(selected_data):
         pagesize=pagesizes.A4,
         rightMargin=30,
         leftMargin=30,
-        topMargin=30,
-        bottomMargin=30
+        topMargin=40,
+        bottomMargin=40
     )
 
     elements = []
@@ -527,20 +527,28 @@ def generate_invoice(selected_data):
         return f"Rp {int(x):,}".replace(",", ".")
 
     # =========================
-    # HEADER (KIRI LOGO | KANAN INFO)
+    # HEADER
     # =========================
-    logo = RLImage("assets/logo.png", width=1.2*inch, height=1.2*inch)
+    logo = RLImage("assets/logo.png", width=1.1*inch, height=1.1*inch)
+
+    title_style = ParagraphStyle(
+        "BrandTitle",
+        parent=styles["Heading1"],
+        fontSize=16,
+        textColor=colors.HexColor("#1B5E20"),
+        spaceAfter=4
+    )
 
     info_style = ParagraphStyle(
         "InfoStyle",
         parent=styles["Normal"],
-        fontSize=9,
-        textColor=colors.grey
+        fontSize=8,
+        textColor=colors.grey,
+        leading=10
     )
-    
+
     header_left = [
-        Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", styles["Heading1"]),
-        Spacer(1, 4),
+        Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", title_style),
         Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28", info_style),
         Paragraph("Sidoarjo - Jawa Timur", info_style),
         Paragraph("Telp: 081231646523", info_style),
@@ -555,33 +563,24 @@ def generate_invoice(selected_data):
 
     header_table = Table(
         [[logo, header_left, header_right]],
-        colWidths=[1.5*inch, 3*inch, 2.5*inch]  # logo lebih kecil, text lebih lebar
+        colWidths=[1.3*inch, 3.2*inch, 2.3*inch]
     )
-    
+
     header_table.setStyle(TableStyle([
         ("VALIGN", (0,0), (-1,-1), "TOP"),
-    
-        # Logo padding kecil
-        ("LEFTPADDING", (0,0), (0,0), 0),
-        ("RIGHTPADDING", (0,0), (0,0), 10),
-    
-        # Text kiri mepet ke logo
         ("LEFTPADDING", (1,0), (1,0), 0),
-    
-        # Invoice block geser kanan
-        ("LEFTPADDING", (2,0), (2,0), 40),
-    
+        ("LEFTPADDING", (2,0), (2,0), 30),
         ("RIGHTPADDING", (0,0), (-1,-1), 0),
     ]))
 
     elements.append(header_table)
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 25))
 
     # =========================
     # BILL TO
     # =========================
     bill_to = Table([
-        ["Bill To:"],
+        ["Bill To"],
         [selected_data["nama"]],
         [selected_data["hp"]],
     ], colWidths=[3*inch])
@@ -590,35 +589,30 @@ def generate_invoice(selected_data):
         ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
         ('FONTSIZE', (0,0), (-1,-1), 10),
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
-        ("LEFTPADDING", (1,0), (1,0), 0),
     ]))
 
     elements.append(bill_to)
     elements.append(Spacer(1, 20))
 
     # =========================
-    # TABEL ITEM
+    # ITEM TABLE
     # =========================
-    nights = (
-        selected_data["checkout"] -
-        selected_data["checkin"]
-    ).days
+    nights = (selected_data["checkout"] - selected_data["checkin"]).days
 
     item_data = [
-        ["Description", "Qty", "Price", "Amount"],
+        ["Description", "Qty", "Amount"],
         [
             f"Kamar {selected_data['kamar']} ({selected_data['checkin']} - {selected_data['checkout']})",
             str(nights),
-            rupiah(selected_data["total"] // nights if nights else selected_data["total"]),
             rupiah(selected_data["total"])
         ]
     ]
 
-    item_table = Table(item_data, colWidths=[3*inch, 0.8*inch, 1*inch, 1.2*inch])
+    item_table = Table(item_data, colWidths=[3.8*inch, 0.8*inch, 1.2*inch])
 
     item_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#EAECEE")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#F2F3F4")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#D5D8DC")),
         ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
         ('FONTSIZE', (0,0), (-1,-1), 9),
         ('ALIGN', (1,1), (-1,-1), 'CENTER'),
@@ -626,17 +620,17 @@ def generate_invoice(selected_data):
     ]))
 
     elements.append(item_table)
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 30))
 
     # =========================
     # TOTAL SECTION
     # =========================
     total_table = Table([
         ["Total", rupiah(selected_data["total"])]
-    ], colWidths=[4.8*inch, 1.2*inch])
+    ], colWidths=[4.6*inch, 1.2*inch])
 
     total_table.setStyle(TableStyle([
-        ('LINEABOVE', (0,0), (-1,-1), 1, colors.black),
+        ('LINEABOVE', (0,0), (-1,-1), 1.5, colors.black),
         ('FONTNAME', (0,0), (-1,-1), 'Helvetica-Bold'),
         ('FONTSIZE', (0,0), (-1,-1), 11),
         ('ALIGN', (1,0), (1,0), 'RIGHT'),
@@ -645,152 +639,23 @@ def generate_invoice(selected_data):
     ]))
 
     elements.append(total_table)
-    elements.append(Spacer(1, 50))
+    elements.append(Spacer(1, 60))
 
     # =========================
-    # SIGNATURE AREA
+    # WATERMARK LUNAS
     # =========================
-    sign_table = Table([
-        ["Authorized Signature"],
-        ["\n\n\n__________________________"],
-        [datetime.now().strftime('%d %b %Y')]
-    ], colWidths=[2.5*inch])
+    def add_lunas_watermark(canvas, doc):
+        canvas.saveState()
+        canvas.setFont("Helvetica-Bold", 80)
+        canvas.setFillColorRGB(0.8, 0.8, 0.8, alpha=0.15)
+        canvas.drawCentredString(300, 400, "LUNAS")
+        canvas.restoreState()
 
-    sign_table.setStyle(TableStyle([
-        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-        ('FONTSIZE', (0,0), (-1,-1), 9),
-    ]))
-
-    elements.append(sign_table)
-
-    if selected_data["total"] <= 0 or selected_data.get("sisa", 0) <= 0:
+    if selected_data.get("sisa", 0) <= 0:
         doc.build(elements, onFirstPage=add_lunas_watermark)
     else:
         doc.build(elements)
 
-    pdf = buffer.getvalue()
-    buffer.close()
-    return pdf
-
-
-def add_header(elements, logo_path):
-
-    # Logo kiri
-    logo = Image(logo_path, width=2.5*cm, height=2.5*cm)
-
-    # Teks tengah
-    styles = getSampleStyleSheet()
-    title_style = styles["Heading1"]
-    title_style.textColor = colors.HexColor("#1B5E20")  # Brand hijau Alvira
-    title_style.alignment = 1  # Center
-
-    subtitle_style = styles["Normal"]
-    subtitle_style.alignment = 1
-
-    header_text = [
-        Paragraph("<b>Homestay Alvira</b>", title_style),
-        Paragraph("Laporan Booking 2026", subtitle_style),
-    ]
-
-    # Layout tabel 2 kolom (logo kiri, teks tengah)
-    header_table = Table(
-        [[logo, header_text]],
-        colWidths=[3*cm, 12*cm]
-    )
-
-    header_table.setStyle(TableStyle([
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("ALIGN", (1, 0), (1, 0), "CENTER"),
-        ("LEFTPADDING", (0,0), (-1,-1), 0),
-        ("RIGHTPADDING", (0,0), (-1,-1), 0),
-        ("TOPPADDING", (0,0), (-1,-1), 0),
-        ("BOTTOMPADDING", (0,0), (-1,-1), 5),
-    ]))
-
-    elements.append(header_table)
-    elements.append(Spacer(1, 8))
-
-    # 🔥 Garis emas tipis
-    line = Table(
-        [[""]],
-        colWidths=[17*cm],
-        rowHeights=[2]
-    )
-
-    line.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,-1), colors.HexColor("#C9A227"))  # Gold elegan
-    ]))
-
-    elements.append(line)
-    elements.append(Spacer(1, 20))
-
-
-    # ============================
-    # NOMOR INVOICE OTOMATIS
-    # ============================
-    tahun = datetime.now().year
-    invoice_number = f"INV-{tahun}-{int(selected_data['id']):04d}"
-
-    # ============================
-    # HEADER
-    # ============================
-    title_style = styles["Heading1"]
-    elements.append(Paragraph("Homestay Alvira", title_style))
-    elements.append(Spacer(1, 10))
-
-    elements.append(Paragraph(f"<b>Invoice:</b> {invoice_number}", styles["Normal"]))
-    elements.append(Paragraph(f"<b>Tanggal Cetak:</b> {datetime.now().strftime('%d-%m-%Y')}", styles["Normal"]))
-    elements.append(Spacer(1, 15))
-
-    # ============================
-    # FORMAT RUPIAH
-    # ============================
-    def rupiah(x):
-        try:
-            return f"Rp {int(x):,}".replace(",", ".")
-        except:
-            return x
-
-    # ============================
-    # DATA TABEL
-    # ============================
-    data = [
-        ["Nama Tamu", selected_data["nama"]],
-        ["No HP", selected_data["hp"]],
-        ["Kamar", selected_data["kamar"]],
-        ["Check-in", selected_data["checkin"]],
-        ["Check-out", selected_data["checkout"]],
-        ["Total", rupiah(selected_data["total"])],
-        ["DP", rupiah(selected_data["dp"])],
-        ["Sisa", rupiah(selected_data["sisa"])],
-        ["Status", selected_data["status"]],
-    ]
-
-    table = Table(data, colWidths=[2.5*inch, 3.5*inch])
-
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ]))
-
-    elements.append(table)
-    elements.append(Spacer(1, 30))
-
-    # ============================
-    # WATERMARK LUNAS
-    # ============================
-    if selected_data["sisa"] <= 0:
-        lunas_style = ParagraphStyle(
-            'LunasStyle',
-            parent=styles['Heading1'],
-            textColor=colors.green
-        )
-        elements.append(Paragraph("✔ LUNAS", lunas_style))
-
-    doc.build(elements, onFirstPage=add_watermark, onLaterPages=add_watermark)
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
