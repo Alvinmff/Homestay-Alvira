@@ -477,244 +477,146 @@ def generate_pdf(df):
     return pdf
 
 def generate_invoice(selected_data):
+
     buffer = BytesIO()
     doc = SimpleDocTemplate(
         buffer,
-        pagesize=A4,
-        rightMargin=40,
-        leftMargin=40,
-        topMargin=40,
-        bottomMargin=40
+        pagesize=pagesizes.A4,
+        rightMargin=30,
+        leftMargin=30,
+        topMargin=30,
+        bottomMargin=30
     )
 
     elements = []
     styles = getSampleStyleSheet()
 
-    # ======================
-    # CUSTOM STYLES
-    # ======================
+    # =========================
+    # FORMAT RUPIAH
+    # =========================
+    def rupiah(x):
+        return f"Rp {int(x):,}".replace(",", ".")
 
-    title_style = ParagraphStyle(
-        "TitleStyle",
-        parent=styles["Normal"],
-        fontName="Helvetica-Bold",
-        fontSize=28,
-        textColor=colors.HexColor("#2E7D32"),  # Dark green for premium feel
-        alignment=1,
-        spaceAfter=10
-    )
+    # =========================
+    # HEADER (KIRI LOGO | KANAN INFO)
+    # =========================
+    logo = RLImage("assets/logo.png", width=1.2*inch, height=1.2*inch)
 
-    subtitle_style = ParagraphStyle(
-        "SubtitleStyle",
-        parent=styles["Normal"],
-        fontName="Helvetica-Bold",
-        fontSize=16,
-        textColor=colors.HexColor("#4CAF50"),  # Lighter green
-        alignment=1,
-        spaceAfter=8
-    )
-
-    info_style = ParagraphStyle(
-        "InfoStyle",
-        parent=styles["Normal"],
-        fontName="Helvetica",
-        fontSize=9,
-        textColor=colors.HexColor("#757575"),
-        alignment=1
-    )
-
-    normal_style = ParagraphStyle(
-        "NormalStyle",
-        parent=styles["Normal"],
-        fontName="Helvetica",
-        fontSize=11,
-        textColor=colors.black
-    )
-
-    bold_style = ParagraphStyle(
-        "BoldStyle",
-        parent=styles["Normal"],
-        fontName="Helvetica-Bold",
-        fontSize=11,
-        textColor=colors.black
-    )
-
-    footer_style = ParagraphStyle(
-        "FooterStyle",
-        parent=styles["Normal"],
-        fontName="Helvetica",
-        fontSize=8,
-        textColor=colors.HexColor("#9E9E9E"),
-        alignment=1
-    )
-
-    # ======================
-    # HEADER WITH LOGO AND COMPANY INFO
-    # ======================
-
-    # Assuming logo is available; if not, you can use a placeholder or remove
-    try:
-        logo = RLImage("assets/logo.png", width=1.5*inch, height=1.5*inch)
-    except:
-        logo = Paragraph("LOGO", title_style)  # Placeholder if image not found
-
-    header_text = [
-        Paragraph("HOMESTAY ALVIRA SIDOARJO", title_style),
-        Paragraph("Premium Homestay Experience", subtitle_style),
-        Spacer(1, 6),
-        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28, Sidoarjo", info_style),
-        Paragraph("Telp: 081231646523 | Email: info@alvirahomestay.com | www.alvirahomestay.com", info_style),
+    header_left = [
+        Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", styles["Heading2"]),
+        Spacer(1, 4),
+        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2", styles["Normal"]),
+        Paragraph("Sidoarjo - Jawa Timur", styles["Normal"]),
+        Paragraph("081231646523", styles["Normal"]),
     ]
 
-    header_table = Table([[logo, header_text]], colWidths=[4*cm, 12*cm])
+    header_right = [
+        Paragraph("<b>INVOICE</b>", styles["Title"]),
+        Spacer(1, 6),
+        Paragraph(f"Invoice #: INV-{datetime.now().year}-{int(selected_data['id']):04d}", styles["Normal"]),
+        Paragraph(f"Date: {datetime.now().strftime('%d %b %Y')}", styles["Normal"]),
+    ]
+
+    header_table = Table(
+        [[logo, header_left, header_right]],
+        colWidths=[2*inch, 2.5*inch, 2.5*inch]
+    )
+
     header_table.setStyle(TableStyle([
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("LEFTPADDING", (1, 0), (1, 0), 20),
-        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F1F8E9")),  # Light green background
-        ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#4CAF50")),
-        ("INNERGRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#C8E6C9")),
+        ("VALIGN", (0,0), (-1,-1), "TOP"),
+        ("LEFTPADDING", (0,0), (-1,-1), 0),
+        ("RIGHTPADDING", (0,0), (-1,-1), 10),
     ]))
 
     elements.append(header_table)
     elements.append(Spacer(1, 20))
 
-    # Elegant Separator Line
-    line = Table([[""]], colWidths=[17*cm])
-    line.setStyle(TableStyle([
-        ('LINEBELOW', (0,0), (-1,-1), 2, colors.HexColor("#4CAF50"))
+    # =========================
+    # BILL TO
+    # =========================
+    bill_to = Table([
+        ["Bill To:"],
+        [selected_data["nama"]],
+        [selected_data["hp"]],
+    ], colWidths=[3*inch])
+
+    bill_to.setStyle(TableStyle([
+        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+        ('FONTSIZE', (0,0), (-1,-1), 10),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
     ]))
-    elements.append(line)
+
+    elements.append(bill_to)
     elements.append(Spacer(1, 20))
 
-    # ======================
-    # INVOICE META INFORMATION
-    # ======================
+    # =========================
+    # TABEL ITEM
+    # =========================
+    nights = (
+        datetime.strptime(selected_data["checkout"], "%Y-%m-%d") -
+        datetime.strptime(selected_data["checkin"], "%Y-%m-%d")
+    ).days
 
-    tahun = datetime.now().year
-    invoice_number = f"INV-{tahun}-{int(selected_data['id']):04d}"
-
-    meta_data = [
-        [Paragraph("<b>Invoice Number:</b>", bold_style), Paragraph(invoice_number, normal_style)],
-        [Paragraph("<b>Issue Date:</b>", bold_style), Paragraph(datetime.now().strftime('%d-%m-%Y'), normal_style)],
-        [Paragraph("<b>Due Date:</b>", bold_style), Paragraph((datetime.now().replace(day=15) if datetime.now().day > 15 else datetime.now().replace(month=datetime.now().month+1, day=15)).strftime('%d-%m-%Y'), normal_style)],  # Example due date
+    item_data = [
+        ["Description", "Qty", "Price", "Amount"],
+        [
+            f"Kamar {selected_data['kamar']} ({selected_data['checkin']} - {selected_data['checkout']})",
+            str(nights),
+            rupiah(selected_data["total"] // nights if nights else selected_data["total"]),
+            rupiah(selected_data["total"])
+        ]
     ]
 
-    meta_table = Table(meta_data, colWidths=[4*cm, 6*cm])
-    meta_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#FAFAFA")),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#E0E0E0")),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 10),
-    ]))
-    elements.append(meta_table)
-    elements.append(Spacer(1, 25))
+    item_table = Table(item_data, colWidths=[3*inch, 0.8*inch, 1*inch, 1.2*inch])
 
-    # ======================
-    # FORMAT RUPIAH
-    # ======================
-
-    def rupiah(x):
-        return f"Rp {int(x):,}".replace(",", ".")
-
-    # ======================
-    # GUEST DETAILS SECTION
-    # ======================
-
-    elements.append(Paragraph("Guest Details", subtitle_style))
-    elements.append(Spacer(1, 10))
-
-    detail_data = [
-        [Paragraph("<b>Guest Name</b>", bold_style), Paragraph(selected_data["nama"], normal_style)],
-        [Paragraph("<b>Phone Number</b>", bold_style), Paragraph(selected_data["hp"], normal_style)],
-        [Paragraph("<b>Room Type</b>", bold_style), Paragraph(selected_data["kamar"], normal_style)],
-        [Paragraph("<b>Check-in Date</b>", bold_style), Paragraph(selected_data["checkin"], normal_style)],
-        [Paragraph("<b>Check-out Date</b>", bold_style), Paragraph(selected_data["checkout"], normal_style)],
-    ]
-
-    detail_table = Table(detail_data, colWidths=[4*cm, 10*cm])
-    detail_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#BDBDBD")),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 11),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 10),
-        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor("#E8F5E8")),  # Light green for labels
+    item_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#EAECEE")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+        ('FONTSIZE', (0,0), (-1,-1), 9),
+        ('ALIGN', (1,1), (-1,-1), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
     ]))
 
-    elements.append(detail_table)
-    elements.append(Spacer(1, 30))
+    elements.append(item_table)
+    elements.append(Spacer(1, 20))
 
-    # ======================
-    # PAYMENT SUMMARY SECTION
-    # ======================
+    # =========================
+    # TOTAL SECTION
+    # =========================
+    total_table = Table([
+        ["Total", rupiah(selected_data["total"])]
+    ], colWidths=[4.8*inch, 1.2*inch])
 
-    elements.append(Paragraph("Payment Summary", subtitle_style))
-    elements.append(Spacer(1, 10))
-
-    payment_data = [
-        [Paragraph("<b>Total Amount</b>", bold_style), Paragraph(rupiah(selected_data["total"]), normal_style)],
-        [Paragraph("<b>Down Payment</b>", bold_style), Paragraph(rupiah(selected_data["dp"]), normal_style)],
-        [Paragraph("<b>Remaining Balance</b>", bold_style), Paragraph(rupiah(selected_data["sisa"]), normal_style)],
-    ]
-
-    payment_table = Table(payment_data, colWidths=[4*cm, 6*cm])
-    payment_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#BDBDBD")),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 12),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 10),
-        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor("#E8F5E8")),
+    total_table.setStyle(TableStyle([
+        ('LINEABOVE', (0,0), (-1,-1), 1, colors.black),
+        ('FONTNAME', (0,0), (-1,-1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,-1), 11),
+        ('ALIGN', (1,0), (1,0), 'RIGHT'),
+        ('TOPPADDING', (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
     ]))
 
-    elements.append(payment_table)
-    elements.append(Spacer(1, 30))
+    elements.append(total_table)
+    elements.append(Spacer(1, 50))
 
-    # ======================
-    # STATUS BADGE
-    # ======================
+    # =========================
+    # SIGNATURE AREA
+    # =========================
+    sign_table = Table([
+        ["Authorized Signature"],
+        ["\n\n\n__________________________"],
+        [datetime.now().strftime('%d %b %Y')]
+    ], colWidths=[2.5*inch])
 
-    status_color = colors.HexColor("#4CAF50") if selected_data["sisa"] <= 0 else colors.HexColor("#F44336")
-    status_bg = colors.HexColor("#E8F5E8") if selected_data["sisa"] <= 0 else colors.HexColor("#FFEBEE")
+    sign_table.setStyle(TableStyle([
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+        ('FONTSIZE', (0,0), (-1,-1), 9),
+    ]))
 
-    status_style = ParagraphStyle(
-        "StatusStyle",
-        parent=styles["Normal"],
-        fontName="Helvetica-Bold",
-        fontSize=14,
-        textColor=status_color,
-        alignment=1,
-        backColor=status_bg,
-        borderColor=status_color,
-        borderWidth=1,
-        borderPadding=5,
-        borderRadius=5
-    )
+    elements.append(sign_table)
 
-    status_text = "✓ PAID IN FULL" if selected_data["sisa"] <= 0 else "PENDING PAYMENT"
-
-    elements.append(Paragraph(status_text, status_style))
-    elements.append(Spacer(1, 30))
-
-    # ======================
-    # FOOTER WITH DISCLAIMER AND TERMS
-    # ======================
-
-    footer_text = [
-        Paragraph("Thank you for choosing Homestay Alvira Sidoarjo. We look forward to hosting you!", footer_style),
-        Spacer(1, 10),
-        Paragraph("Terms & Conditions: Prices are subject to change without prior notice. Full payment is required upon check-in. Cancellation policy applies.", footer_style),
-        Paragraph("For inquiries, contact us at 081231646523 or visit www.alvirahomestay.com", footer_style),
-    ]
-
-    for item in footer_text:
-        elements.append(item)
-
-    # Build the PDF
     doc.build(elements)
-
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
