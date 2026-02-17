@@ -200,44 +200,44 @@ bulan_indonesia = {
 }
 
 
-        # ============================
-        # FIX DATABASE STRUCTURE
-        # ============================
+    # ============================
+    # FIX DATABASE STRUCTURE
+    # ============================
         
-        # Pastikan kolom room_id ada (diperbaiki untuk PostgreSQL)
-        try:
-            cursor.execute("ALTER TABLE bookings ADD COLUMN room_id INTEGER")
-            conn.commit()
-        except:
-            pass
+    # Pastikan kolom room_id ada (diperbaiki untuk PostgreSQL)
+    try:
+        cursor.execute("ALTER TABLE bookings ADD COLUMN room_id INTEGER")
+        conn.commit()
+    except:
+        pass
         
         # Pastikan tabel rooms ada (diperbaiki: SERIAL PRIMARY KEY, tanpa AUTOINCREMENT)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS rooms (
-                id SERIAL PRIMARY KEY,  -- Diperbaiki: SERIAL untuk auto-increment
-                nama_kamar TEXT UNIQUE,
-                harga INTEGER,
-                aktif INTEGER DEFAULT 1
-            )
-        """)
-        conn.commit()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS rooms (
+            id SERIAL PRIMARY KEY,  -- Diperbaiki: SERIAL untuk auto-increment
+            nama_kamar TEXT UNIQUE,
+            harga INTEGER,
+            aktif INTEGER DEFAULT 1
+        )
+    """)
+    conn.commit()
         
         # Tambah kolom jika belum ada (untuk database lama)
-        try:
-            cursor.execute("ALTER TABLE bookings ADD COLUMN dp INTEGER DEFAULT 0")
-            conn.commit()
-        except:
-            pass
+    try:
+        cursor.execute("ALTER TABLE bookings ADD COLUMN dp INTEGER DEFAULT 0")
+        conn.commit()
+    except:
+        pass
         
-        try:
-            cursor.execute("ALTER TABLE bookings ADD COLUMN sisa INTEGER DEFAULT 0")
-            conn.commit()
-        except:
-            pass
+    try:
+        cursor.execute("ALTER TABLE bookings ADD COLUMN sisa INTEGER DEFAULT 0")
+        conn.commit()
+    except:
+        pass
 
-        # ============================
-        # FUNCTIONS
-        # ============================
+    # ============================
+    # FUNCTIONS
+    # ============================
         
         # Fungsi ini bisa dipanggil di luar blok database, tapi jika menggunakan cursor, pastikan di dalam try
         # (Untuk sekarang, functions didefinisikan di sini; panggil di tempat lain jika perlu)
@@ -252,11 +252,11 @@ bulan_indonesia = {
         st.error(f"Kesalahan umum: {e}")
     finally:
         # Tutup cursor dan koneksi jika ada
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
-            st.info("Koneksi database ditutup.")
+    if cursor:
+        cursor.close()
+    if conn:
+        conn.close()
+        st.info("Koneksi database ditutup.")
 
 # ============================
 # FUNCTIONS
