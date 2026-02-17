@@ -135,10 +135,10 @@ else:
         conn.commit()
         st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
         
-        # CREATE TABLE untuk rooms (diperbaiki: nama tabel benar, hapus AUTOINCREMENT, pastikan sintaks lengkap)
+        # CREATE TABLE untuk rooms (pastikan ini satu-satunya query untuk rooms)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS rooms (
-                id SERIAL PRIMARY KEY,  -- Diperbaiki: Hapus AUTOINCREMENT
+                id SERIAL PRIMARY KEY,
                 nama TEXT,
                 hp TEXT,
                 kamar TEXT,
@@ -154,19 +154,20 @@ else:
         conn.commit()
         st.success("Tabel 'rooms' berhasil dibuat atau sudah ada!")
         
-        # Tambahkan query lain di sini jika diperlukan (misalnya, INSERT atau SELECT)
+        # Jika ada query lain di baris 214 atau sekitarnya, tambahkan di sini
+        # Misalnya, jika ini INSERT atau SELECT, ganti dengan kode Anda
         # Contoh INSERT ke tabel bookings:
         # cursor.execute("""
         #     INSERT INTO bookings (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
         #     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         # """, ("Nama Contoh", "08123456789", "Room 1", "2023-01-01", "2023-01-02", 100000, 100000, 50000, 50000, "Confirmed"))
         # conn.commit()
-        # st.write("Data berhasil dimasukkan ke tabel bookings!")
+        # st.write("Data berhasil dimasukkan!")
         
-        # Contoh SELECT dari tabel rooms:
+        # Contoh SELECT:
         # cursor.execute("SELECT * FROM rooms;")
         # results = cursor.fetchall()
-        # st.write("Data dari tabel rooms:", results)
+        # st.write(results)
         
     except psycopg2.OperationalError as e:
         st.error(f"Kesalahan operasional koneksi: {e}")
@@ -181,7 +182,6 @@ else:
         if conn:
             conn.close()
             st.info("Koneksi database ditutup.")
-
 
 bulan_indonesia = {
     1: "JANUARI",
