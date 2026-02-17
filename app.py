@@ -186,11 +186,11 @@ bulan_indonesia = {
     # ============================
         
     # Pastikan kolom room_id ada (diperbaiki untuk PostgreSQL)
-        try:
-            cursor.execute("ALTER TABLE bookings ADD COLUMN room_id INTEGER")
-            conn.commit()
-        except:
-            pass
+    try:
+        cursor.execute("ALTER TABLE bookings ADD COLUMN room_id INTEGER")
+        conn.commit()
+    except:
+        pass
         
         # Pastikan tabel rooms ada (diperbaiki: SERIAL PRIMARY KEY, tanpa AUTOINCREMENT)
     cursor.execute("""
