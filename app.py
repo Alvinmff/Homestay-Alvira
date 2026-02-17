@@ -98,12 +98,44 @@ st.title("🏠 Homestay Alvira Management")
 import psycopg2
 import streamlit as st
 
-conn = psycopg2.connect(
-    st.secrets["DATABASE_URL"],
-    sslmode="require"
-)
-
-cursor = conn.cursor()
+# Pastikan DATABASE_URL ada di secrets
+if "DATABASE_URL" not in st.secrets:
+    st.error("DATABASE_URL tidak ditemukan di secrets. Periksa konfigurasi Streamlit.")
+else:
+    conn = None  # Inisialisasi untuk menghindari error jika gagal
+    try:
+        # Coba buat koneksi
+        conn = psycopg2.connect(
+            st.secrets["DATABASE_URL"],
+            sslmode="require"
+        )
+        st.success("Koneksi ke database berhasil!")
+        
+        # Buat cursor untuk operasi database
+        cursor = conn.cursor()
+        
+        # Contoh query sederhana (opsional, untuk test)
+        cursor.execute("SELECT version();")
+        result = cursor.fetchone()
+        st.write(f"Versi PostgreSQL: {result[0]}")
+        
+        # Lakukan operasi database lainnya di sini (misalnya, SELECT, INSERT, dll.)
+        # Contoh: cursor.execute("SELECT * FROM your_table;")
+        # results = cursor.fetchall()
+        # st.write(results)
+        
+    except psycopg2.OperationalError as e:
+        st.error(f"Kesalahan operasional koneksi: {e}")
+        # Saran: Periksa kredensial, URL, atau akses jaringan di Supabase
+    except psycopg2.DatabaseError as e:
+        st.error(f"Kesalahan database: {e}")
+    except Exception as e:
+        st.error(f"Kesalahan umum: {e}")
+    finally:
+        # Pastikan koneksi dan cursor ditutup, bahkan jika error
+        if conn:
+            conn.close()
+            st.info("Koneksi database ditutup.")
 
 
 cursor.execute("""
