@@ -24,6 +24,21 @@ import streamlit as st
 from PIL import Image
 from reportlab.platypus import Image as RLImage
 from reportlab.pdfgen import canvas
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+
+pdfmetrics.registerFont(
+    TTFont('Playfair-Bold', 'assets/pairflay/PlayfairDisplay-Bold.ttf')
+)
+
+pdfmetrics.registerFont(
+    TTFont('Poppins-Regular', 'assets/poppins/Poppins-Regular.ttf')
+)
+
+pdfmetrics.registerFont(
+    TTFont('Poppins-SemiBold', 'assets/poppins/Poppins-SemiBold.ttf')
+)
+
 
 def add_watermark(canvas, doc):
     canvas.saveState()
@@ -299,26 +314,32 @@ def generate_pdf(df):
     title_style = ParagraphStyle(
         "TitleStyle",
         parent=styles["Normal"],
-        fontSize=16,
-        textColor=colors.black,
+        fontName="Playfair-Bold",
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor("#1B5E20"),
         alignment=1,
-        spaceAfter=8   # 🔥 jarak ke bawah lebih besar
+        spaceAfter=12
     )
     
     subtitle_style = ParagraphStyle(
         "SubtitleStyle",
         parent=styles["Normal"],
-        fontSize=11,
+        fontName="Poppins-SemiBold",
+        fontSize=12,
+        leading=16,
         textColor=colors.black,
         alignment=1,
-        spaceAfter=6   # 🔥 jarak antara judul & laporan
+        spaceAfter=6
     )
     
     info_style = ParagraphStyle(
         "InfoStyle",
         parent=styles["Normal"],
-        fontSize=8,    # 🔥 lebih kecil supaya elegan
-        textColor=colors.black,
+        fontName="Poppins-Regular",
+        fontSize=8,
+        leading=10,
+        textColor=colors.grey,
         alignment=1,
         spaceAfter=3
     )
@@ -674,26 +695,32 @@ def generate_pdf_public(df):
     title_style = ParagraphStyle(
         "TitleStyle",
         parent=styles["Normal"],
-        fontSize=16,
-        textColor=colors.black,
+        fontName="Playfair-Bold",
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor("#1B5E20"),
         alignment=1,
-        spaceAfter=8   # 🔥 jarak ke bawah lebih besar
+        spaceAfter=12
     )
     
     subtitle_style = ParagraphStyle(
         "SubtitleStyle",
         parent=styles["Normal"],
-        fontSize=11,
+        fontName="Poppins-SemiBold",
+        fontSize=12,
+        leading=16,
         textColor=colors.black,
         alignment=1,
-        spaceAfter=6   # 🔥 jarak antara judul & laporan
+        spaceAfter=6
     )
     
     info_style = ParagraphStyle(
         "InfoStyle",
         parent=styles["Normal"],
-        fontSize=8,    # 🔥 lebih kecil supaya elegan
-        textColor=colors.black,
+        fontName="Poppins-Regular",
+        fontSize=8,
+        leading=10,
+        textColor=colors.grey,
         alignment=1,
         spaceAfter=3
     )
