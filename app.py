@@ -589,95 +589,54 @@ def generate_invoice(selected_data):
     elements.append(Spacer(1, 20))
 
     # ======================
-    # FORMAT RUPIAH
+    # TOTAL ONLY SECTION
     # ======================
-
+    
     def rupiah(x):
         return f"Rp {int(x):,}".replace(",", ".")
-
-    # ======================
-    # DETAIL BOOKING
-    # ======================
-
-    detail_data = [
-        ["Nama Tamu", selected_data["nama"]],
-        ["No HP", selected_data["hp"]],
-        ["Kamar", selected_data["kamar"]],
-        ["Check-in", selected_data["checkin"]],
-        ["Check-out", selected_data["checkout"]],
-    ]
-
-    detail_table = Table(detail_data, colWidths=[3*cm, 10*cm])
-
-    detail_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor("#F5F5F5")),
-        ('GRID', (0, 0), (-1, -1), 0.3, colors.lightgrey),
-        ('FONTNAME', (0, 0), (-1, -1), 'Poppins-Regular'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ]))
-
-    elements.append(detail_table)
-    elements.append(Spacer(1, 25))
-
-    # ======================
-    # PAYMENT SUMMARY
-    # ======================
-
-    payment_data = [
-        ["Total", rupiah(selected_data["total"])],
-        ["DP", rupiah(selected_data["dp"])],
-        ["Sisa", rupiah(selected_data["sisa"])],
-    ]
-
-    payment_table = Table(payment_data, colWidths=[3*cm, 5*cm])
-
-    payment_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 0.3, colors.grey),
-        ('FONTNAME', (0, 0), (-1, -1), 'Poppins-SemiBold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 11),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ]))
-
-    elements.append(payment_table)
+    
     elements.append(Spacer(1, 30))
-
+    
+    total_table = Table(
+        [["TOTAL PEMBAYARAN", rupiah(selected_data["total"])]],
+        colWidths=[6*cm, 5*cm]
+    )
+    
+    total_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#1B5E20")),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('FONTNAME', (0, 0), (-1, -1), 'Poppins-SemiBold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 14),
+        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 12),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+        ('TOPPADDING', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+    ]))
+    
+    elements.append(total_table)
+    elements.append(Spacer(1, 40))
+    
+    
     # ======================
-    # STATUS BADGE
+    # STATUS
     # ======================
-
+    
     status_color = colors.HexColor("#2E7D32") if selected_data["sisa"] <= 0 else colors.HexColor("#C62828")
-
+    
+    status_text = "LUNAS" if selected_data["sisa"] <= 0 else "BELUM LUNAS"
+    
     status_style = ParagraphStyle(
         "StatusStyle",
         parent=styles["Normal"],
         fontName="Poppins-SemiBold",
-        fontSize=12,
+        fontSize=14,
         textColor=status_color,
-        alignment=1
+        alignment=1,
     )
-
-    status_text = "✔ LUNAS" if selected_data["sisa"] <= 0 else "BELUM LUNAS"
-
+    
     elements.append(Paragraph(status_text, status_style))
-
-    elements.append(Spacer(1, 30))
-
-    # ======================
-    # DISCLAIMER
-    # ======================
-
-    disclaimer_style = ParagraphStyle(
-        "Disclaimer",
-        parent=styles["Normal"],
-        fontName="Poppins-Regular",
-        fontSize=7,
-        textColor=colors.red,
-        alignment=1
-    )
-
-    elements.append(Paragraph("Harga dapat berubah sewaktu-waktu.", disclaimer_style))
 
     doc.build(elements)
 
