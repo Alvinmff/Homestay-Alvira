@@ -1,14 +1,13 @@
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
-import io
 from datetime import datetime
 from reportlab.lib.units import cm
+import io
 
 from io import BytesIO
 from reportlab.lib import colors
@@ -18,10 +17,10 @@ from reportlab.lib import pagesizes
 
 import streamlit as st
 import pandas as pd
-import sqlite3
 from datetime import datetime, date
 import matplotlib.pyplot as plt
 import streamlit as st
+
 from PIL import Image
 from reportlab.platypus import Image as RLImage
 from reportlab.pdfgen import canvas
@@ -96,7 +95,12 @@ st.title("🏠 Homestay Alvira Management")
 # DATABASE
 # ============================
 
-conn = sqlite3.connect("homestay.db", check_same_thread=False)
+import psycopg2
+import os
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+conn = psycopg2.connect(postgresql://postgres:Alvira$2829@db.suhusphxgyzzntjkiekw.supabase.co:5432/postgres)
 cursor = conn.cursor()
 
 cursor.execute("""
