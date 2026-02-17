@@ -27,16 +27,20 @@ from reportlab.pdfgen import canvas
 def add_watermark(canvas, doc):
     canvas.saveState()
 
-    # Lebih transparan
-    canvas.setFillAlpha(0.04)
+    # Lebih transparan (semakin kecil semakin transparan)
+    canvas.setFillAlpha(0.02)
 
-    # Warna brand olive soft
-    canvas.setFillColor(colors.HexColor("#145A32"))
+    # Warna abu soft
+    canvas.setFillColor(colors.HexColor("#9E9E9E"))
 
-    canvas.setFont("Helvetica-Bold", 75)
+    # Font tidak terlalu bold
+    canvas.setFont("Helvetica", 60)
 
-    # Posisi tengah & diagonal
-    canvas.translate(300, 400)
+    # Posisi tengah halaman
+    width, height = doc.pagesize
+    canvas.translate(width / 2, height / 2)
+
+    # Rotasi diagonal
     canvas.rotate(45)
 
     canvas.drawCentredString(0, 0, "HOMESTAY ALVIRA")
@@ -387,7 +391,7 @@ def generate_pdf(df):
         
         elements.append(Spacer(1, 15))
         elements.append(Paragraph(
-            "Harga dapat berubah sewaktu-waktu",
+            "*harga dapat berubah sewaktu-waktu",
             disclaimer_style
         ))
 
