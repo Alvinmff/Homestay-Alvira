@@ -36,7 +36,7 @@ pdfmetrics.registerFont(
 )
 
 pdfmetrics.registerFont(
-    TTFont('Poppins-SemiBold', 'assets/poppins/Poppins-SemiBold.ttf')
+    TTFont('Poppins-SemiBold', 'assets/poppins/Poppins-Medium.ttf')
 )
 
 
@@ -726,8 +726,8 @@ def generate_pdf_public(df):
     )
      
     header_text = [
-        Paragraph("<b>Homestay Alvira Sidoarjo</b>", title_style),
-        Paragraph("Laporan List Booking 2026", subtitle_style),
+        Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", title_style),
+        Paragraph("LAPORAN LIST BOOKING 2026", subtitle_style),
         Spacer(1, 4),  # 🔥 tambahan jarak manual
         Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
         Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", info_style),
