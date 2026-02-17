@@ -726,8 +726,8 @@ def generate_pdf_public(df):
      
     header_text = [
         Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", title_style),
-        Spacer(1, 3),  # 🔥 tambahan jarak manual
-        Paragraph("<b>Laporan Booking 2026</b>", subtitle_style),
+        Spacer(1, 2),  # 🔥 tambahan jarak manual
+        Paragraph("<b>LAPORAN BOOKING 2026</b>", subtitle_style),
         Spacer(1, 4),  # 🔥 tambahan jarak manual
         Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
         Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", info_style),
