@@ -112,41 +112,32 @@ st.title("🏠 Homestay Alvira Management")
 
 import psycopg2
 import streamlit as st
-from datetime import date, timedelta
 
-if "DATABASE_URL" not in st.secrets:
-    st.error("DATABASE_URL tidak ditemukan di secrets.")
-else:
-    conn = None
-    cursor = None
-
-    try:
-        conn = psycopg2.connect(
-            st.secrets["DATABASE_URL"],
-            sslmode="require"
-        )
-        cursor = conn.cursor()
-
-        # ============================
-        # CREATE TABLE BOOKINGS
-        # ============================
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS bookings (
-                id SERIAL PRIMARY KEY,
-                nama TEXT,
-                hp TEXT,
-                kamar TEXT,
-                checkin DATE,
-                checkout DATE,
-                harga INTEGER,
-                total INTEGER,
-                dp INTEGER DEFAULT 0,
-                sisa INTEGER DEFAULT 0,
-                status TEXT
-            );
-        """)
-        conn.commit()
-        st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
+    conn = psycopg2.connect(
+        st.secrets["DATABASE_URL"],
+        sslmode="require"
+    )
+    
+    cursor = conn.cursor()
+    
+    # Create tables
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS bookings (
+        id SERIAL PRIMARY KEY,
+        nama TEXT,
+        hp TEXT,
+        kamar TEXT,
+        checkin DATE,
+        checkout DATE,
+        harga INTEGER,
+        total INTEGER,
+        dp INTEGER DEFAULT 0,
+        sisa INTEGER DEFAULT 0,
+        status TEXT
+    );
+    """)
+    conn.commit()
+    st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
         
         # Jika ada query lain di baris 214 atau sekitarnya, tambahkan di sini
         # Misalnya, jika ini INSERT atau SELECT, ganti dengan kode Anda
@@ -184,12 +175,12 @@ else:
     # CREATE TABLE ROOMS
     # ============================
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS rooms (
-                id SERIAL PRIMARY KEY,
-                nama_kamar TEXT UNIQUE,
-                harga INTEGER,
-                aktif INTEGER DEFAULT 1
-            );
+        CREATE TABLE IF NOT EXISTS rooms (
+            id SERIAL PRIMARY KEY,
+            nama_kamar TEXT UNIQUE,
+            harga INTEGER,
+            aktif INTEGER DEFAULT 1
+        );
         """)
 
         conn.commit()
@@ -1101,7 +1092,7 @@ if st.sidebar.button("Simpan Booking"):
             cursor.execute("""
                 INSERT INTO bookings
                 (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 nama, hp, k,
                 str(checkin), str(checkout),
@@ -1335,9 +1326,9 @@ if not df.empty:
             else:
                 cursor.execute("""
                 UPDATE bookings
-                SET nama=?, hp=?, kamar=?, checkin=?, checkout=?,
-                    harga=?, total=?, dp=?, sisa=?, status=?
-                WHERE id=?
+                SET nama=%s, hp=%s, kamar=%s, checkin=%s, checkout=%s,
+                    harga=%s, total=%s, dp=%s, sisa=%s, status=%s
+                WHERE id=%s
                 """, (
                     edit_nama, edit_hp, edit_kamar,
                     str(edit_checkin), str(edit_checkout),
@@ -1376,10 +1367,9 @@ if not df.empty:
     
     if confirm:
         if st.button("🔄 Reset Semua Data & ID"):
-            cursor.execute("DELETE FROM bookings")
-            cursor.execute("DELETE FROM sqlite_sequence WHERE name='bookings'")
+            cursor.execute("TRUNCATE TABLE bookings RESTART IDENTITY;")
             conn.commit()
-            st.success("Database berhasil direset. ID kembali ke 1.")
+            st.success("Database berhasil direset.")
             st.rerun()
 
     # ============================
