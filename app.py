@@ -303,10 +303,12 @@ def generate_pdf(df):
     subtitle_style = styles["Normal"]
     subtitle_style.alignment = 1
     subtitle_style.textColor = colors.HexColor("#2E7D32")
-    
+     
     header_text = [
-        Paragraph("<b>Homestay Alvira</b>", title_style),
+        Paragraph("<b>Homestay Alvira Sidoarjo</b>", title_style),
         Paragraph("Laporan Booking 2026", subtitle_style),
+        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo kota - Jawa Timur", subtitle_style),
+        Paragraph("Telp: 081231646523 (Bu Yanie) Website: www.alvirahomestay.com", subtitle_style),
     ]
     
     header_table = Table(
