@@ -112,7 +112,7 @@ cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS bookings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY AUTOINCREMENT,
     nama TEXT,
     hp TEXT,
     kamar TEXT,
