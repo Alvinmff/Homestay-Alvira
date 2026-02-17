@@ -136,25 +136,6 @@ else:
         conn.commit()
         st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
         
-        # CREATE TABLE untuk rooms (pastikan ini satu-satunya query untuk rooms)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS rooms (
-                id SERIAL PRIMARY KEY,
-                nama TEXT,
-                hp TEXT,
-                kamar TEXT,
-                checkin TEXT,
-                checkout TEXT,
-                harga INTEGER,
-                total INTEGER,
-                dp INTEGER DEFAULT 0,
-                sisa INTEGER DEFAULT 0,
-                status TEXT
-            );
-        """)
-        conn.commit()
-        st.success("Tabel 'rooms' berhasil dibuat atau sudah ada!")
-        
         # Jika ada query lain di baris 214 atau sekitarnya, tambahkan di sini
         # Misalnya, jika ini INSERT atau SELECT, ganti dengan kode Anda
         # Contoh INSERT ke tabel bookings:
@@ -239,10 +220,10 @@ bulan_indonesia = {
     # FUNCTIONS
     # ============================
         
-        # Fungsi ini bisa dipanggil di luar blok database, tapi jika menggunakan cursor, pastikan di dalam try
-        # (Untuk sekarang, functions didefinisikan di sini; panggil di tempat lain jika perlu)
+    # Fungsi ini bisa dipanggil di luar blok database, tapi jika menggunakan cursor, pastikan di dalam try
+    # (Untuk sekarang, functions didefinisikan di sini; panggil di tempat lain jika perlu)
         
-        # Catatan: harga_kamar tidak didefinisikan di sini; pastikan didefinisikan di tempat lain atau tambahkan
+    # Catatan: harga_kamar tidak didefinisikan di sini; pastikan didefinisikan di tempat lain atau tambahkan
         
     except psycopg2.OperationalError as e:
         st.error(f"Kesalahan operasional koneksi: {e}")
@@ -252,11 +233,11 @@ bulan_indonesia = {
         st.error(f"Kesalahan umum: {e}")
     finally:
         # Tutup cursor dan koneksi jika ada
-    if cursor:
-        cursor.close()
-    if conn:
-        conn.close()
-        st.info("Koneksi database ditutup.")
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+            st.info("Koneksi database ditutup.")
 
 # ============================
 # FUNCTIONS
