@@ -479,151 +479,208 @@ def generate_pdf(df):
 def generate_invoice(selected_data):
 
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=pagesizes.A4)
-    elements = []
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=pagesizes.A4,
+        rightMargin=30,
+        leftMargin=30,
+        topMargin=30,
+        bottomMargin=30
+    )
 
+    elements = []
     styles = getSampleStyleSheet()
 
     # ======================
-    # HEADER PREMIUM
+    # STYLE
     # ======================
-    
-    logo = RLImage("assets/logo.png", width=1.3*inch, height=1.3*inch)
-    
+
     title_style = ParagraphStyle(
         "TitleStyle",
         parent=styles["Normal"],
         fontName="Playfair-Bold",
-        fontSize=20,
-        leading=24,
+        fontSize=22,
         textColor=colors.HexColor("#1B5E20"),
         alignment=1,
-        spaceAfter=5
+        spaceAfter=4
     )
-    
-    subtitle_style = ParagraphStyle(
-        "SubtitleStyle",
+
+    invoice_style = ParagraphStyle(
+        "InvoiceStyle",
         parent=styles["Normal"],
+        fontName="Poppins-SemiBold",
         fontSize=12,
-        leading=16,
-        textColor=colors.black,
+        textColor=colors.HexColor("#444444"),
         alignment=1,
         spaceAfter=6
     )
-    
+
     info_style = ParagraphStyle(
         "InfoStyle",
         parent=styles["Normal"],
         fontName="Poppins-Regular",
         fontSize=8,
-        leading=10,
         textColor=colors.grey,
-        alignment=1,
-        spaceAfter=3
+        alignment=1
     )
-     
+
+    normal_style = ParagraphStyle(
+        "NormalStyle",
+        parent=styles["Normal"],
+        fontName="Poppins-Regular",
+        fontSize=10,
+        textColor=colors.black
+    )
+
+    bold_style = ParagraphStyle(
+        "BoldStyle",
+        parent=styles["Normal"],
+        fontName="Poppins-SemiBold",
+        fontSize=10,
+        textColor=colors.black
+    )
+
+    # ======================
+    # HEADER
+    # ======================
+
+    logo = RLImage("assets/logo.png", width=1.2*inch, height=1.2*inch)
+
     header_text = [
-        Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", title_style),
-        Spacer(1, 2),  # 🔥 tambahan jarak manual
-        Paragraph("<b>INVOICE</b>", subtitle_style),
-        Spacer(1, 4),  # 🔥 tambahan jarak manual
-        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
-        Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", info_style),
+        Paragraph("HOMESTAY ALVIRA SIDOARJO", title_style),
+        Paragraph("INVOICE", invoice_style),
+        Spacer(1, 4),
+        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo", info_style),
+        Paragraph("Telp: 081231646523 | www.alvirahomestay.com", info_style),
     ]
 
-    header_table = Table(
-        [[logo, header_text]],
-        colWidths=[3*cm, 12*cm]
-    )
-    
+    header_table = Table([[logo, header_text]], colWidths=[3*cm, 13*cm])
+
     header_table.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-    
-        # Logo kolom 0
-        ("LEFTPADDING", (0,0), (0,0), 0),
-    
-        # Text kolom 1 → geser ke kanan
-        ("LEFTPADDING", (1,0), (1,0), 20),
-    
-        ("RIGHTPADDING", (0,0), (-1,-1), 6),
-        ("TOPPADDING", (0,0), (-1,-1), 6),
-        ("BOTTOMPADDING", (0,0), (-1,-1), 6),
+        ("LEFTPADDING", (1, 0), (1, 0), 20),
     ]))
-    
-    elements.append(header_table)
-    elements.append(Spacer(1, 6))
-    
-    gold_line = Table([[""]], colWidths=[17*cm])
-    gold_line.setStyle(TableStyle([
-        ('LINEBELOW', (0,0), (-1,-1), 1, colors.HexColor("#C6A700"))
-    ]))
-    
-    elements.append(gold_line)
-    elements.append(Spacer(1, 15))
 
-     # ============================
-    # NOMOR INVOICE OTOMATIS
-    # ============================
+    elements.append(header_table)
+    elements.append(Spacer(1, 10))
+
+    # Gold Line
+    line = Table([[""]], colWidths=[17*cm])
+    line.setStyle(TableStyle([
+        ('LINEBELOW', (0,0), (-1,-1), 1.5, colors.HexColor("#C6A700"))
+    ]))
+    elements.append(line)
+    elements.append(Spacer(1, 20))
+
+    # ======================
+    # INVOICE META
+    # ======================
+
     tahun = datetime.now().year
     invoice_number = f"INV-{tahun}-{int(selected_data['id']):04d}"
 
-    # ============================
-    # HEADER
-    # ============================
-    title_style = styles["Heading1"]
-    elements.append(Paragraph("HOMESTAY MANAGEMENT PRO", title_style))
-    elements.append(Spacer(1, 10))
+    meta_data = [
+        [Paragraph("<b>Invoice No</b>", bold_style), invoice_number],
+        [Paragraph("<b>Tanggal Cetak</b>", bold_style), datetime.now().strftime('%d-%m-%Y')],
+    ]
 
-    elements.append(Paragraph(f"<b>Invoice:</b> {invoice_number}", styles["Normal"]))
-    elements.append(Paragraph(f"<b>Tanggal Cetak:</b> {datetime.now().strftime('%d-%m-%Y')}", styles["Normal"]))
-    elements.append(Spacer(1, 15))
+    meta_table = Table(meta_data, colWidths=[3*cm, 5*cm])
+    elements.append(meta_table)
+    elements.append(Spacer(1, 20))
 
-    # ============================
+    # ======================
     # FORMAT RUPIAH
-    # ============================
+    # ======================
+
     def rupiah(x):
         return f"Rp {int(x):,}".replace(",", ".")
 
-    # ============================
-    # DATA TABEL
-    # ============================
-    data = [
+    # ======================
+    # DETAIL BOOKING
+    # ======================
+
+    detail_data = [
         ["Nama Tamu", selected_data["nama"]],
         ["No HP", selected_data["hp"]],
         ["Kamar", selected_data["kamar"]],
         ["Check-in", selected_data["checkin"]],
         ["Check-out", selected_data["checkout"]],
-        ["Total", rupiah(selected_data["total"])],
-        ["DP", rupiah(selected_data["dp"])],
-        ["Sisa", rupiah(selected_data["sisa"])],
-        ["Status", selected_data["status"]],
     ]
 
-    table = Table(data, colWidths=[2.5*inch, 3.5*inch])
+    detail_table = Table(detail_data, colWidths=[3*cm, 10*cm])
 
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+    detail_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor("#F5F5F5")),
+        ('GRID', (0, 0), (-1, -1), 0.3, colors.lightgrey),
+        ('FONTNAME', (0, 0), (-1, -1), 'Poppins-Regular'),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ]))
 
-    elements.append(table)
+    elements.append(detail_table)
+    elements.append(Spacer(1, 25))
+
+    # ======================
+    # PAYMENT SUMMARY
+    # ======================
+
+    payment_data = [
+        ["Total", rupiah(selected_data["total"])],
+        ["DP", rupiah(selected_data["dp"])],
+        ["Sisa", rupiah(selected_data["sisa"])],
+    ]
+
+    payment_table = Table(payment_data, colWidths=[3*cm, 5*cm])
+
+    payment_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.3, colors.grey),
+        ('FONTNAME', (0, 0), (-1, -1), 'Poppins-SemiBold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+
+    elements.append(payment_table)
     elements.append(Spacer(1, 30))
 
-    # ============================
-    # WATERMARK LUNAS
-    # ============================
-    if selected_data["sisa"] <= 0:
-        lunas_style = ParagraphStyle(
-            'LunasStyle',
-            parent=styles['Heading1'],
-            textColor=colors.green
-        )
-        elements.append(Paragraph("✔ LUNAS", lunas_style))
+    # ======================
+    # STATUS BADGE
+    # ======================
+
+    status_color = colors.HexColor("#2E7D32") if selected_data["sisa"] <= 0 else colors.HexColor("#C62828")
+
+    status_style = ParagraphStyle(
+        "StatusStyle",
+        parent=styles["Normal"],
+        fontName="Poppins-SemiBold",
+        fontSize=12,
+        textColor=status_color,
+        alignment=1
+    )
+
+    status_text = "✔ LUNAS" if selected_data["sisa"] <= 0 else "BELUM LUNAS"
+
+    elements.append(Paragraph(status_text, status_style))
+
+    elements.append(Spacer(1, 30))
+
+    # ======================
+    # DISCLAIMER
+    # ======================
+
+    disclaimer_style = ParagraphStyle(
+        "Disclaimer",
+        parent=styles["Normal"],
+        fontName="Poppins-Regular",
+        fontSize=7,
+        textColor=colors.red,
+        alignment=1
+    )
+
+    elements.append(Paragraph("Harga dapat berubah sewaktu-waktu.", disclaimer_style))
 
     doc.build(elements)
+
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
