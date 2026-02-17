@@ -597,7 +597,20 @@ def generate_invoice(selected_data):
     # =========================
     # ITEM TABLE
     # =========================
-    nights = (selected_data["checkout"] - selected_data["checkin"]).days
+    from datetime import datetime, date
+
+    checkin = selected_data["checkin"]
+    checkout = selected_data["checkout"]
+    
+    # Jika masih string → convert
+    if isinstance(checkin, str):
+        checkin = datetime.strptime(checkin, "%Y-%m-%d").date()
+    
+    if isinstance(checkout, str):
+        checkout = datetime.strptime(checkout, "%Y-%m-%d").date()
+    
+    nights = (checkout - checkin).days
+
 
     item_data = [
         ["Description", "Qty", "Amount"],
