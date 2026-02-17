@@ -103,19 +103,33 @@ if "DATABASE_URL" not in st.secrets:
     st.error("DATABASE_URL tidak ditemukan di secrets. Periksa konfigurasi Streamlit.")
 else:
     conn = None
-    cursor = None  # Inisialisasi untuk menghindari NameError
+    cursor = None
     try:
         # Coba buat koneksi
         conn = psycopg2.connect(
             st.secrets["DATABASE_URL"],
-            sslmode="require"  # Atau ubah ke "prefer" jika masih gagal
+            sslmode="require"  # Atau ubah ke "prefer" jika diperlukan
         )
         st.success("Koneksi ke database berhasil!")
         
         # Buat cursor HANYA jika koneksi berhasil
         cursor = conn.cursor()
         
-        # Sekarang lakukan semua operasi database di sini (di dalam try)
+        # Lakukan SEMUA operasi database di sini (di dalam try)
+        # Contoh: CREATE TABLE untuk bookings (jika belum ada)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS bookings (
+                id SERIAL PRIMARY KEY,  -- Diperbaiki: Hapus AUTOINCREMENT
+                nama TEXT,
+                -- Tambahkan kolom lainnya, misalnya:
+                -- email TEXT,
+                -- tanggal DATE
+            );
+        """)
+        conn.commit()
+        st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
+        
+        # Jika query di baris 188 asli Anda adalah CREATE TABLE untuk rooms, tambahkan di sini
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS bookings (
                 id SERIAL PRIMARY KEY AUTOINCREMENT,
@@ -131,19 +145,23 @@ else:
                 status TEXT
             )
             """)
-        
-        # Commit perubahan (penting untuk DDL seperti CREATE TABLE)
+
         conn.commit()
-        st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
+        st.success("Tabel 'rooms' berhasil dibuat atau sudah ada!")
         
-        # Tambahkan query lain di sini jika diperlukan, misalnya:
-        # cursor.execute("INSERT INTO bookings (nama) VALUES (%s);", ("Nama Contoh",))
+        # Tambahkan query lain di sini jika diperlukan (misalnya, INSERT atau SELECT)
+        # Contoh INSERT:
+        # cursor.execute("INSERT INTO rooms (nama_room) VALUES (%s);", ("Room 1",))
         # conn.commit()
         # st.write("Data berhasil dimasukkan!")
         
+        # Contoh SELECT:
+        # cursor.execute("SELECT * FROM rooms;")
+        # results = cursor.fetchall()
+        # st.write(results)
+        
     except psycopg2.OperationalError as e:
         st.error(f"Kesalahan operasional koneksi: {e}")
-        st.info("Saran: Periksa akses IP di Supabase atau gunakan connection pooling.")
     except psycopg2.DatabaseError as e:
         st.error(f"Kesalahan database: {e}")
     except Exception as e:
