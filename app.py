@@ -153,13 +153,6 @@ st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
         # cursor.execute("SELECT * FROM rooms;")
         # results = cursor.fetchall()
         # st.write(results)
-        
-
-except psycopg2.OperationalError as e:
-    st.error(f"Koneksi gagal: {e}")
-
-except Exception as e:
-    st.error(f"Error lain: {e}")
 
         
     # ============================
