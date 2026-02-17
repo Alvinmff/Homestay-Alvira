@@ -27,6 +27,21 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 
+bulan_indonesia = {
+    1: "JANUARI",
+    2: "FEBRUARI",
+    3: "MARET",
+    4: "APRIL",
+    5: "MEI",
+    6: "JUNI",
+    7: "JULI",
+    8: "AGUSTUS",
+    9: "SEPTEMBER",
+    10: "OKTOBER",
+    11: "NOVEMBER",
+    12: "DESEMBER"
+}
+
 pdfmetrics.registerFont(
     TTFont('Playfair-Bold', 'assets/pairflay/PlayfairDisplay-Bold.ttf')
 )
@@ -97,35 +112,32 @@ st.title("🏠 Homestay Alvira Management")
 
 import psycopg2
 import streamlit as st
-from datetime import date, timedelta  # Tambahkan import untuk functions
+from datetime import date, timedelta
 
-# Pastikan DATABASE_URL ada di secrets
 if "DATABASE_URL" not in st.secrets:
-    st.error("DATABASE_URL tidak ditemukan di secrets. Periksa konfigurasi Streamlit.")
+    st.error("DATABASE_URL tidak ditemukan di secrets.")
 else:
     conn = None
     cursor = None
+
     try:
-        # Coba buat koneksi
         conn = psycopg2.connect(
             st.secrets["DATABASE_URL"],
-            sslmode="require"  # Atau ubah ke "prefer" jika diperlukan
+            sslmode="require"
         )
-        st.success("Koneksi ke database berhasil!")
-        
-        # Buat cursor HANYA jika koneksi berhasil
         cursor = conn.cursor()
-        
-        # Lakukan SEMUA operasi database di sini (di dalam try)
-        # CREATE TABLE untuk bookings
+
+        # ============================
+        # CREATE TABLE BOOKINGS
+        # ============================
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS bookings (
                 id SERIAL PRIMARY KEY,
                 nama TEXT,
                 hp TEXT,
                 kamar TEXT,
-                checkin TEXT,
-                checkout TEXT,
+                checkin DATE,
+                checkout DATE,
                 harga INTEGER,
                 total INTEGER,
                 dp INTEGER DEFAULT 0,
@@ -165,56 +177,32 @@ else:
             conn.close()
             st.info("Koneksi database ditutup.")
 
-bulan_indonesia = {
-    1: "JANUARI",
-    2: "FEBRUARI",
-    3: "MARET",
-    4: "APRIL",
-    5: "MEI",
-    6: "JUNI",
-    7: "JULI",
-    8: "AGUSTUS",
-    9: "SEPTEMBER",
-    10: "OKTOBER",
-    11: "NOVEMBER",
-    12: "DESEMBER"
-}
 
+   
+        
+    # ============================
+    # CREATE TABLE ROOMS
+    # ============================
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS rooms (
+                id SERIAL PRIMARY KEY,
+                nama_kamar TEXT UNIQUE,
+                harga INTEGER,
+                aktif INTEGER DEFAULT 1
+            );
+        """)
 
-    # ============================
-    # FIX DATABASE STRUCTURE
-    # ============================
-        
-    # Pastikan kolom room_id ada (diperbaiki untuk PostgreSQL)
-    try:
-        cursor.execute("ALTER TABLE bookings ADD COLUMN room_id INTEGER")
         conn.commit()
-    except:
-        pass
-        
-        # Pastikan tabel rooms ada (diperbaiki: SERIAL PRIMARY KEY, tanpa AUTOINCREMENT)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS rooms (
-            id SERIAL PRIMARY KEY,  -- Diperbaiki: SERIAL untuk auto-increment
-            nama_kamar TEXT UNIQUE,
-            harga INTEGER,
-            aktif INTEGER DEFAULT 1
-        )
-    """)
-    conn.commit()
-        
-        # Tambah kolom jika belum ada (untuk database lama)
-    try:
-        cursor.execute("ALTER TABLE bookings ADD COLUMN dp INTEGER DEFAULT 0")
-        conn.commit()
-    except:
-        pass
-        
-    try:
-        cursor.execute("ALTER TABLE bookings ADD COLUMN sisa INTEGER DEFAULT 0")
-        conn.commit()
-    except:
-        pass
+        st.success("Database ready ✅")
+
+    except Exception as e:
+        st.error(f"Database error: {e}")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
     # ============================
     # FUNCTIONS
