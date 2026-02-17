@@ -517,12 +517,19 @@ def generate_invoice(selected_data):
     # =========================
     logo = RLImage("assets/logo.png", width=1.2*inch, height=1.2*inch)
 
+    info_style = ParagraphStyle(
+        "InfoStyle",
+        parent=styles["Normal"],
+        fontSize=9,
+        textColor=colors.grey
+    )
+    
     header_left = [
-        Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", styles["Heading2"]),
+        Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", styles["Heading1"]),
         Spacer(1, 4),
-        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28", styles["Normal"]), color["grey"]),
-        Paragraph("Sidoarjo - Jawa Timur", styles["Normal"]), color["grey"]),
-        Paragraph("081231646523", styles["Normal"]), color["grey"]),
+        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28", info_style),
+        Paragraph("Sidoarjo - Jawa Timur", info_style),
+        Paragraph("Telp: 081231646523", info_style),
     ]
 
     header_right = [
