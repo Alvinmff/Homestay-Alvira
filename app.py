@@ -301,25 +301,36 @@ def generate_pdf(df):
         parent=styles["Normal"],
         fontSize=16,
         textColor=colors.black,
-        alignment=1,  # center
-        spaceAfter=4
+        alignment=1,
+        spaceAfter=8   # 🔥 jarak ke bawah lebih besar
     )
     
     subtitle_style = ParagraphStyle(
         "SubtitleStyle",
         parent=styles["Normal"],
-        fontSize=9,
+        fontSize=11,
         textColor=colors.black,
         alignment=1,
-        spaceAfter=2
+        spaceAfter=6   # 🔥 jarak antara judul & laporan
+    )
+    
+    info_style = ParagraphStyle(
+        "InfoStyle",
+        parent=styles["Normal"],
+        fontSize=8,    # 🔥 lebih kecil supaya elegan
+        textColor=colors.black,
+        alignment=1,
+        spaceAfter=3
     )
      
     header_text = [
         Paragraph("<b>Homestay Alvira Sidoarjo</b>", title_style),
         Paragraph("Laporan Booking 2026", subtitle_style),
-        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", subtitle_style),
-        Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", subtitle_style),
+        Spacer(1, 4),  # 🔥 tambahan jarak manual
+        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
+        Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", info_style),
     ]
+
 
     header_table = Table(
         [[logo, header_text]],
@@ -329,11 +340,12 @@ def generate_pdf(df):
     header_table.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("ALIGN", (1, 0), (1, 0), "CENTER"),
-        ("LEFTPADDING", (0,0), (-1,-1), 0),
-        ("RIGHTPADDING", (0,0), (-1,-1), 0),
-        ("TOPPADDING", (0,0), (-1,-1), 0),
+        ("LEFTPADDING", (0,0), (-1,-1), 6),
+        ("RIGHTPADDING", (0,0), (-1,-1), 6),
+        ("TOPPADDING", (0,0), (-1,-1), 6),
         ("BOTTOMPADDING", (0,0), (-1,-1), 6),
     ]))
+
     
     elements.append(header_table)
     elements.append(Spacer(1, 6))
