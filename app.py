@@ -1201,15 +1201,29 @@ if not df.empty:
     # RESET DATABASE
     # ============================
     st.subheader("⚙️ Reset Database")
-    
+
     confirm = st.checkbox("Saya yakin ingin menghapus semua data")
     
     if confirm:
         if st.button("🔄 Reset Semua Data & ID"):
-            cursor.execute("TRUNCATE TABLE bookings RESTART IDENTITY;")
-            conn.commit()
-            st.success("Database berhasil direset.")
-            st.rerun()
+    
+            try:
+                with psycopg2.connect(
+                    st.secrets["DATABASE_URL"],
+                    sslmode="require"
+                ) as conn:
+                    
+                    with conn.cursor() as cursor:
+                        cursor.execute("TRUNCATE TABLE bookings RESTART IDENTITY CASCADE;")
+                        conn.commit()
+    
+                st.success("✅ Database berhasil direset!")
+                st.cache_data.clear()   # penting kalau pakai cache
+                st.rerun()
+    
+            except Exception as e:
+                st.error(f"Terjadi error: {e}")
+
 
     # ============================
     # DASHBOARD
