@@ -670,19 +670,42 @@ def generate_pdf_public(df):
     
     logo = RLImage("assets/logo.png", width=1.3*inch, height=1.3*inch)
     
-    title_style = styles["Heading1"]
-    title_style.textColor = colors.HexColor("#1B5E20")
-    title_style.alignment = 1  # center
+    title_style = ParagraphStyle(
+        "TitleStyle",
+        parent=styles["Normal"],
+        fontSize=16,
+        textColor=colors.black,
+        alignment=1,
+        spaceAfter=8   # 🔥 jarak ke bawah lebih besar
+    )
     
-    subtitle_style = styles["Normal"]
-    subtitle_style.alignment = 1
-    subtitle_style.textColor = colors.HexColor("#2E7D32")
+    subtitle_style = ParagraphStyle(
+        "SubtitleStyle",
+        parent=styles["Normal"],
+        fontSize=11,
+        textColor=colors.black,
+        alignment=1,
+        spaceAfter=6   # 🔥 jarak antara judul & laporan
+    )
     
+    info_style = ParagraphStyle(
+        "InfoStyle",
+        parent=styles["Normal"],
+        fontSize=8,    # 🔥 lebih kecil supaya elegan
+        textColor=colors.black,
+        alignment=1,
+        spaceAfter=3
+    )
+     
     header_text = [
-        Paragraph("<b>Homestay Alvira</b>", title_style),
+        Paragraph("<b>Homestay Alvira Sidoarjo</b>", title_style),
         Paragraph("Laporan Booking 2026", subtitle_style),
+        Spacer(1, 4),  # 🔥 tambahan jarak manual
+        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
+        Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", info_style),
     ]
-    
+
+
     header_table = Table(
         [[logo, header_text]],
         colWidths=[3*cm, 12*cm]
@@ -691,23 +714,23 @@ def generate_pdf_public(df):
     header_table.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("ALIGN", (1, 0), (1, 0), "CENTER"),
-        ("LEFTPADDING", (0,0), (-1,-1), 0),
-        ("RIGHTPADDING", (0,0), (-1,-1), 0),
-        ("TOPPADDING", (0,0), (-1,-1), 0),
+        ("LEFTPADDING", (0,0), (-1,-1), 6),
+        ("RIGHTPADDING", (0,0), (-1,-1), 6),
+        ("TOPPADDING", (0,0), (-1,-1), 6),
         ("BOTTOMPADDING", (0,0), (-1,-1), 6),
     ]))
+
     
     elements.append(header_table)
-    elements.append(Spacer(1, 8))
+    elements.append(Spacer(1, 6))
     
-    # Garis emas tipis
-    gold_line = Table([[""]], colWidths=[17*cm], rowHeights=[2])
+    gold_line = Table([[""]], colWidths=[17*cm])
     gold_line.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,-1), colors.HexColor("#C9A227"))
+        ('LINEBELOW', (0,0), (-1,-1), 1, colors.HexColor("#C6A700"))
     ]))
     
     elements.append(gold_line)
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 15))
 
     df_pdf = df.copy()
 
