@@ -1165,7 +1165,7 @@ if not df.empty:
         new_status = get_status(checkin_date, checkout_date, sisa_value)
 
         cursor.execute(
-            "UPDATE bookings SET status=? WHERE id=?",
+            "UPDATE bookings SET status=%s WHERE id=%s",
             (new_status, row["id"])
         )
 
@@ -1304,7 +1304,7 @@ if not df.empty:
                 st.rerun()
 
     if col_delete.button("🗑️ Hapus Booking"):
-        cursor.execute("DELETE FROM bookings WHERE id=?",
+        cursor.execute("DELETE FROM bookings WHERE id=%s",
                        (selected_id,))
         conn.commit()
         st.warning("Booking dihapus!")
