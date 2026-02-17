@@ -8,6 +8,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 import io
 from datetime import datetime
+from reportlab.lib.units import cm
 
 from io import BytesIO
 from reportlab.lib import colors
