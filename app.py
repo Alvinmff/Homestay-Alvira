@@ -738,7 +738,7 @@ def generate_pdf_public(df):
         colWidths=[3*cm, 12*cm]
     )
     
-        header_table.setStyle(TableStyle([
+    header_table.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
     
         # Logo kolom 0
