@@ -604,10 +604,10 @@ def generate_invoice(selected_data):
     
     # Jika masih string → convert
     if isinstance(checkin, str):
-        checkin = datetime.strptime(checkin, "%Y-%m-%d").date()
+        checkin = datetime.strptime(checkin, "%d-%m-%Y").date()
     
     if isinstance(checkout, str):
-        checkout = datetime.strptime(checkout, "%Y-%m-%d").date()
+        checkout = datetime.strptime(checkout, "%d-%m-%Y").date()
     
     nights = (checkout - checkin).days
 
