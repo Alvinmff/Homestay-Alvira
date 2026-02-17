@@ -156,18 +156,11 @@ st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
         
 
 except psycopg2.OperationalError as e:
-    st.error(f"Kesalahan operasional koneksi: {e}")
-except psycopg2.DatabaseError as e:
-    st.error(f"Kesalahan database: {e}")
+    st.error(f"Koneksi gagal: {e}")
+
 except Exception as e:
-    st.error(f"Kesalahan umum: {e}")
-finally:
-    # Tutup cursor dan koneksi jika ada
-    if cursor:
-        cursor.close()
-    if conn:
-        conn.close()
-        st.info("Koneksi database ditutup.")
+    st.error(f"Error lain: {e}")
+
         
     # ============================
     # CREATE TABLE ROOMS
@@ -184,15 +177,6 @@ cursor.execute("""
 conn.commit()
 st.success("Database ready ✅")
 
-except Exception as e:
-    st.error(f"Database error: {e}")
-
-finally:
-    if cursor:
-        cursor.close()
-    if conn:
-        conn.close()
-
     # ============================
     # FUNCTIONS
     # ============================
@@ -201,20 +185,7 @@ finally:
     # (Untuk sekarang, functions didefinisikan di sini; panggil di tempat lain jika perlu)
         
     # Catatan: harga_kamar tidak didefinisikan di sini; pastikan didefinisikan di tempat lain atau tambahkan
-        
-except psycopg2.OperationalError as e:
-    st.error(f"Kesalahan operasional koneksi: {e}")
-except psycopg2.DatabaseError as e:
-    st.error(f"Kesalahan database: {e}")
-except Exception as e:
-    st.error(f"Kesalahan umum: {e}")
-finally:
-    # Tutup cursor dan koneksi jika ada
-    if cursor:
-        cursor.close()
-    if conn:
-        conn.close()
-        st.info("Koneksi database ditutup.")
+    
 
 # ============================
 # FUNCTIONS
