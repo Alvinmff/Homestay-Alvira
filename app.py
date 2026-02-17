@@ -706,7 +706,6 @@ def generate_pdf_public(df):
     subtitle_style = ParagraphStyle(
         "SubtitleStyle",
         parent=styles["Normal"],
-        fontName="Poppins-Light",
         fontSize=12,
         leading=16,
         textColor=colors.black,
@@ -727,7 +726,7 @@ def generate_pdf_public(df):
      
     header_text = [
         Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", title_style),
-        Spacer(1, 4),  # 🔥 tambahan jarak manual
+        Spacer(1, 3),  # 🔥 tambahan jarak manual
         Paragraph("<b>Laporan Booking 2026</b>", subtitle_style),
         Spacer(1, 4),  # 🔥 tambahan jarak manual
         Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
