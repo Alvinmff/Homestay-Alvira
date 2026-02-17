@@ -600,6 +600,13 @@ def generate_invoice(selected_data):
     checkin = selected_data["checkin"]
     checkout = selected_data["checkout"]
     
+    # kalau dari pandas kadang jadi Timestamp
+    if hasattr(checkin, "date"):
+        checkin = checkin.date()
+    
+    if hasattr(checkout, "date"):
+        checkout = checkout.date()
+    
     nights = (checkout - checkin).days
 
 
