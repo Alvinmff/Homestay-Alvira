@@ -113,31 +113,31 @@ st.title("🏠 Homestay Alvira Management")
 import psycopg2
 import streamlit as st
 
-    conn = psycopg2.connect(
-        st.secrets["DATABASE_URL"],
-        sslmode="require"
-    )
+conn = psycopg2.connect(
+    st.secrets["DATABASE_URL"],
+    sslmode="require"
+)
     
-    cursor = conn.cursor()
+cursor = conn.cursor()
     
-    # Create tables
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS bookings (
-        id SERIAL PRIMARY KEY,
-        nama TEXT,
-        hp TEXT,
-        kamar TEXT,
-        checkin DATE,
-        checkout DATE,
-        harga INTEGER,
-        total INTEGER,
-        dp INTEGER DEFAULT 0,
-        sisa INTEGER DEFAULT 0,
-        status TEXT
-    );
-    """)
-    conn.commit()
-    st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
+# Create tables
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS bookings (
+    id SERIAL PRIMARY KEY,
+    nama TEXT,
+    hp TEXT,
+    kamar TEXT,
+    checkin DATE,
+    checkout DATE,
+    harga INTEGER,
+    total INTEGER,
+    dp INTEGER DEFAULT 0,
+    sisa INTEGER DEFAULT 0,
+    status TEXT
+);
+""")
+conn.commit()
+st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
         
         # Jika ada query lain di baris 214 atau sekitarnya, tambahkan di sini
         # Misalnya, jika ini INSERT atau SELECT, ganti dengan kode Anda
