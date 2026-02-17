@@ -700,7 +700,7 @@ def generate_pdf_public(df):
         leading=24,
         textColor=colors.HexColor("#1B5E20"),
         alignment=1,
-        spaceAfter=12
+        spaceAfter=5
     )
     
     subtitle_style = ParagraphStyle(
@@ -727,7 +727,6 @@ def generate_pdf_public(df):
      
     header_text = [
         Paragraph("<b>Homestay Alvira Sidoarjo</b>", title_style),
-        Spacer(1, 2),  # 🔥 tambahan jarak manual
         Paragraph("Laporan List Booking 2026", subtitle_style),
         Spacer(1, 4),  # 🔥 tambahan jarak manual
         Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
@@ -742,8 +741,8 @@ def generate_pdf_public(df):
     header_table.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("ALIGN", (1, 0), (1, 0), "CENTER"),
-        ("LEFTPADDING", (0,0), (-2,-2), 6),
-        ("RIGHTPADDING", (0,0), (-1,-1), 6),
+        ("LEFTPADDING", (0,0), (-1,-1), 6),
+        ("RIGHTPADDING", (0,0), (-3,-3), 6),
         ("TOPPADDING", (0,0), (-1,-1), 6),
         ("BOTTOMPADDING", (0,0), (-1,-1), 6),
     ]))
