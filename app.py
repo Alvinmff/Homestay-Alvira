@@ -600,8 +600,8 @@ def generate_invoice(selected_data):
     # TABEL ITEM
     # =========================
     nights = (
-        datetime.strptime(selected_data["checkout"], "%Y-%m-%d") -
-        datetime.strptime(selected_data["checkin"], "%Y-%m-%d")
+        selected_data["checkout"] -
+        selected_data["checkin"]
     ).days
 
     item_data = [
