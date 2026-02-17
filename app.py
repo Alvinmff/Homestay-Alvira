@@ -599,16 +599,10 @@ def generate_invoice(selected_data):
     # =========================
     # TABEL ITEM
     # =========================
-    def to_date(val):
-    if isinstance(val, str):
-        return datetime.strptime(val, "%Y-%m-%d").date()
-    return val
-
-    checkin = to_date(selected_data["checkin"])
-    checkout = to_date(selected_data["checkout"])
-    
-    nights = (checkout - checkin).days
-
+    nights = (
+        selected_data["checkout"] -
+        selected_data["checkin"]
+    ).days
 
     item_data = [
         ["Description", "Qty", "Price", "Amount"],
