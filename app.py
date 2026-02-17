@@ -27,6 +27,8 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 
+st.write(type(selected_data["checkin"]))
+
 bulan_indonesia = {
     1: "JANUARI",
     2: "FEBRUARI",
