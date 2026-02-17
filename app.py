@@ -436,9 +436,29 @@ def generate_invoice(selected_data):
     elements = []
 
     styles = getSampleStyleSheet()
+
     logo = RLImage("assets/logo.png", width=1.5*inch, height=1.5*inch)
     elements.append(logo)
     elements.append(Spacer(1, 10))
+
+    elements.append(Paragraph("<b>INVOICE</b>", styles["Title"]))
+    elements.append(Spacer(1, 20))
+
+    elements.append(Paragraph(f"Nama: {selected_data['nama']}", styles["Normal"]))
+    elements.append(Paragraph(f"Kamar: {selected_data['kamar']}", styles["Normal"]))
+    elements.append(Paragraph(f"Check-in: {selected_data['checkin']}", styles["Normal"]))
+    elements.append(Paragraph(f"Check-out: {selected_data['checkout']}", styles["Normal"]))
+    elements.append(Spacer(1, 20))
+
+    elements.append(Paragraph(f"Total: Rp {int(selected_data['total']):,}".replace(",", "."), styles["Normal"]))
+
+    # 🔥 WAJIB ADA INI
+    doc.build(elements)
+
+    pdf = buffer.getvalue()
+    buffer.close()
+    return pdf
+
 
 def add_header(elements, logo_path):
 
