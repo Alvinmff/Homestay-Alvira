@@ -325,7 +325,8 @@ def generate_pdf(df):
      
     header_text = [
         Paragraph("<b>Homestay Alvira Sidoarjo</b>", title_style),
-        Paragraph("Laporan Booking 2026", subtitle_style),
+        Spacer(1, 4),  # 🔥 tambahan jarak manual
+        Paragraph("Laporan List Booking 2026", subtitle_style),
         Spacer(1, 4),  # 🔥 tambahan jarak manual
         Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
         Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", info_style),
@@ -699,12 +700,12 @@ def generate_pdf_public(df):
      
     header_text = [
         Paragraph("<b>Homestay Alvira Sidoarjo</b>", title_style),
-        Paragraph("Laporan Booking 2026", subtitle_style),
+        Spacer(1, 4),  # 🔥 tambahan jarak manual
+        Paragraph("Laporan List Booking 2026", subtitle_style),
         Spacer(1, 4),  # 🔥 tambahan jarak manual
         Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
         Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", info_style),
     ]
-
 
     header_table = Table(
         [[logo, header_text]],
