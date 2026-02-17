@@ -116,23 +116,10 @@ else:
         cursor = conn.cursor()
         
         # Lakukan SEMUA operasi database di sini (di dalam try)
-        # Contoh: CREATE TABLE untuk bookings (jika belum ada)
+        # CREATE TABLE untuk bookings
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS bookings (
-                id SERIAL PRIMARY KEY,  -- Diperbaiki: Hapus AUTOINCREMENT
-                nama TEXT,
-                -- Tambahkan kolom lainnya, misalnya:
-                -- email TEXT,
-                -- tanggal DATE
-            );
-        """)
-        conn.commit()
-        st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
-        
-        # Jika query di baris 188 asli Anda adalah CREATE TABLE untuk rooms, tambahkan di sini
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS bookings (
-                id SERIAL PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 nama TEXT,
                 hp TEXT,
                 kamar TEXT,
@@ -143,22 +130,43 @@ else:
                 dp INTEGER DEFAULT 0,
                 sisa INTEGER DEFAULT 0,
                 status TEXT
-            )
-            """)
-
+            );
+        """)
+        conn.commit()
+        st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
+        
+        # CREATE TABLE untuk rooms (diperbaiki: nama tabel benar, hapus AUTOINCREMENT, pastikan sintaks lengkap)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS rooms (
+                id SERIAL PRIMARY KEY,  -- Diperbaiki: Hapus AUTOINCREMENT
+                nama TEXT,
+                hp TEXT,
+                kamar TEXT,
+                checkin TEXT,
+                checkout TEXT,
+                harga INTEGER,
+                total INTEGER,
+                dp INTEGER DEFAULT 0,
+                sisa INTEGER DEFAULT 0,
+                status TEXT
+            );
+        """)
         conn.commit()
         st.success("Tabel 'rooms' berhasil dibuat atau sudah ada!")
         
         # Tambahkan query lain di sini jika diperlukan (misalnya, INSERT atau SELECT)
-        # Contoh INSERT:
-        # cursor.execute("INSERT INTO rooms (nama_room) VALUES (%s);", ("Room 1",))
+        # Contoh INSERT ke tabel bookings:
+        # cursor.execute("""
+        #     INSERT INTO bookings (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
+        #     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+        # """, ("Nama Contoh", "08123456789", "Room 1", "2023-01-01", "2023-01-02", 100000, 100000, 50000, 50000, "Confirmed"))
         # conn.commit()
-        # st.write("Data berhasil dimasukkan!")
+        # st.write("Data berhasil dimasukkan ke tabel bookings!")
         
-        # Contoh SELECT:
+        # Contoh SELECT dari tabel rooms:
         # cursor.execute("SELECT * FROM rooms;")
         # results = cursor.fetchall()
-        # st.write(results)
+        # st.write("Data dari tabel rooms:", results)
         
     except psycopg2.OperationalError as e:
         st.error(f"Kesalahan operasional koneksi: {e}")
