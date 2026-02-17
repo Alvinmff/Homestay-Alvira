@@ -12,6 +12,7 @@ from reportlab.lib.units import cm
 
 from io import BytesIO
 from reportlab.lib import colors
+from reportlab.lib.colors import Color
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import pagesizes
 
@@ -39,6 +40,20 @@ pdfmetrics.registerFont(
     TTFont('Poppins-Light', 'assets/poppins/Poppins-Light.ttf')
 )
 
+def add_lunas_watermark(canvas, doc):
+    canvas.saveState()
+    
+    canvas.setFont("Helvetica-Bold", 80)
+    
+    # warna hijau transparan
+    canvas.setFillColor(Color(0, 0.5, 0, alpha=0.15))
+    
+    canvas.translate(300, 400)
+    canvas.rotate(45)
+    
+    canvas.drawCentredString(0, 0, "LUNAS")
+    
+    canvas.restoreState()
 
 def add_watermark(canvas, doc):
     canvas.saveState()
@@ -519,13 +534,23 @@ def generate_invoice(selected_data):
 
     header_table = Table(
         [[logo, header_left, header_right]],
-        colWidths=[2*inch, 2.5*inch, 2.5*inch]
+        colWidths=[1.5*inch, 3*inch, 2.5*inch]  # logo lebih kecil, text lebih lebar
     )
-
+    
     header_table.setStyle(TableStyle([
         ("VALIGN", (0,0), (-1,-1), "TOP"),
-        ("LEFTPADDING", (0,0), (-1,-1), 0),
-        ("RIGHTPADDING", (0,0), (-1,-1), 10),
+    
+        # Logo padding kecil
+        ("LEFTPADDING", (0,0), (0,0), 0),
+        ("RIGHTPADDING", (0,0), (0,0), 10),
+    
+        # Text kiri mepet ke logo
+        ("LEFTPADDING", (1,0), (1,0), 0),
+    
+        # Invoice block geser kanan
+        ("LEFTPADDING", (2,0), (2,0), 40),
+    
+        ("RIGHTPADDING", (0,0), (-1,-1), 0),
     ]))
 
     elements.append(header_table)
