@@ -62,7 +62,7 @@ if "keep_alive" not in st.session_state:
     st.session_state.keep_alive = True
 
 st.set_page_config(page_title="Homestay Pro System", layout="wide")
-st.title("🏠 Homestay Alvira Management System Pro")
+st.title("🏠 Homestay Alvira Management")
 
 # ============================
 # DATABASE
@@ -492,7 +492,16 @@ def generate_pdf_public(df):
     elements.append(logo)
     elements.append(Spacer(1, 10))
 
-    elements.append(Paragraph("List Homestay Alvira 2026", styles["Title"]))
+    title_style = styles["Title"]
+    title_style.textColor = colors.HexColor("#1E8449")
+    
+    elements.append(Paragraph("Homestay Alvira", title_style))
+    elements.append(Spacer(1, 6))
+    
+    subtitle_style = styles["Normal"]
+    subtitle_style.textColor = colors.HexColor("#145A32")
+    
+    elements.append(Paragraph("Laporan Booking 2026", subtitle_style))
     elements.append(Spacer(1, 20))
 
     df_pdf = df.copy()
@@ -526,7 +535,7 @@ def generate_pdf_public(df):
         group["checkout"] = group["checkout"].dt.strftime("%d-%m-%Y")
 
         # ❌ HIDE KOLOM HARGA UNTUK PUBLIC
-        for col in ["harga", "total", "dp", "sisa", "id"]:
+        for col in ["harga", "total", "dp", "sisa", "id","hp"]:
             if col in group.columns:
                 group = group.drop(columns=[col])
 
@@ -537,9 +546,9 @@ def generate_pdf_public(df):
         table = Table(data, repeatRows=1)
 
         style = [
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1E8449")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#C8A951")),
             ('FONTSIZE', (0, 0), (-1, -1), 8),
         ]
 
