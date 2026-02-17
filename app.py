@@ -171,8 +171,8 @@ cursor.execute("""
     );
     """)
 
-    conn.commit()
-    st.success("Database ready ✅")
+conn.commit()
+st.success("Database ready ✅")
 
 except Exception as e:
     st.error(f"Database error: {e}")
