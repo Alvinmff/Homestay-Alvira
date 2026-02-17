@@ -1253,11 +1253,11 @@ if not df.empty:
     with col2:
         edit_checkin = st.date_input(
             "Check-in",
-            datetime.strptime(selected_data["checkin"], "%Y-%m-%d").date()
+            selected_data["checkin"]
         )
         edit_checkout = st.date_input(
             "Check-out",
-            datetime.strptime(selected_data["checkout"], "%Y-%m-%d").date()
+            selected_data["checkout"]
         )
         edit_harga = st.number_input(
             "Harga per Malam",
