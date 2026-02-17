@@ -26,15 +26,16 @@ from reportlab.pdfgen import canvas
 
 def add_watermark(canvas, doc):
     canvas.saveState()
-    
-    # Transparansi
-    canvas.setFillAlpha(0.08)
 
-    # Font besar
-    canvas.setFont("Helvetica-Bold", 70)
-    canvas.setFillColor(colors.HexColor("#B0B0B0"))
+    # Lebih transparan
+    canvas.setFillAlpha(0.04)
 
-    # Rotasi diagonal
+    # Warna brand olive soft
+    canvas.setFillColor(colors.HexColor("#145A32"))
+
+    canvas.setFont("Helvetica-Bold", 75)
+
+    # Posisi tengah & diagonal
     canvas.translate(300, 400)
     canvas.rotate(45)
 
@@ -290,7 +291,16 @@ def generate_pdf(df):
     elements.append(logo)
     elements.append(Spacer(1, 10))
 
-    elements.append(Paragraph("Laporan Booking Homestay", styles["Title"]))
+    title_style = styles["Title"]
+    title_style.textColor = colors.HexColor("#1E8449")
+    
+    elements.append(Paragraph("Homestay Alvira", title_style))
+    elements.append(Spacer(1, 6))
+    
+    subtitle_style = styles["Normal"]
+    subtitle_style.textColor = colors.HexColor("#145A32")
+    
+    elements.append(Paragraph("Laporan Booking 2026", subtitle_style))
     elements.append(Spacer(1, 20))
 
     def rupiah(x):
@@ -341,9 +351,9 @@ def generate_pdf(df):
         table = Table(data, repeatRows=1)
 
         style = [
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1E8449")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#C8A951")),
             ('FONTSIZE', (0, 0), (-1, -1), 8),
         ]
 
@@ -368,10 +378,19 @@ def generate_pdf(df):
         elements.append(table)
         elements.append(Spacer(1, 20))
 
+    from reportlab.lib.styles import ParagraphStyle
+
+        disclaimer_style = ParagraphStyle(
+            'Disclaimer',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.HexColor("#C0392B")
+        )
+        
         elements.append(Spacer(1, 15))
         elements.append(Paragraph(
-            "<i>*harga dapat berubah sewaktu-waktu</i>",
-            styles["Normal"]
+            "Harga dapat berubah sewaktu-waktu",
+            disclaimer_style
         ))
 
     doc.build(elements, onFirstPage=add_watermark, onLaterPages=add_watermark)
