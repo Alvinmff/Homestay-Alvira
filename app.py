@@ -27,8 +27,6 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 
-st.write(type(selected_data["checkin"]))
-
 bulan_indonesia = {
     1: "JANUARI",
     2: "FEBRUARI",
@@ -599,12 +597,11 @@ def generate_invoice(selected_data):
     # =========================
     # ITEM TABLE
     # =========================
-    import pandas as pd
-
-    checkin = pd.to_datetime(selected_data["checkin"]).date()
-    checkout = pd.to_datetime(selected_data["checkout"]).date()
+    checkin = selected_data["checkin"]
+    checkout = selected_data["checkout"]
     
     nights = (checkout - checkin).days
+
 
 
     item_data = [
