@@ -36,7 +36,7 @@ pdfmetrics.registerFont(
 )
 
 pdfmetrics.registerFont(
-    TTFont('Poppins-SemiBold', 'assets/poppins/Poppins-Medium.ttf')
+    TTFont('Poppins-SemiBold', 'assets/poppins/Poppins-Light.ttf')
 )
 
 
@@ -700,7 +700,7 @@ def generate_pdf_public(df):
         leading=24,
         textColor=colors.HexColor("#1B5E20"),
         alignment=1,
-        spaceAfter=5
+        spaceAfter=6
     )
     
     subtitle_style = ParagraphStyle(
