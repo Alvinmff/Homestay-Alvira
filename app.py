@@ -1,4 +1,4 @@
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.pagesizes import A4
