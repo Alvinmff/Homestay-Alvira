@@ -98,8 +98,13 @@ st.title("🏠 Homestay Alvira Management")
 import psycopg2
 import streamlit as st
 
-conn = psycopg2.connect(st.secrets["DATABASE_URL"], sslmode="require")
+conn = psycopg2.connect(
+    st.secrets["DATABASE_URL"],
+    sslmode="require"
+)
+
 cursor = conn.cursor()
+
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS bookings (
