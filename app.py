@@ -738,15 +738,19 @@ def generate_pdf_public(df):
         colWidths=[3*cm, 12*cm]
     )
     
-    header_table.setStyle(TableStyle([
+        header_table.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("ALIGN", (1, 0), (1, 0), "CENTER"),
-        ("LEFTPADDING", (0,0), (-1,-1), 6),
-        ("RIGHTPADDING", (0,0), (-3,-3), 6),
+    
+        # Logo kolom 0
+        ("LEFTPADDING", (0,0), (0,0), 0),
+    
+        # Text kolom 1 → geser ke kanan
+        ("LEFTPADDING", (1,0), (1,0), 20),
+    
+        ("RIGHTPADDING", (0,0), (-1,-1), 6),
         ("TOPPADDING", (0,0), (-1,-1), 6),
         ("BOTTOMPADDING", (0,0), (-1,-1), 6),
     ]))
-
     
     elements.append(header_table)
     elements.append(Spacer(1, 6))
