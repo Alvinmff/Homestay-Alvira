@@ -700,7 +700,7 @@ def generate_pdf_public(df):
         leading=24,
         textColor=colors.HexColor("#1B5E20"),
         alignment=1,
-        spaceAfter=6
+        spaceAfter=5
     )
     
     subtitle_style = ParagraphStyle(
