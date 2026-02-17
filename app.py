@@ -520,9 +520,9 @@ def generate_invoice(selected_data):
     header_left = [
         Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", styles["Heading2"]),
         Spacer(1, 4),
-        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2", styles["Normal"]),
-        Paragraph("Sidoarjo - Jawa Timur", styles["Normal"]),
-        Paragraph("081231646523", styles["Normal"]),
+        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28", styles["Normal"], color["grey"]),
+        Paragraph("Sidoarjo - Jawa Timur", styles["Normal"]), color["grey"]),
+        Paragraph("081231646523", styles["Normal"]), color["grey"]),
     ]
 
     header_right = [
@@ -569,6 +569,7 @@ def generate_invoice(selected_data):
         ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
         ('FONTSIZE', (0,0), (-1,-1), 10),
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ("LEFTPADDING", (1,0), (1,0), 0),
     ]))
 
     elements.append(bill_to)
@@ -641,7 +642,11 @@ def generate_invoice(selected_data):
 
     elements.append(sign_table)
 
-    doc.build(elements)
+    if selected_data["total"] <= 0 or selected_data.get("sisa", 0) <= 0:
+        doc.build(elements, onFirstPage=add_lunas_watermark)
+    else:
+        doc.build(elements)
+
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
