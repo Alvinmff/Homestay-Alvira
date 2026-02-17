@@ -444,13 +444,22 @@ def generate_invoice(selected_data):
     elements.append(Paragraph("<b>INVOICE</b>", styles["Title"]))
     elements.append(Spacer(1, 20))
 
-    elements.append(Paragraph(f"Nama: {selected_data['nama']}", styles["Normal"]))
-    elements.append(Paragraph(f"Kamar: {selected_data['kamar']}", styles["Normal"]))
-    elements.append(Paragraph(f"Check-in: {selected_data['checkin']}", styles["Normal"]))
-    elements.append(Paragraph(f"Check-out: {selected_data['checkout']}", styles["Normal"]))
-    elements.append(Spacer(1, 20))
+    # ============================
+    # NOMOR INVOICE OTOMATIS
+    # ============================
+    tahun = datetime.now().year
+    invoice_number = f"INV-{tahun}-{int(selected_data['id']):04d}"
 
-    elements.append(Paragraph(f"Total: Rp {int(selected_data['total']):,}".replace(",", "."), styles["Normal"]))
+    # ============================
+    # HEADER
+    # ============================
+    title_style = styles["Heading1"]
+    elements.append(Paragraph("Homestay Alvira", title_style))
+    elements.append(Spacer(1, 10))
+
+    elements.append(Paragraph(f"<b>Invoice:</b> {invoice_number}", styles["Normal"]))
+    elements.append(Paragraph(f"<b>Tanggal Cetak:</b> {datetime.now().strftime('%d-%m-%Y')}", styles["Normal"]))
+    elements.append(Spacer(1, 15))
 
     # 🔥 WAJIB ADA INI
     doc.build(elements)
