@@ -95,12 +95,13 @@ st.title("🏠 Homestay Alvira Management")
 # DATABASE
 # ============================
 
-import psycopg2
 import os
+import psycopg2
+import streamlit as st
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = st.secrets["DATABASE_URL"]
 
-conn = psycopg2.connect(postgresql://postgres:Alvira$2829@db.suhusphxgyzzntjkiekw.supabase.co:5432/postgres)
+conn = psycopg2.connect(DATABASE_URL)
 cursor = conn.cursor()
 
 cursor.execute("""
