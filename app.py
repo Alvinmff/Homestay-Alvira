@@ -640,20 +640,50 @@ def generate_pdf_public(df):
     elements = []
 
     styles = getSampleStyleSheet()
-    logo = RLImage("assets/logo.png", width=1.5*inch, height=1.5*inch)
-    elements.append(logo)
-    elements.append(Spacer(1, 10))
 
-    title_style = styles["Title"]
-    title_style.textColor = colors.HexColor("#1E8449")
+    # ======================
+    # HEADER PREMIUM
+    # ======================
     
-    elements.append(Paragraph("Homestay Alvira", title_style))
-    elements.append(Spacer(1, 6))
+    logo = RLImage("assets/logo.png", width=1.3*inch, height=1.3*inch)
+    
+    title_style = styles["Heading1"]
+    title_style.textColor = colors.HexColor("#1B5E20")
+    title_style.alignment = 1  # center
     
     subtitle_style = styles["Normal"]
-    subtitle_style.textColor = colors.HexColor("#145A32")
+    subtitle_style.alignment = 1
+    subtitle_style.textColor = colors.HexColor("#2E7D32")
     
-    elements.append(Paragraph("Laporan Booking 2026", subtitle_style))
+    header_text = [
+        Paragraph("<b>Homestay Alvira</b>", title_style),
+        Paragraph("Laporan Booking 2026", subtitle_style),
+    ]
+    
+    header_table = Table(
+        [[logo, header_text]],
+        colWidths=[3*cm, 12*cm]
+    )
+    
+    header_table.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ALIGN", (1, 0), (1, 0), "CENTER"),
+        ("LEFTPADDING", (0,0), (-1,-1), 0),
+        ("RIGHTPADDING", (0,0), (-1,-1), 0),
+        ("TOPPADDING", (0,0), (-1,-1), 0),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 6),
+    ]))
+    
+    elements.append(header_table)
+    elements.append(Spacer(1, 8))
+    
+    # Garis emas tipis
+    gold_line = Table([[""]], colWidths=[17*cm], rowHeights=[2])
+    gold_line.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,-1), colors.HexColor("#C9A227"))
+    ]))
+    
+    elements.append(gold_line)
     elements.append(Spacer(1, 20))
 
     df_pdf = df.copy()
