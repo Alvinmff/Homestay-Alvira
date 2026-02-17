@@ -27,20 +27,17 @@ from reportlab.pdfgen import canvas
 def add_watermark(canvas, doc):
     canvas.saveState()
 
-    # Lebih transparan (semakin kecil semakin transparan)
-    canvas.setFillAlpha(0.01)
+    # Transparansi sangat tipis
+    canvas.setFillAlpha(0.015)
 
-    # Warna abu soft
-    canvas.setFillColor(colors.HexColor("#9E9E9E"))
+    # Abu-abu sangat soft
+    canvas.setFillColor(colors.HexColor("#BDBDBD"))
 
-    # Font tidak terlalu bold
-    canvas.setFont("Helvetica-Bold", 55)
+    # Font lebih ringan & sedikit lebih kecil
+    canvas.setFont("Helvetica", 55)
 
-    # Posisi tengah halaman
     width, height = doc.pagesize
     canvas.translate(width / 2, height / 2)
-
-    # Rotasi diagonal
     canvas.rotate(45)
 
     canvas.drawCentredString(0, 0, "HOMESTAY ALVIRA")
