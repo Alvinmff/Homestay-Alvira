@@ -520,7 +520,7 @@ def generate_invoice(selected_data):
     header_left = [
         Paragraph("<b>HOMESTAY ALVIRA SIDOARJO</b>", styles["Heading2"]),
         Spacer(1, 4),
-        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28", styles["Normal"], color["grey"]),
+        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28", styles["Normal"]), color["grey"]),
         Paragraph("Sidoarjo - Jawa Timur", styles["Normal"]), color["grey"]),
         Paragraph("081231646523", styles["Normal"]), color["grey"]),
     ]
