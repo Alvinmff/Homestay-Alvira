@@ -28,13 +28,13 @@ def add_watermark(canvas, doc):
     canvas.saveState()
 
     # Lebih transparan (semakin kecil semakin transparan)
-    canvas.setFillAlpha(0.02)
+    canvas.setFillAlpha(0.01)
 
     # Warna abu soft
     canvas.setFillColor(colors.HexColor("#9E9E9E"))
 
     # Font tidak terlalu bold
-    canvas.setFont("Helvetica", 60)
+    canvas.setFont("Helvetica-Bold", 55)
 
     # Posisi tengah halaman
     width, height = doc.pagesize
