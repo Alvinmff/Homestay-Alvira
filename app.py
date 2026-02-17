@@ -98,14 +98,10 @@ st.title("🏠 Homestay Alvira Management")
 import psycopg2
 import streamlit as st
 
-conn = psycopg2.connect(
-    host=st.secrets["DB_HOST"],
-    database="postgres",
-    user="postgres",
-    password=st.secrets["DB_PASSWORD"],
-    port=5432,
-    sslmode="require"
-)
+DATABASE_URL = st.secrets["DATABASE_URL"]
+
+conn = psycopg2.connect(DATABASE_URL)
+cursor = conn.cursor()
 
 cursor = conn.cursor()
 
