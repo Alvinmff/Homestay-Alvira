@@ -155,9 +155,19 @@ st.success("Tabel 'bookings' berhasil dibuat atau sudah ada!")
         # st.write(results)
         
 
-
-
-   
+except psycopg2.OperationalError as e:
+    st.error(f"Kesalahan operasional koneksi: {e}")
+except psycopg2.DatabaseError as e:
+    st.error(f"Kesalahan database: {e}")
+except Exception as e:
+    st.error(f"Kesalahan umum: {e}")
+finally:
+    # Tutup cursor dan koneksi jika ada
+    if cursor:
+        cursor.close()
+    if conn:
+        conn.close()
+        st.info("Koneksi database ditutup.")
         
     # ============================
     # CREATE TABLE ROOMS
