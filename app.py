@@ -723,7 +723,7 @@ def generate_invoice(selected_data):
         canvas.translate(-x, -y)
     
         # Nomor Invoice di bawah melengkung
-        invoice_number = f"INV-{datetime.now().year}-{int(selected_data['id']):04d}"
+        invoice_number = INV-{datetime.now().year}-{int(selected_data['id']):04d}"
         canvas.setFont("Helvetica-Bold", 12)
         draw_bottom_text(canvas, invoice_number, x, y, 105)
     
