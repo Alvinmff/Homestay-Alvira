@@ -752,10 +752,10 @@ def generate_invoice(selected_data):
         canvas.setFillColor(Color(0.5, 0, 0, alpha=0.6))
         canvas.drawCentredString(x, y - 60, f"Paid on {tanggal_lunas}")
         
-        # Kalimat terima kasih melengkung di bawah, dengan warna merah seperti "ALVIRA HOMESTAY"
+        # Kalimat terima kasih melengkung di bawah, sejajar dengan "ALVIRA HOMESTAY" (radius 115)
         canvas.setFont("Helvetica-Bold", 12)
         canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
-        draw_bottom_text(canvas, "Terima Kasih", x, y, 105)
+        draw_bottom_text(canvas, "Terima Kasih", x, y, 115)
         
         canvas.restoreState()
     
