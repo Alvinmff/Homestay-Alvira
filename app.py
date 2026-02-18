@@ -572,8 +572,8 @@ def generate_invoice(selected_data):
     header_right = [
         Paragraph("<b>INVOICE</b>", styles["Title"]),
         Spacer(1, 6),
-        Paragraph(f"Invoice #: INV-{datetime.now().year}-{int(selected_data['id']):04d}", styles["Normal"]),
-        Paragraph(f"Date: {datetime.now().strftime('%d %b %Y')}", styles["Normal"]),
+        Paragraph(f"Invoice #: INV-{datetime.datetime.now().year}-{int(selected_data['id']):04d}", styles["Normal"]),
+        Paragraph(f"Date: {datetime.datetime.now().strftime('%d %b %Y')}", styles["Normal"]),
     ]
 
     header_table = Table(
