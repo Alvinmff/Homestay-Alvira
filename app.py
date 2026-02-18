@@ -105,6 +105,12 @@ with col2:
             Sistem Manajemen Booking Profesional
             </p>
         </div>
+        <style>
+        .block-container {
+            padding-top: 1rem;
+            padding-left: 2rem;
+        }
+        </style>
         """,
         unsafe_allow_html=True
     )
