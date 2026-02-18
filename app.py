@@ -527,7 +527,7 @@ def generate_invoice(selected_data):
         buffer,
         pagesize=pagesizes.A4,
         rightMargin=30,
-        leftMargin=20,
+        leftMargin=30,
         topMargin=40,
         bottomMargin=40
     )
