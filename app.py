@@ -1218,6 +1218,9 @@ if not df.empty:
                         conn.commit()
     
                 st.success("✅ Database berhasil direset!")
+                with st.spinner("Mereset database..."):
+                ...
+
                 st.cache_data.clear()   # penting kalau pakai cache
                 st.rerun()
     
