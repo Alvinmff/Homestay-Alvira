@@ -1208,6 +1208,8 @@ if not df.empty:
         if st.button("🔄 Reset Semua Data & ID"):
     
             try:
+                with st.spinner("Mereset database..."):
+                
                 with psycopg2.connect(
                     st.secrets["DATABASE_URL"],
                     sslmode="require"
@@ -1218,10 +1220,6 @@ if not df.empty:
                         conn.commit()
     
                 st.success("✅ Database berhasil direset!")
-                with st.spinner("Mereset database..."):
-    ...
-
-
                 st.cache_data.clear()   # penting kalau pakai cache
                 st.rerun()
     
