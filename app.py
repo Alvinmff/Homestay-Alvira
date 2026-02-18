@@ -667,9 +667,12 @@ def generate_invoice(selected_data):
     elements.append(Spacer(1, 60))
 
     # =========================
-    # WATERMARK LUNAS PREMIUM (ENHANCED VERSION WITH UPDATES)
+    # WATERMARK LUNAS PREMIUM (ENHANCED VERSION WITH PREMIUM DESIGN - FIXED POLYGON AND STROKE ISSUES)
     # =========================
     from math import cos, sin, radians
+    from reportlab.pdfbase.pdfmetrics import stringWidth
+    from reportlab.lib.colors import Color
+    from datetime import datetime
     
     def draw_bottom_text(canvas, text, center_x, center_y, radius):
         angle_step = 180 / len(text)
@@ -744,7 +747,7 @@ def generate_invoice(selected_data):
         
         # Elemen dekoratif tambahan: Pola daun atau ornamen di sekitar (ganti bintang untuk menghindari tumpuk)
         canvas.setFillColor(red_transparent)
-        canvas.setStrokeColor(None)  # Tidak ada stroke untuk poligon
+        canvas.setStrokeColor(Color(0, 0, 0, 0))  # Stroke transparan untuk tidak ada stroke pada poligon
         for i in range(8):
             angle = i * 45
             leaf_x = x + 135 * cos(radians(angle))  # Radius lebih luar dari teks atas
@@ -757,7 +760,7 @@ def generate_invoice(selected_data):
             canvas.restoreState()
         
         # Tulisan melengkung atas: ALVIRA HOMESTAY (di radius 115, tidak tumpuk dengan garis radial)
-        canvas.setFont("Helvetica-Bold", 12)
+        canvas.setFont("Helvetica-Bold", 16)
         canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
         draw_top_text(canvas, "ALVIRA HOMESTAY", x, y, 115)
         
