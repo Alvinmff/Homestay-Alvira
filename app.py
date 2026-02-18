@@ -1210,10 +1210,10 @@ if not df.empty:
             try:
                 with st.spinner("Mereset database..."):
                 
-                with psycopg2.connect(
-                    st.secrets["DATABASE_URL"],
-                    sslmode="require"
-                ) as conn:
+                    with psycopg2.connect(
+                        st.secrets["DATABASE_URL"],
+                        sslmode="require"
+                    ) as conn:
                     
                     with conn.cursor() as cursor:
                         cursor.execute("TRUNCATE TABLE bookings RESTART IDENTITY CASCADE;")
