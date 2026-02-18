@@ -742,19 +742,13 @@ def generate_invoice(selected_data):
             end_y = y + 125 * sin(radians(angle))
             canvas.line(start_x, start_y, end_x, end_y)
         
-        # Elemen dekoratif tambahan: Pola daun atau ornamen di sekitar (ganti bintang untuk menghindari tumpuk)
+        # Elemen dekoratif tambahan: Lingkaran kecil di sekitar (pengganti poligon untuk menghindari error)
         canvas.setFillColor(red_transparent)
-        canvas.setStrokeColor(Color(0, 0, 0, 0))  # Stroke transparan untuk tidak ada stroke pada poligon
         for i in range(8):
             angle = i * 45
-            leaf_x = x + 135 * cos(radians(angle))  # Radius lebih luar dari teks atas
-            leaf_y = y + 135 * sin(radians(angle))
-            # Gambar daun sederhana (segitiga kecil) - Perbaikan: gunakan polygon tanpa parameter fill/stroke
-            canvas.saveState()
-            canvas.translate(leaf_x, leaf_y)
-            canvas.rotate(angle)
-            canvas.polygon([0, 0, -3, 5, 3, 5])  # Hanya points, fill/stroke diatur sebelumnya
-            canvas.restoreState()
+            circle_x = x + 135 * cos(radians(angle))  # Radius lebih luar dari teks atas
+            circle_y = y + 135 * sin(radians(angle))
+            canvas.circle(circle_x, circle_y, 3)  # Lingkaran kecil sebagai dekorasi
         
         # Tulisan melengkung atas: ALVIRA HOMESTAY (di radius 115, tidak tumpuk dengan garis radial)
         canvas.setFont("Helvetica-Bold", 16)
