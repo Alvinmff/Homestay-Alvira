@@ -733,7 +733,7 @@ def generate_invoice(selected_data):
         # Elemen dekoratif: bintang kecil di sekitar - DIHAPUS sesuai permintaan
         
         # Tulisan melengkung atas: ALVIRA HOMESTAY
-        canvas.setFont("Helvetica-Bold", 11)
+        canvas.setFont("Helvetica-Bold", 9)
         canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
         draw_top_text(canvas, "ALVIRA HOMESTAY", x, y, 115)
         
@@ -753,7 +753,7 @@ def generate_invoice(selected_data):
         canvas.drawCentredString(x, y - 60, f"Paid on {tanggal_lunas}")
         
         # Kalimat terima kasih melengkung di bawah, agak turun (radius 110), jarak huruf dekat (10 derajat), geser ke kanan (angle -75)
-        canvas.setFont("Helvetica-Bold", 11)
+        canvas.setFont("Helvetica-Bold", 8)
         canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
         draw_bottom_text(canvas, "Terima Kasih", x, y, 110)
         
