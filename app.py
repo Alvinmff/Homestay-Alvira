@@ -671,13 +671,37 @@ def generate_invoice(selected_data):
     elements.append(Spacer(1, 60))
 
     # =========================
-    # WATERMARK LUNAS
+    # WATERMARK LUNAS (STEMPEL)
     # =========================
+    from reportlab.lib.colors import Color
+    
     def add_lunas_watermark(canvas, doc):
         canvas.saveState()
-        canvas.setFont("Helvetica-Bold", 80)
-        canvas.setFillColorRGB(0.8, 0.8, 0.8, alpha=0.15)
-        canvas.drawCentredString(300, 400, "LUNAS")
+    
+        width, height = doc.pagesize
+        x = width / 2
+        y = height / 2
+    
+        # Warna merah transparan
+        red_transparent = Color(1, 0, 0, alpha=0.25)
+        canvas.setStrokeColor(red_transparent)
+        canvas.setFillColor(red_transparent)
+        canvas.setLineWidth(4)
+    
+        # Lingkaran luar
+        canvas.circle(x, y, 110)
+    
+        # Lingkaran dalam
+        canvas.circle(x, y, 85)
+    
+        # Putar sedikit seperti stempel asli
+        canvas.translate(x, y)
+        canvas.rotate(25)
+    
+        # Tulisan LUNAS
+        canvas.setFont("Helvetica-Bold", 45)
+        canvas.drawCentredString(0, -15, "LUNAS")
+    
         canvas.restoreState()
 
     if selected_data.get("sisa", 0) <= 0:
