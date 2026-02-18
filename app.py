@@ -670,9 +670,6 @@ def generate_invoice(selected_data):
     # WATERMARK LUNAS PREMIUM (ENHANCED VERSION WITH PREMIUM DESIGN - FIXED POLYGON AND STROKE ISSUES)
     # =========================
     from math import cos, sin, radians
-    from reportlab.pdfbase.pdfmetrics import stringWidth
-    from reportlab.lib.colors import Color
-    from datetime import datetime
     
     def draw_bottom_text(canvas, text, center_x, center_y, radius):
         angle_step = 180 / len(text)
