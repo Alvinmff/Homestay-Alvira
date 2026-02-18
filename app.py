@@ -670,7 +670,7 @@ def generate_invoice(selected_data):
     # =========================
     from math import cos, sin, radians
     
-        def draw_bottom_text(canvas, text, center_x, center_y, radius):
+    def draw_bottom_text(canvas, text, center_x, center_y, radius):
         angle_step = 180 / len(text)
         angle = -90
         
