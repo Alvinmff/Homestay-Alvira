@@ -670,7 +670,7 @@ def generate_invoice(selected_data):
     # =========================
     from math import cos, sin, radians
     
-    def draw_bottom_text(canvas, text, center_x, center_y, radius):
+        def draw_bottom_text(canvas, text, center_x, center_y, radius):
         angle_step = 180 / len(text)
         angle = -90
         
@@ -743,15 +743,16 @@ def generate_invoice(selected_data):
         
         # Elemen dekoratif tambahan: Pola daun atau ornamen di sekitar (ganti bintang untuk menghindari tumpuk)
         canvas.setFillColor(red_transparent)
+        canvas.setStrokeColor(None)  # Tidak ada stroke untuk poligon
         for i in range(8):
             angle = i * 45
             leaf_x = x + 135 * cos(radians(angle))  # Radius lebih luar dari teks atas
             leaf_y = y + 135 * sin(radians(angle))
-            # Gambar daun sederhana (segitiga kecil)
+            # Gambar daun sederhana (segitiga kecil) - Perbaikan: gunakan polygon tanpa parameter fill/stroke
             canvas.saveState()
             canvas.translate(leaf_x, leaf_y)
             canvas.rotate(angle)
-            canvas.polygon([0, 0, -3, 5, 3, 5], fill=1, stroke=0)
+            canvas.polygon([0, 0, -3, 5, 3, 5])  # Hanya points, fill/stroke diatur sebelumnya
             canvas.restoreState()
         
         # Tulisan melengkung atas: ALVIRA HOMESTAY (di radius 115, tidak tumpuk dengan garis radial)
