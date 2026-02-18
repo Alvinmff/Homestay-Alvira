@@ -392,7 +392,7 @@ def generate_pdf(df):
         Spacer(1, 2),  # 🔥 tambahan jarak manual
         Paragraph("<b>LAPORAN BOOKING</b>", subtitle_style),
         Spacer(1, 4),  # 🔥 tambahan jarak manual
-        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Sidoarjo Kota - Jawa Timur", info_style),
+        Paragraph("Jl. Raya Lingkar Barat Gading Fajar 2 Blok C5 No 28 Kota Sidoarjo - Jawa Timur", info_style),
         Paragraph("Telp: 081231646523 (Bu Yanie) | Website: www.alvirahomestay.com", info_style),
     ]
 
@@ -527,7 +527,7 @@ def generate_invoice(selected_data):
         buffer,
         pagesize=pagesizes.A4,
         rightMargin=30,
-        leftMargin=30,
+        leftMargin=20,
         topMargin=40,
         bottomMargin=40
     )
@@ -606,6 +606,8 @@ def generate_invoice(selected_data):
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
     ]))
 
+    bill_to.hAlign = 'LEFT'
+
     elements.append(bill_to)
     elements.append(Spacer(1, 20))
 
@@ -627,7 +629,7 @@ def generate_invoice(selected_data):
 
 
     item_data = [
-        ["Description", "Qty", "Amount"],
+        ["Description", "Qty", "Price", "Amount"],
         [
             f"Kamar {selected_data['kamar']} ({selected_data['checkin']} - {selected_data['checkout']})",
             str(nights),
