@@ -675,18 +675,19 @@ def generate_invoice(selected_data):
     # =========================
     from reportlab.lib.colors import Color
     from math import cos, sin, radians
+    from datetime import datetime
     
-    def draw_circular_text(canvas, text, center_x, center_y, radius, start_angle):
-        angle_step = 360 / len(text)
-        angle = start_angle
+    def draw_bottom_text(canvas, text, center_x, center_y, radius):
+        angle_step = 180 / len(text)
+        angle = -90
     
         for char in text:
             canvas.saveState()
             canvas.translate(center_x, center_y)
             canvas.rotate(angle)
-            canvas.drawCentredString(0, radius, char)
+            canvas.drawCentredString(0, -radius, char)
             canvas.restoreState()
-            angle -= angle_step
+            angle += angle_step
     
     
     def add_lunas_watermark(canvas, doc):
@@ -696,8 +697,7 @@ def generate_invoice(selected_data):
         x = width / 2
         y = height / 2
     
-        # Warna merah elegan transparan
-        red_transparent = Color(0.85, 0, 0, alpha=0.28)
+        red_transparent = Color(0.85, 0, 0, alpha=0.30)
     
         canvas.setStrokeColor(red_transparent)
         canvas.setFillColor(red_transparent)
@@ -709,22 +709,28 @@ def generate_invoice(selected_data):
         # Lingkaran dalam
         canvas.circle(x, y, 95)
     
-        # Garis putus-putus (lebih realistis)
+        # Garis putus-putus tengah
         canvas.setDash(6, 4)
         canvas.circle(x, y, 108)
-        canvas.setDash()  # reset dash
+        canvas.setDash()
     
-        # Tulisan tengah
+        # Tulisan tengah LUNAS
         canvas.setFont("Helvetica-Bold", 50)
         canvas.translate(x, y)
         canvas.rotate(20)
-        canvas.drawCentredString(0, -20, "LUNAS")
+        canvas.drawCentredString(0, -15, "LUNAS")
         canvas.rotate(-20)
         canvas.translate(-x, -y)
     
-        # Teks melingkar atas
-        canvas.setFont("Helvetica-Bold", 14)
-        draw_circular_text(canvas, "PAID IN FULL", x, y, 105, 90)
+        # Nomor Invoice di bawah melengkung
+        invoice_number = f"INV-{datetime.now().year}-{int(selected_data['id']):04d}"
+        canvas.setFont("Helvetica-Bold", 12)
+        draw_bottom_text(canvas, invoice_number, x, y, 105)
+    
+        # Tanggal pelunasan kecil di tengah bawah
+        tanggal_lunas = datetime.now().strftime("%d %b %Y")
+        canvas.setFont("Helvetica", 10)
+        canvas.drawCentredString(x, y - 55, f"Paid on {tanggal_lunas}")
     
         canvas.restoreState()
 
