@@ -251,7 +251,7 @@ def is_double_booking(kamar, checkin, checkout, booking_id=None):
 
 @st.cache_data(ttl=60)
 def load_data():
-    query = "SELECT * FROM bookings ORDER BY checkin ASC"
+    query = "SELECT * FROM bookings ORDER BY checkin ASC LIMIT 200"
     df = pd.read_sql_query(query, conn)
     return df
 
@@ -1216,9 +1216,8 @@ if not df.empty:
                     ) as conn:
     
                         with conn.cursor() as cursor:
-                            cursor.execute(
-                                "TRUNCATE TABLE bookings RESTART IDENTITY CASCADE;"
-                            )
+                            cursor.execute("DELETE FROM bookings;")
+                            cursor.execute("ALTER SEQUENCE bookings_id_seq RESTART WITH 1;")
                             conn.commit()
     
                     st.cache_data.clear()
