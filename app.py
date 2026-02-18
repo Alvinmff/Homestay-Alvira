@@ -725,7 +725,7 @@ def generate_invoice(selected_data):
         # Tanggal pelunasan kecil di tengah bawah
         tanggal_lunas = datetime.now().strftime("%d %b %Y")
         canvas.setFont("Helvetica", 10)
-        canvas.drawCentredString(x, y - 55, f"Paid on {tanggal_lunas}")
+        canvas.drawCentredString(x, y - 15, f"Paid on {tanggal_lunas}")
     
         canvas.restoreState()
 
