@@ -671,9 +671,23 @@ def generate_invoice(selected_data):
     elements.append(Spacer(1, 60))
 
     # =========================
-    # WATERMARK LUNAS (STEMPEL)
+    # WATERMARK LUNAS PREMIUM
     # =========================
     from reportlab.lib.colors import Color
+    from math import cos, sin, radians
+    
+    def draw_circular_text(canvas, text, center_x, center_y, radius, start_angle):
+        angle_step = 360 / len(text)
+        angle = start_angle
+    
+        for char in text:
+            canvas.saveState()
+            canvas.translate(center_x, center_y)
+            canvas.rotate(angle)
+            canvas.drawCentredString(0, radius, char)
+            canvas.restoreState()
+            angle -= angle_step
+    
     
     def add_lunas_watermark(canvas, doc):
         canvas.saveState()
@@ -682,25 +696,35 @@ def generate_invoice(selected_data):
         x = width / 2
         y = height / 2
     
-        # Warna merah transparan
-        red_transparent = Color(1, 0, 0, alpha=0.25)
+        # Warna merah elegan transparan
+        red_transparent = Color(0.85, 0, 0, alpha=0.28)
+    
         canvas.setStrokeColor(red_transparent)
         canvas.setFillColor(red_transparent)
         canvas.setLineWidth(4)
     
         # Lingkaran luar
-        canvas.circle(x, y, 110)
+        canvas.circle(x, y, 120)
     
         # Lingkaran dalam
-        canvas.circle(x, y, 85)
+        canvas.circle(x, y, 95)
     
-        # Putar sedikit seperti stempel asli
+        # Garis putus-putus (lebih realistis)
+        canvas.setDash(6, 4)
+        canvas.circle(x, y, 108)
+        canvas.setDash()  # reset dash
+    
+        # Tulisan tengah
+        canvas.setFont("Helvetica-Bold", 50)
         canvas.translate(x, y)
-        canvas.rotate(25)
+        canvas.rotate(20)
+        canvas.drawCentredString(0, -20, "LUNAS")
+        canvas.rotate(-20)
+        canvas.translate(-x, -y)
     
-        # Tulisan LUNAS
-        canvas.setFont("Helvetica-Bold", 45)
-        canvas.drawCentredString(0, -15, "LUNAS")
+        # Teks melingkar atas
+        canvas.setFont("Helvetica-Bold", 14)
+        draw_circular_text(canvas, "PAID IN FULL", x, y, 105, 90)
     
         canvas.restoreState()
 
