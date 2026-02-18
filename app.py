@@ -672,8 +672,8 @@ def generate_invoice(selected_data):
     from math import cos, sin, radians
     
     def draw_bottom_text(canvas, text, center_x, center_y, radius):
-        angle_step = 180 / len(text)
-        angle = -90
+        angle_step = 10  # Diubah ke 10 derajat untuk jarak antar huruf yang lebih dekat
+        angle = -75  # Diubah ke -75 untuk geser ke kanan menyamping agar tidak bertabrakan dengan "ALVIRA HOMESTAY"
         
         for char in text:
             canvas.saveState()
@@ -733,7 +733,7 @@ def generate_invoice(selected_data):
         # Elemen dekoratif: bintang kecil di sekitar - DIHAPUS sesuai permintaan
         
         # Tulisan melengkung atas: ALVIRA HOMESTAY
-        canvas.setFont("Helvetica-Bold", 12)
+        canvas.setFont("Helvetica-Bold", 16)
         canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
         draw_top_text(canvas, "ALVIRA HOMESTAY", x, y, 115)
         
@@ -752,10 +752,10 @@ def generate_invoice(selected_data):
         canvas.setFillColor(Color(0.5, 0, 0, alpha=0.6))
         canvas.drawCentredString(x, y - 60, f"Paid on {tanggal_lunas}")
         
-        # Kalimat terima kasih melengkung di bawah, sejajar dengan "ALVIRA HOMESTAY" (radius 115)
-        canvas.setFont("Helvetica-Bold", 12)
+        # Kalimat terima kasih melengkung di bawah, agak turun (radius 110), jarak huruf dekat (10 derajat), geser ke kanan (angle -75)
+        canvas.setFont("Helvetica-Bold", 16)
         canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
-        draw_bottom_text(canvas, "Terima Kasih", x, y, 115)
+        draw_bottom_text(canvas, "Terima Kasih", x, y, 110)
         
         canvas.restoreState()
     
@@ -765,7 +765,7 @@ def generate_invoice(selected_data):
         doc.build(elements, onFirstPage=add_lunas_watermark)
     else:
         doc.build(elements)
-        
+            
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
