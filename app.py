@@ -5,7 +5,6 @@ from reportlab.lib.units import inch
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
-from datetime import datetime
 from reportlab.lib.units import cm
 import io
 
@@ -17,15 +16,13 @@ from reportlab.lib import pagesizes
 
 import streamlit as st
 import pandas as pd
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import matplotlib.pyplot as plt
 import streamlit as st
 
 from PIL import Image
 from reportlab.platypus import Image as RLImage
 from reportlab.pdfgen import canvas
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase import pdfmetrics
 
 bulan_indonesia = {
     1: "JANUARI",
@@ -572,8 +569,8 @@ def generate_invoice(selected_data):
     header_right = [
         Paragraph("<b>INVOICE</b>", styles["Title"]),
         Spacer(1, 6),
-        Paragraph(f"Invoice #: INV-{datetime.datetime.now().year}-{int(selected_data['id']):04d}", styles["Normal"]),
-        Paragraph(f"Date: {datetime.datetime.now().strftime('%d %b %Y')}", styles["Normal"]),
+        Paragraph(f"Invoice #: INV-{datetime.now().year}-{int(selected_data['id']):04d}", styles["Normal"]),
+        Paragraph(f"Date: {datetime.now().strftime('%d %b %Y')}", styles["Normal"]),
     ]
 
     header_table = Table(
@@ -673,9 +670,7 @@ def generate_invoice(selected_data):
     # =========================
     # WATERMARK LUNAS PREMIUM
     # =========================
-    from reportlab.lib.colors import Color
     from math import cos, sin, radians
-    from datetime import datetime
     
     def draw_bottom_text(canvas, text, center_x, center_y, radius):
         angle_step = 180 / len(text)
@@ -723,7 +718,7 @@ def generate_invoice(selected_data):
         canvas.translate(-x, -y)
     
         # Nomor Invoice di bawah melengkung
-        invoice_number = f"INV-{datetime.datetime.now().year}-{int(selected_data['id']):04d}"
+        invoice_number = f"INV-{datetime.now().year}-{int(selected_data['id']):04d}"
         canvas.setFont("Helvetica-Bold", 12)
         draw_bottom_text(canvas, invoice_number, x, y, 105)
     
