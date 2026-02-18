@@ -637,7 +637,7 @@ def generate_invoice(selected_data):
         ]
     ]
 
-    item_table = Table(item_data, colWidths=[3.8*inch, 0.8*inch, 1.2*inch])
+    item_table = Table(item_data, colWidths=[3.8*inch, 0.8*inch, 1*inch, 1.2*inch])
 
     item_table.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#F2F3F4")),
