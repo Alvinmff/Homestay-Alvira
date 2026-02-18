@@ -14,6 +14,7 @@ from reportlab.lib.colors import Color
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import pagesizes
 
+from reportlab.pdfbase.pdfmetrics import stringWidth
 import streamlit as st
 import pandas as pd
 from datetime import datetime, date, timedelta
