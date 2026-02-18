@@ -91,14 +91,21 @@ def add_watermark(canvas, doc):
 
 logo = Image.open("assets/logo.png")
 
-col1, col2 = st.columns([1,4])
+col1, col2 = st.columns([1, 5], gap="small", vertical_alignment="center")
 
 with col1:
-    st.image(logo, width=120)
+    st.image(logo, width=110)
 
 with col2:
-    st.title("HOMESTAY ALVIRA")
-    st.caption("Sistem Manajemen Booking Profesional")
+    st.markdown(
+        """
+        <h1 style='margin-bottom:0px;'>HOMESTAY ALVIRA</h1>
+        <p style='margin-top:0px; color:gray; font-size:16px;'>
+        Sistem Manajemen Booking Profesional
+        </p>
+        """,
+        unsafe_allow_html=True
+    )
 
 if "keep_alive" not in st.session_state:
     st.session_state.keep_alive = True
