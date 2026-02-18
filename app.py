@@ -524,7 +524,7 @@ def generate_invoice(selected_data):
         buffer,
         pagesize=pagesizes.A4,
         rightMargin=30,
-        leftMargin=30,
+        leftMargin=40,
         topMargin=40,
         bottomMargin=40
     )
@@ -738,7 +738,7 @@ def generate_invoice(selected_data):
             canvas.circle(star_x, star_y, 3)
         
         # Tulisan melengkung atas: ALVIRA HOMESTAY
-        canvas.setFont("Helvetica-Bold", 13)
+        canvas.setFont("Helvetica-Bold", 11)
         canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
         draw_top_text(canvas, "ALVIRA HOMESTAY", x, y, 115)
         
