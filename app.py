@@ -623,8 +623,6 @@ def generate_invoice(selected_data):
     
     nights = (checkout - checkin).days
 
-
-
     item_data = [
         ["Description", "Qty", "Amount"],
         [
@@ -671,50 +669,45 @@ def generate_invoice(selected_data):
     # WATERMARK LUNAS PREMIUM
     # =========================
     from math import cos, sin, radians
+    from reportlab.pdfbase.pdfmetrics import stringWidth
 
     def add_lunas_watermark(canvas, doc):
         canvas.saveState()
     
         width, height = doc.pagesize
     
-        # POSISI (diturunkan ke bawah)
+        # Turunkan posisi supaya tidak nabrak tabel
         center_x = width / 2
-        center_y = height / 2 - 80   # ← geser turun
+        center_y = height / 2 - 90
+        radius = 135
     
-        radius = 130
+        # Warna merah kantor pajak
+        merah = colors.Color(0.75, 0, 0, alpha=0.18)
+        canvas.setStrokeColor(merah)
+        canvas.setFillColor(merah)
     
-        # Transparansi
-        canvas.setFillColorRGB(0.8, 0, 0)
-        canvas.setStrokeColorRGB(0.8, 0, 0)
-        canvas.setLineWidth(4)
+        canvas.setLineWidth(5)
     
-        try:
-            canvas.setFillAlpha(0.15)
-            canvas.setStrokeAlpha(0.3)
-        except:
-            pass
+        # Lingkaran luar
+        canvas.circle(center_x, center_y, radius)
     
-        # =========================
-        # LINGKARAN LUAR
-        # =========================
-        canvas.circle(center_x, center_y, radius, stroke=1, fill=0)
+        # Lingkaran dalam
+        canvas.setLineWidth(2)
+        canvas.circle(center_x, center_y, radius - 18)
     
         # =========================
-        # LINGKARAN DALAM
-        # =========================
-        canvas.setLineWidth(1.5)
-        canvas.circle(center_x, center_y, radius - 15, stroke=1, fill=0)
-    
-        # =========================
-        # TEKS MELENGKUNG ATAS
+        # TEKS MELENGKUNG ATAS (RAPI)
         # =========================
         top_text = "ALVIRA HOMESTAY"
         canvas.setFont("Helvetica-Bold", 14)
     
+        total_angle = 120
+        start_angle = 90 + total_angle/2
+    
         for i, char in enumerate(top_text):
-            angle = 180 - (i - len(top_text)/2) * 10
-            x = center_x + (radius - 20) * cos(radians(angle))
-            y = center_y + (radius - 20) * sin(radians(angle))
+            angle = start_angle - i * (total_angle / len(top_text))
+            x = center_x + (radius - 25) * cos(radians(angle))
+            y = center_y + (radius - 25) * sin(radians(angle))
     
             canvas.saveState()
             canvas.translate(x, y)
@@ -726,12 +719,15 @@ def generate_invoice(selected_data):
         # TEKS MELENGKUNG BAWAH
         # =========================
         bottom_text = "INVOICE"
-        canvas.setFont("Helvetica-Bold", 12)
+        canvas.setFont("Helvetica-Bold", 13)
+    
+        total_angle = 80
+        start_angle = 270 - total_angle/2
     
         for i, char in enumerate(bottom_text):
-            angle = (i - len(bottom_text)/2) * 12
-            x = center_x + (radius - 20) * cos(radians(angle))
-            y = center_y - (radius - 20) * sin(radians(angle))
+            angle = start_angle + i * (total_angle / len(bottom_text))
+            x = center_x + (radius - 25) * cos(radians(angle))
+            y = center_y + (radius - 25) * sin(radians(angle))
     
             canvas.saveState()
             canvas.translate(x, y)
@@ -740,22 +736,18 @@ def generate_invoice(selected_data):
             canvas.restoreState()
     
         # =========================
-        # TEKS TENGAH (DIPERKECIL)
+        # TEKS TENGAH (RAPI & TIDAK NGE-BLOCK)
         # =========================
-        canvas.setFont("Helvetica-Bold", 50)  # lebih kecil biar nggak nabrak
-        canvas.drawCentredString(center_x, center_y + 10, "LUNAS")
+        canvas.setFont("Helvetica-Bold", 55)
+        canvas.drawCentredString(center_x, center_y + 5, "LUNAS")
     
-        # =========================
-        # NOMOR INVOICE KECIL
-        # =========================
-        invoice_no = f"INV-{datetime.now().year}-{int(doc.title) if doc.title else '0001'}"
-        canvas.setFont("Helvetica", 12)
+        # Nomor Invoice
+        invoice_no = f"INV-{datetime.now().year}-{int(doc.title):04d}"
+        canvas.setFont("Helvetica-Bold", 14)
         canvas.drawCentredString(center_x, center_y - 30, invoice_no)
     
-        # =========================
-        # TANGGAL PELUNASAN
-        # =========================
-        canvas.setFont("Helvetica", 10)
+        # Tanggal Pelunasan
+        canvas.setFont("Helvetica", 11)
         canvas.drawCentredString(
             center_x,
             center_y - 50,
@@ -765,7 +757,7 @@ def generate_invoice(selected_data):
         canvas.restoreState()
 
     if selected_data.get("sisa", 0) <= 0:
-        doc.title = str(selected_data["id"])  # kirim ID ke watermark
+        doc.title = str(selected_data["id"])
         doc.build(elements, onFirstPage=add_lunas_watermark)
     else:
         doc.build(elements)
