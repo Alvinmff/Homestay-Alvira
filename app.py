@@ -671,22 +671,10 @@ def generate_invoice(selected_data):
     # =========================
     from math import cos, sin, radians
     
-    def draw_bottom_text(canvas, text, center_x, center_y, radius):
-        angle_step = 180 / len(text)
-        angle = -90
-        
-        for char in text:
-            canvas.saveState()
-            canvas.translate(center_x, center_y)
-            canvas.rotate(angle)
-            canvas.drawCentredString(0, -radius, char)
-            canvas.restoreState()
-            angle += angle_step
+    def draw_curved_text_top(canvas, text, center_x, center_y, radius):
+        angle_step = 180 / (len(text) + 1)
+        angle = 90 + (len(text)/2 * angle_step)
     
-    def draw_top_text(canvas, text, center_x, center_y, radius):
-        angle_step = 180 / len(text)
-        angle = 90
-        
         for char in text:
             canvas.saveState()
             canvas.translate(center_x, center_y)
@@ -695,81 +683,62 @@ def generate_invoice(selected_data):
             canvas.restoreState()
             angle -= angle_step
     
+    
+    def draw_curved_text_bottom(canvas, text, center_x, center_y, radius):
+        angle_step = 180 / (len(text) + 1)
+        angle = -90 - (len(text)/2 * angle_step)
+    
+        for char in text:
+            canvas.saveState()
+            canvas.translate(center_x, center_y)
+            canvas.rotate(angle)
+            canvas.drawCentredString(0, -radius, char)
+            canvas.restoreState()
+            angle += angle_step
+    
+    
     def add_lunas_watermark(canvas, doc):
         canvas.saveState()
-        
+    
         width, height = doc.pagesize
         x = width / 2
-        y = height / 2 - 100  # Posisi diturunkan agar tidak mengganggu tabel
-        
-        # Warna merah transparan yang lebih halus
-        red_transparent = Color(0.9, 0.1, 0.1, alpha=0.25)
-        light_red = Color(1, 0.5, 0.5, alpha=0.15)
-        dark_red = Color(0.6, 0, 0, alpha=0.4)
-        
-        # Lingkaran luar dengan gradien simulasi (lapisan untuk efek kedalaman)
-        canvas.setStrokeColor(red_transparent)
-        canvas.setFillColor(red_transparent)
-        canvas.setLineWidth(6)
-        canvas.circle(x, y, 130)
-        
-        canvas.setStrokeColor(light_red)
-        canvas.setFillColor(light_red)
-        canvas.setLineWidth(4)
-        canvas.circle(x, y, 125)
-        
-        # Lingkaran dalam
-        canvas.setStrokeColor(red_transparent)
-        canvas.setFillColor(red_transparent)
-        canvas.setLineWidth(3)
-        canvas.circle(x, y, 95)
-        
-        # Garis putus-putus tengah yang lebih halus
-        canvas.setLineWidth(1)
-        canvas.setDash(3, 3)
-        canvas.setStrokeColor(Color(0.8, 0.2, 0.2, alpha=0.4))
-        canvas.circle(x, y, 108)
-        canvas.setDash()
-        
-        # Elemen dekoratif premium: Garis radial di dalam lingkaran untuk kesan emblem
-        canvas.setStrokeColor(dark_red)
-        canvas.setLineWidth(1)
-        for i in range(12):  # 12 garis radial untuk simetri
-            angle = i * 30
-            start_x = x + 95 * cos(radians(angle))
-            start_y = y + 95 * sin(radians(angle))
-            end_x = x + 125 * cos(radians(angle))
-            end_y = y + 125 * sin(radians(angle))
-            canvas.line(start_x, start_y, end_x, end_y)
-        
-        # Elemen dekoratif tambahan: Lingkaran kecil di sekitar (pengganti poligon untuk menghindari error)
-        canvas.setFillColor(red_transparent)
-        for i in range(8):
-            angle = i * 45
-            circle_x = x + 135 * cos(radians(angle))  # Radius lebih luar dari teks atas
-            circle_y = y + 135 * sin(radians(angle))
-            canvas.circle(circle_x, circle_y, 3)  # Lingkaran kecil sebagai dekorasi
-        
-        # Tulisan melengkung atas: ALVIRA HOMESTAY (di radius 115, tidak tumpuk dengan garis radial)
-        canvas.setFont("Helvetica-Bold", 16)
-        canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
-        draw_top_text(canvas, "ALVIRA HOMESTAY", x, y, 115)
-        
-        # Tulisan tengah LUNAS dengan font yang lebih elegan dan efek
-        canvas.setFont("Times-Bold", 60)
-        canvas.translate(x, y)
-        canvas.rotate(15)  # Rotasi lebih kecil untuk kesan lebih stabil
-        canvas.setFillColor(Color(0.7, 0, 0, alpha=0.8))  # Warna lebih gelap untuk kontras
-        canvas.drawCentredString(0, -20, "LUNAS")
-        canvas.rotate(-15)
-        canvas.translate(-x, -y)
-        
-        # Tanggal pelunasan kecil di tengah bawah dengan posisi yang lebih baik
-        tanggal_lunas = datetime.now().strftime("%d %b %Y")
-        canvas.setFont("Helvetica", 12)
-        canvas.setFillColor(Color(0.5, 0, 0, alpha=0.6))
-        canvas.drawCentredString(x, y - 60, f"Paid on {tanggal_lunas}")
-        
+        y = height / 2 - 120   # 🔥 diturunkan biar tidak nabrak tabel
+    
+        # ===== Warna merah elegan semi transparan =====
+        red_main = Color(0.7, 0, 0, alpha=0.25)
+        red_soft = Color(0.8, 0, 0, alpha=0.15)
+    
+        # ===== Lingkaran luar =====
+        canvas.setStrokeColor(red_main)
+        canvas.setLineWidth(5)
+        canvas.circle(x, y, 120)
+    
+        # ===== Lingkaran dalam =====
+        canvas.setStrokeColor(red_soft)
+        canvas.setLineWidth(2)
+        canvas.circle(x, y, 100)
+    
+        # ===== Text melengkung atas =====
+        canvas.setFont("Helvetica-Bold", 14)
+        canvas.setFillColor(red_main)
+        draw_curved_text_top(canvas, "ALVIRA HOMESTAY", x, y, 105)
+    
+        # ===== Text melengkung bawah (Invoice) =====
+        invoice_text = f"INV-{datetime.now().year}-{int(doc.title):04d}"
+        canvas.setFont("Helvetica", 11)
+        draw_curved_text_bottom(canvas, invoice_text, x, y, 105)
+    
+        # ===== Text Tengah LUNAS =====
+        canvas.setFont("Helvetica-Bold", 55)
+        canvas.setFillColor(Color(0.6, 0, 0, alpha=0.35))
+        canvas.drawCentredString(x, y - 15, "LUNAS")
+    
+        # ===== Tanggal kecil bawah =====
+        tanggal = datetime.now().strftime("%d %b %Y")
+        canvas.setFont("Helvetica", 10)
+        canvas.setFillColor(Color(0.5, 0, 0, alpha=0.35))
+        canvas.drawCentredString(x, y - 45, f"Paid on {tanggal}")
+    
         canvas.restoreState()
     
     # Kondisi pembangunan dokumen tetap sama
