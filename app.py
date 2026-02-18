@@ -107,8 +107,7 @@ with col2:
         </div>
         <style>
         .block-container {
-            padding-top: 1rem;
-            padding-left: 2rem;
+            padding-left: 4rem;
         }
         </style>
         """,
