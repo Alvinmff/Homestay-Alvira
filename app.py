@@ -666,7 +666,7 @@ def generate_invoice(selected_data):
     elements.append(Spacer(1, 60))
 
     # =========================
-    # WATERMARK LUNAS PREMIUM (ENHANCED VERSION)
+    # WATERMARK LUNAS PREMIUM (ENHANCED VERSION WITH UPDATES)
     # =========================
     from math import cos, sin, radians
     from reportlab.pdfbase.pdfmetrics import stringWidth
@@ -685,12 +685,24 @@ def generate_invoice(selected_data):
             canvas.restoreState()
             angle += angle_step
     
+    def draw_top_text(canvas, text, center_x, center_y, radius):
+        angle_step = 180 / len(text)
+        angle = 90
+        
+        for char in text:
+            canvas.saveState()
+            canvas.translate(center_x, center_y)
+            canvas.rotate(angle)
+            canvas.drawCentredString(0, radius, char)
+            canvas.restoreState()
+            angle -= angle_step
+    
     def add_lunas_watermark(canvas, doc):
         canvas.saveState()
         
         width, height = doc.pagesize
         x = width / 2
-        y = height / 2
+        y = height / 2 - 100  # Posisi diturunkan agar tidak mengganggu tabel
         
         # Warna merah transparan yang lebih halus
         red_transparent = Color(0.9, 0.1, 0.1, alpha=0.25)
@@ -728,6 +740,11 @@ def generate_invoice(selected_data):
             star_y = y + 115 * sin(radians(angle))
             canvas.circle(star_x, star_y, 3)
         
+        # Tulisan melengkung atas: ALVIRA HOMESTAY
+        canvas.setFont("Helvetica-Bold", 16)
+        canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
+        draw_top_text(canvas, "ALVIRA HOMESTAY", x, y, 115)
+        
         # Tulisan tengah LUNAS dengan font yang lebih elegan dan efek
         canvas.setFont("Times-Bold", 60)
         canvas.translate(x, y)
@@ -736,12 +753,6 @@ def generate_invoice(selected_data):
         canvas.drawCentredString(0, -20, "LUNAS")
         canvas.rotate(-15)
         canvas.translate(-x, -y)
-        
-        # Nomor Invoice di bawah melengkung dengan font yang lebih rapi
-        invoice_number = f"INV-{datetime.now().year}-{int(selected_data['id']):04d}"
-        canvas.setFont("Helvetica-Bold", 14)
-        canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
-        draw_bottom_text(canvas, invoice_number, x, y, 105)
         
         # Tanggal pelunasan kecil di tengah bawah dengan posisi yang lebih baik
         tanggal_lunas = datetime.now().strftime("%d %b %Y")
