@@ -673,7 +673,7 @@ def generate_invoice(selected_data):
     
     def draw_bottom_text(canvas, text, center_x, center_y, radius):
         angle_step = 10  # Diubah ke 10 derajat untuk jarak antar huruf yang lebih dekat
-        angle = -90  # Diubah ke -75 untuk geser ke kanan menyamping agar tidak bertabrakan dengan "ALVIRA HOMESTAY"
+        angle = -50  # Diubah ke -75 untuk geser ke kanan menyamping agar tidak bertabrakan dengan "ALVIRA HOMESTAY"
         
         for char in text:
             canvas.saveState()
