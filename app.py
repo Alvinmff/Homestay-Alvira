@@ -666,15 +666,17 @@ def generate_invoice(selected_data):
     elements.append(Spacer(1, 60))
 
     # =========================
-    # WATERMARK LUNAS PREMIUM
+    # WATERMARK LUNAS PREMIUM (ENHANCED VERSION)
     # =========================
     from math import cos, sin, radians
     from reportlab.pdfbase.pdfmetrics import stringWidth
-
+    from reportlab.lib.colors import Color
+    from datetime import datetime
+    
     def draw_bottom_text(canvas, text, center_x, center_y, radius):
         angle_step = 180 / len(text)
         angle = -90
-    
+        
         for char in text:
             canvas.saveState()
             canvas.translate(center_x, center_y)
@@ -683,52 +685,73 @@ def generate_invoice(selected_data):
             canvas.restoreState()
             angle += angle_step
     
-    
     def add_lunas_watermark(canvas, doc):
         canvas.saveState()
-    
+        
         width, height = doc.pagesize
         x = width / 2
         y = height / 2
-    
-        red_transparent = Color(0.85, 0, 0, alpha=0.30)
-    
+        
+        # Warna merah transparan yang lebih halus
+        red_transparent = Color(0.9, 0.1, 0.1, alpha=0.25)
+        light_red = Color(1, 0.5, 0.5, alpha=0.15)
+        
+        # Lingkaran luar dengan gradien simulasi (lapisan)
         canvas.setStrokeColor(red_transparent)
         canvas.setFillColor(red_transparent)
+        canvas.setLineWidth(6)
+        canvas.circle(x, y, 130)
+        
+        canvas.setStrokeColor(light_red)
+        canvas.setFillColor(light_red)
         canvas.setLineWidth(4)
-    
-        # Lingkaran luar
-        canvas.circle(x, y, 120)
-    
+        canvas.circle(x, y, 125)
+        
         # Lingkaran dalam
+        canvas.setStrokeColor(red_transparent)
+        canvas.setFillColor(red_transparent)
+        canvas.setLineWidth(3)
         canvas.circle(x, y, 95)
-    
-        # Garis putus-putus tengah
+        
+        # Garis putus-putus tengah yang lebih halus
         canvas.setLineWidth(1)
-        canvas.setDash(2, 2)
+        canvas.setDash(3, 3)
+        canvas.setStrokeColor(Color(0.8, 0.2, 0.2, alpha=0.4))
         canvas.circle(x, y, 108)
         canvas.setDash()
-    
-        # Tulisan tengah LUNAS
-        canvas.setFont("Helvetica-Bold", 50)
+        
+        # Elemen dekoratif: bintang kecil di sekitar
+        canvas.setFillColor(red_transparent)
+        for i in range(8):
+            angle = i * 45
+            star_x = x + 115 * cos(radians(angle))
+            star_y = y + 115 * sin(radians(angle))
+            canvas.circle(star_x, star_y, 3)
+        
+        # Tulisan tengah LUNAS dengan font yang lebih elegan dan efek
+        canvas.setFont("Times-Bold", 60)
         canvas.translate(x, y)
-        canvas.rotate(20)
-        canvas.drawCentredString(0, -15, "LUNAS")
-        canvas.rotate(-20)
+        canvas.rotate(15)  # Rotasi lebih kecil untuk kesan lebih stabil
+        canvas.setFillColor(Color(0.7, 0, 0, alpha=0.8))  # Warna lebih gelap untuk kontras
+        canvas.drawCentredString(0, -20, "LUNAS")
+        canvas.rotate(-15)
         canvas.translate(-x, -y)
-    
-        # Nomor Invoice di bawah melengkung
+        
+        # Nomor Invoice di bawah melengkung dengan font yang lebih rapi
         invoice_number = f"INV-{datetime.now().year}-{int(selected_data['id']):04d}"
-        canvas.setFont("Helvetica-Bold", 12)
+        canvas.setFont("Helvetica-Bold", 14)
+        canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
         draw_bottom_text(canvas, invoice_number, x, y, 105)
-    
-        # Tanggal pelunasan kecil di tengah bawah
+        
+        # Tanggal pelunasan kecil di tengah bawah dengan posisi yang lebih baik
         tanggal_lunas = datetime.now().strftime("%d %b %Y")
-        canvas.setFont("Helvetica", 10)
-        canvas.drawCentredString(x, y - 55, f"Paid on {tanggal_lunas}")
-    
+        canvas.setFont("Helvetica", 12)
+        canvas.setFillColor(Color(0.5, 0, 0, alpha=0.6))
+        canvas.drawCentredString(x, y - 60, f"Paid on {tanggal_lunas}")
+        
         canvas.restoreState()
-
+    
+    # Kondisi pembangunan dokumen tetap sama
     if selected_data.get("sisa", 0) <= 0:
         doc.title = str(selected_data["id"])
         doc.build(elements, onFirstPage=add_lunas_watermark)
