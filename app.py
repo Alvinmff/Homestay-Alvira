@@ -671,88 +671,61 @@ def generate_invoice(selected_data):
     from math import cos, sin, radians
     from reportlab.pdfbase.pdfmetrics import stringWidth
 
+    def draw_bottom_text(canvas, text, center_x, center_y, radius):
+        angle_step = 180 / len(text)
+        angle = -90
+    
+        for char in text:
+            canvas.saveState()
+            canvas.translate(center_x, center_y)
+            canvas.rotate(angle)
+            canvas.drawCentredString(0, -radius, char)
+            canvas.restoreState()
+            angle += angle_step
+    
+    
     def add_lunas_watermark(canvas, doc):
         canvas.saveState()
     
         width, height = doc.pagesize
+        x = width / 2
+        y = height / 2
     
-        # Turunkan posisi supaya tidak nabrak tabel
-        center_x = width / 2
-        center_y = height / 2 - 90
-        radius = 135
+        red_transparent = Color(0.85, 0, 0, alpha=0.30)
     
-        # Warna merah kantor pajak
-        merah = colors.Color(0.75, 0, 0, alpha=0.18)
-        canvas.setStrokeColor(merah)
-        canvas.setFillColor(merah)
-    
-        canvas.setLineWidth(5)
+        canvas.setStrokeColor(red_transparent)
+        canvas.setFillColor(red_transparent)
+        canvas.setLineWidth(4)
     
         # Lingkaran luar
-        canvas.circle(center_x, center_y, radius)
+        canvas.circle(x, y, 120)
     
         # Lingkaran dalam
-        canvas.setLineWidth(2)
-        canvas.circle(center_x, center_y, radius - 18)
+        canvas.circle(x, y, 95)
     
-        # =========================
-        # TEKS MELENGKUNG ATAS (RAPI)
-        # =========================
-        top_text = "ALVIRA HOMESTAY"
-        canvas.setFont("Helvetica-Bold", 14)
+        # Garis putus-putus tengah
+        canvas.setLineWidth(1)
+        canvas.setDash(2, 2)
+        canvas.circle(x, y, 108)
+        canvas.setDash()
     
-        total_angle = 120
-        start_angle = 90 + total_angle/2
+        # Tulisan tengah LUNAS
+        canvas.setFont("Helvetica-Bold", 50)
+        canvas.translate(x, y)
+        canvas.rotate(20)
+        canvas.drawCentredString(0, -15, "LUNAS")
+        canvas.rotate(-20)
+        canvas.translate(-x, -y)
     
-        for i, char in enumerate(top_text):
-            angle = start_angle - i * (total_angle / len(top_text))
-            x = center_x + (radius - 25) * cos(radians(angle))
-            y = center_y + (radius - 25) * sin(radians(angle))
+        # Nomor Invoice di bawah melengkung
+        invoice_number = f"INV-{datetime.now().year}-{int(selected_data['id']):04d}"
+        canvas.setFont("Helvetica-Bold", 12)
+        draw_bottom_text(canvas, invoice_number, x, y, 105)
     
-            canvas.saveState()
-            canvas.translate(x, y)
-            canvas.rotate(angle - 90)
-            canvas.drawCentredString(0, 0, char)
-            canvas.restoreState()
-    
-        # =========================
-        # TEKS MELENGKUNG BAWAH
-        # =========================
-        bottom_text = "INVOICE"
-        canvas.setFont("Helvetica-Bold", 13)
-    
-        total_angle = 80
-        start_angle = 270 - total_angle/2
-    
-        for i, char in enumerate(bottom_text):
-            angle = start_angle + i * (total_angle / len(bottom_text))
-            x = center_x + (radius - 25) * cos(radians(angle))
-            y = center_y + (radius - 25) * sin(radians(angle))
-    
-            canvas.saveState()
-            canvas.translate(x, y)
-            canvas.rotate(angle + 90)
-            canvas.drawCentredString(0, 0, char)
-            canvas.restoreState()
-    
-        # =========================
-        # TEKS TENGAH (RAPI & TIDAK NGE-BLOCK)
-        # =========================
-        canvas.setFont("Helvetica-Bold", 55)
-        canvas.drawCentredString(center_x, center_y + 5, "LUNAS")
-    
-        # Nomor Invoice
-        invoice_no = f"INV-{datetime.now().year}-{int(doc.title):04d}"
-        canvas.setFont("Helvetica-Bold", 14)
-        canvas.drawCentredString(center_x, center_y - 30, invoice_no)
-    
-        # Tanggal Pelunasan
-        canvas.setFont("Helvetica", 11)
-        canvas.drawCentredString(
-            center_x,
-            center_y - 50,
-            f"Tanggal: {datetime.now().strftime('%d %b %Y')}"
-        )
+        # Tanggal pelunasan kecil di tengah bawah
+        tanggal_lunas = datetime.now().strftime("%d %b %Y")
+        canvas.setFont("Helvetica", 10)
+        canvas.drawCentredString(x, y - 55, f"Paid on {tanggal_lunas}")
     
         canvas.restoreState()
 
