@@ -1200,7 +1200,7 @@ if not df.empty:
     # ============================
     # RESET DATABASE
     # ============================
-   st.subheader("⚙️ Reset Database")
+    st.subheader("⚙️ Reset Database")
 
     confirm = st.checkbox("Saya yakin ingin menghapus semua data")
     
