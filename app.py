@@ -704,8 +704,9 @@ def generate_invoice(selected_data):
         # Warna merah transparan yang lebih halus
         red_transparent = Color(0.9, 0.1, 0.1, alpha=0.25)
         light_red = Color(1, 0.5, 0.5, alpha=0.15)
+        dark_red = Color(0.6, 0, 0, alpha=0.4)
         
-        # Lingkaran luar dengan gradien simulasi (lapisan)
+        # Lingkaran luar dengan gradien simulasi (lapisan untuk efek kedalaman)
         canvas.setStrokeColor(red_transparent)
         canvas.setFillColor(red_transparent)
         canvas.setLineWidth(6)
@@ -729,16 +730,32 @@ def generate_invoice(selected_data):
         canvas.circle(x, y, 108)
         canvas.setDash()
         
-        # Elemen dekoratif: bintang kecil di sekitar
+        # Elemen dekoratif premium: Garis radial di dalam lingkaran untuk kesan emblem
+        canvas.setStrokeColor(dark_red)
+        canvas.setLineWidth(1)
+        for i in range(12):  # 12 garis radial untuk simetri
+            angle = i * 30
+            start_x = x + 95 * cos(radians(angle))
+            start_y = y + 95 * sin(radians(angle))
+            end_x = x + 125 * cos(radians(angle))
+            end_y = y + 125 * sin(radians(angle))
+            canvas.line(start_x, start_y, end_x, end_y)
+        
+        # Elemen dekoratif tambahan: Pola daun atau ornamen di sekitar (ganti bintang untuk menghindari tumpuk)
         canvas.setFillColor(red_transparent)
         for i in range(8):
             angle = i * 45
-            star_x = x + 115 * cos(radians(angle))
-            star_y = y + 115 * sin(radians(angle))
-            canvas.circle(star_x, star_y, 3)
+            leaf_x = x + 135 * cos(radians(angle))  # Radius lebih luar dari teks atas
+            leaf_y = y + 135 * sin(radians(angle))
+            # Gambar daun sederhana (segitiga kecil)
+            canvas.saveState()
+            canvas.translate(leaf_x, leaf_y)
+            canvas.rotate(angle)
+            canvas.polygon([0, 0, -3, 5, 3, 5], fill=1, stroke=0)
+            canvas.restoreState()
         
-        # Tulisan melengkung atas: ALVIRA HOMESTAY
-        canvas.setFont("Helvetica-Bold", 11)
+        # Tulisan melengkung atas: ALVIRA HOMESTAY (di radius 115, tidak tumpuk dengan garis radial)
+        canvas.setFont("Helvetica-Bold", 12)
         canvas.setFillColor(Color(0.6, 0, 0, alpha=0.7))
         draw_top_text(canvas, "ALVIRA HOMESTAY", x, y, 115)
         
@@ -765,7 +782,7 @@ def generate_invoice(selected_data):
         doc.build(elements, onFirstPage=add_lunas_watermark)
     else:
         doc.build(elements)
-
+        
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
