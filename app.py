@@ -1412,11 +1412,11 @@ if not df.empty:
         
                 st.rerun()
 
-        except Exception as e:
-            st.error(f"Gagal menghapus booking: {e}")
-        
-                except Exception as e:
-                    st.error(f"Terjadi error: {e}")
+            except Exception as e:
+                st.error(f"Gagal menghapus booking: {e}")
+            
+                    except Exception as e:
+                        st.error(f"Terjadi error: {e}")
         
     if st.button("🧾 Generate Invoice"):
         pdf_file = generate_invoice(selected_data)
