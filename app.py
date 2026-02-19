@@ -955,6 +955,21 @@ harga_kamar = {
     },
 }
 
+def hitung_total_kamar(kamar, checkin, checkout):
+    total = 0
+    current_date = checkin
+
+    while current_date < checkout:
+        # Weekend = Jumat (4), Sabtu (5), Minggu (6)
+        if current_date.weekday() >= 4:
+            total += harga_kamar[kamar]["weekend"]
+        else:
+            total += harga_kamar[kamar]["weekday"]
+
+        current_date += timedelta(days=1)
+
+    return total
+
 # ============================
 # TAMBAH BOOKING (UPGRADE)
 # ============================
@@ -989,26 +1004,38 @@ if kamar and checkout > checkin:
 
     st.sidebar.markdown("### 💰 Rincian Harga")
 
-    malam = (checkout - checkin).days
     total_semua = 0
-
+    
     for k in kamar:
-        harga_per_malam = get_harga_per_malam(k)  # buat fungsi ini
-        total_kamar = harga_per_malam * malam
-        total_semua += total_kamar
-
+        st.sidebar.markdown(f"#### 🛏 {k}")
+        
+        current_date = checkin
+        total_kamar = 0
+    
+        while current_date < checkout:
+            if current_date.weekday() >= 5:
+                harga = harga_kamar[k]["weekend"]
+                tipe = "Weekend"
+            else:
+                harga = harga_kamar[k]["weekday"]
+                tipe = "Weekday"
+    
+            st.sidebar.write(
+                f"{current_date} ({tipe}) : Rp {harga:,.0f}".replace(",", ".")
+            )
+    
+            total_kamar += harga
+            current_date += timedelta(days=1)
+    
         st.sidebar.markdown(
-            f"""
-            🛏 **{k}**
-            - Harga / malam : Rp {harga_per_malam:,.0f}
-            - Jumlah malam  : {malam}
-            - Total kamar   : Rp {total_kamar:,.0f}
-            """.replace(",", ".")
+            f"**Subtotal {k}: Rp {total_kamar:,.0f}**".replace(",", ".")
         )
-
-    st.sidebar.markdown("---")
+        st.sidebar.markdown("---")
+    
+        total_semua += total_kamar
+    
     st.sidebar.markdown(
-        f"💵 **Total Booking: Rp {total_semua:,.0f}**".replace(",", ".")
+        f"### 💵 Total Booking: Rp {total_semua:,.0f}".replace(",", ".")
     )
 
     st.sidebar.markdown(
