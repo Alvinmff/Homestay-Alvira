@@ -1019,54 +1019,54 @@ if st.sidebar.button("Simpan Booking"):
 
     if submit:
 
-    if not kamar:
-        st.sidebar.error("Pilih minimal 1 kamar!")
-
-    elif checkout <= checkin:
-        st.sidebar.error("Tanggal tidak valid")
-
-    else:
-
-        malam = (checkout - checkin).days
-        total_semua = 0
-
-        # Cek bentrok dulu
-        for k in kamar:
-            if is_double_booking(k, checkin, checkout):
-                st.sidebar.error(f"❌ {k} sudah dibooking di tanggal tersebut!")
-                st.stop()
-
-        # Hitung total semua kamar
-        for k in kamar:
-            harga_per_malam = get_harga_per_malam(k)
-            total_kamar = harga_per_malam * malam
-            total_semua += total_kamar
-
-        sisa = total_semua - dp
-        status = get_status(checkin, checkout, sisa)
-
-        # Insert per kamar
-        for k in kamar:
-            harga_per_malam = get_harga_per_malam(k)
-            total_kamar = harga_per_malam * malam
-
-            cursor.execute("""
-                INSERT INTO bookings
-                (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                nama, hp, k,
-                str(checkin), str(checkout),
-                harga_per_malam,
-                total_kamar,
-                dp,
-                sisa,
-                status
-            ))
-
-        conn.commit()
-        st.sidebar.success("✅ Booking berhasil ditambahkan!")
-        st.rerun()
+        if not kamar:
+            st.sidebar.error("Pilih minimal 1 kamar!")
+    
+        elif checkout <= checkin:
+            st.sidebar.error("Tanggal tidak valid")
+    
+        else:
+    
+            malam = (checkout - checkin).days
+            total_semua = 0
+    
+            # Cek bentrok dulu
+            for k in kamar:
+                if is_double_booking(k, checkin, checkout):
+                    st.sidebar.error(f"❌ {k} sudah dibooking di tanggal tersebut!")
+                    st.stop()
+    
+            # Hitung total semua kamar
+            for k in kamar:
+                harga_per_malam = get_harga_per_malam(k)
+                total_kamar = harga_per_malam * malam
+                total_semua += total_kamar
+    
+            sisa = total_semua - dp
+            status = get_status(checkin, checkout, sisa)
+    
+            # Insert per kamar
+            for k in kamar:
+                harga_per_malam = get_harga_per_malam(k)
+                total_kamar = harga_per_malam * malam
+    
+                cursor.execute("""
+                    INSERT INTO bookings
+                    (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    nama, hp, k,
+                    str(checkin), str(checkout),
+                    harga_per_malam,
+                    total_kamar,
+                    dp,
+                    sisa,
+                    status
+                ))
+    
+            conn.commit()
+            st.sidebar.success("✅ Booking berhasil ditambahkan!")
+            st.rerun()
         
 # ============================
 # LOAD DATA
