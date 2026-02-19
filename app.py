@@ -1211,8 +1211,33 @@ if not df.empty:
     # ============================
     st.subheader("✏️ Edit / Hapus Booking")
 
-    selected_id = st.selectbox("Pilih ID Booking", df["id"])
-    selected_data = df[df["id"] == selected_id].iloc[0]
+# =========================
+# SESSION STATE INIT
+# =========================
+if "selected_booking_id" not in st.session_state:
+    st.session_state.selected_booking_id = df["id"].iloc[0]
+
+booking_ids = df["id"].tolist()
+
+# =========================
+# SELECT BOOKING
+# =========================
+selected_id = st.selectbox(
+    "Pilih Booking ID",
+    booking_ids,
+    index=booking_ids.index(st.session_state.selected_booking_id),
+    key="booking_selector"
+)
+
+st.session_state.selected_booking_id = selected_id
+
+# Ambil data terbaru berdasarkan ID
+selected_data = df[df["id"] == selected_id].iloc[0]
+
+# =========================
+# FORM EDIT
+# =========================
+with st.form("form_edit_booking"):
 
     col1, col2 = st.columns(2)
 
@@ -1226,23 +1251,22 @@ if not df.empty:
         )
 
     with col2:
-        edit_checkin = st.date_input(
-            "Check-in",
-            selected_data["checkin"]
-        )
-        edit_checkout = st.date_input(
-            "Check-out",
-            selected_data["checkout"]
-        )
+        edit_checkin = st.date_input("Check-in", selected_data["checkin"])
+        edit_checkout = st.date_input("Check-out", selected_data["checkout"])
         edit_harga = st.number_input(
             "Harga per Malam",
-            value=int(selected_data["harga"])
+            value=int(selected_data["harga"]),
+            min_value=0
         )
         edit_dp = st.number_input(
             "DP",
-            value=int(selected_data["dp"])
+            value=int(selected_data["dp"]),
+            min_value=0
         )
 
+    # =========================
+    # HITUNG OTOMATIS
+    # =========================
     malam = (edit_checkout - edit_checkin).days
     edit_total = malam * edit_harga if malam > 0 else 0
     edit_sisa = edit_total - edit_dp
@@ -1254,36 +1278,74 @@ if not df.empty:
 
     col_update, col_delete = st.columns(2)
 
-    if col_update.button("💾 Update Booking"):
-        if edit_checkout > edit_checkin:
+    update_clicked = col_update.form_submit_button("💾 Update Booking")
+    delete_clicked = col_delete.form_submit_button("🗑️ Hapus Booking")
 
-            if is_double_booking(edit_kamar, edit_checkin,
-                                 edit_checkout, selected_id):
-                st.error("❌ Jadwal bentrok dengan booking lain!")
-            else:
-                cursor.execute("""
-                UPDATE bookings
-                SET nama=%s, hp=%s, kamar=%s, checkin=%s, checkout=%s,
-                    harga=%s, total=%s, dp=%s, sisa=%s, status=%s
-                WHERE id=%s
-                """, (
-                    edit_nama, edit_hp, edit_kamar,
-                    str(edit_checkin), str(edit_checkout),
-                    edit_harga, edit_total,
-                    edit_dp, edit_sisa,
-                    edit_status,
-                    selected_id
-                ))
-                conn.commit()
-                st.success("Booking berhasil diupdate!")
+    # =========================
+    # UPDATE LOGIC
+    # =========================
+    if update_clicked:
+
+        if edit_checkout <= edit_checkin:
+            st.error("❌ Checkout harus setelah checkin!")
+
+        elif is_double_booking(edit_kamar, edit_checkin,
+                               edit_checkout, selected_id):
+            st.error("❌ Jadwal bentrok dengan booking lain!")
+
+        else:
+            try:
+                with psycopg2.connect(
+                    st.secrets["DATABASE_URL"],
+                    sslmode="require"
+                ) as conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute("""
+                            UPDATE bookings
+                            SET nama=%s, hp=%s, kamar=%s,
+                                checkin=%s, checkout=%s,
+                                harga=%s, total=%s,
+                                dp=%s, sisa=%s, status=%s
+                            WHERE id=%s
+                        """, (
+                            edit_nama, edit_hp, edit_kamar,
+                            edit_checkin, edit_checkout,
+                            edit_harga, edit_total,
+                            edit_dp, edit_sisa,
+                            edit_status,
+                            selected_id
+                        ))
+                        conn.commit()
+
+                st.success("✅ Booking berhasil diupdate!")
+                st.cache_data.clear()
                 st.rerun()
 
-    if col_delete.button("🗑️ Hapus Booking"):
-        cursor.execute("DELETE FROM bookings WHERE id=%s",
-                       (selected_id,))
-        conn.commit()
-        st.warning("Booking dihapus!")
-        st.rerun()
+            except Exception as e:
+                st.error(f"Terjadi error: {e}")
+
+    # =========================
+    # DELETE LOGIC
+    # =========================
+    if delete_clicked:
+        try:
+            with psycopg2.connect(
+                st.secrets["DATABASE_URL"],
+                sslmode="require"
+            ) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "DELETE FROM bookings WHERE id=%s",
+                        (selected_id,)
+                    )
+                    conn.commit()
+
+            st.success("🗑️ Booking berhasil dihapus!")
+            st.cache_data.clear()
+            st.rerun()
+
+        except Exception as e:
+            st.error(f"Terjadi error: {e}")
         
     if st.button("🧾 Generate Invoice"):
         pdf_file = generate_invoice(selected_data)
