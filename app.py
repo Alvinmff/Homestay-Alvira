@@ -956,76 +956,100 @@ harga_kamar = {
 }
 
 # ============================
-# TAMBAH BOOKING
+# TAMBAH BOOKING (UPGRADE)
 # ============================
+
 st.sidebar.header("➕ Tambah Booking")
 
-nama = st.sidebar.text_input("Nama Tamu")
-hp = st.sidebar.text_input("No HP")
-kamar_list = ["Alvira 1", "Alvira 2", "Alvira 3", "Alvira 4", "Alvira 5"]
-kamar = st.sidebar.multiselect("Pilih Kamar", kamar_list)
-checkin = st.sidebar.date_input("Check-in")
-checkout = st.sidebar.date_input("Check-out")
+with st.sidebar.form("form_tambah_booking"):
 
-dp = st.sidebar.number_input(
-    "DP (Uang Muka)",
-    min_value=0,
-    step=50000,
-    format="%d"
-)
+    nama = st.text_input("Nama Tamu")
+    hp = st.text_input("No HP")
 
+    kamar_list = ["Alvira 1", "Alvira 2", "Alvira 3", "Alvira 4", "Alvira 5"]
+    kamar = st.multiselect("Pilih Kamar", kamar_list)
+
+    checkin = st.date_input("Check-in")
+    checkout = st.date_input("Check-out")
+
+    dp = st.number_input(
+        "DP (Uang Muka)",
+        min_value=0,
+        step=50000,
+        format="%d"
+    )
+
+    submit = st.form_submit_button("💾 Simpan Booking")
+    
 jumlah_kamar = len(kamar)
 
 st.sidebar.markdown(f"🛏 Jumlah Kamar: **{jumlah_kamar}**")
+
 if kamar and checkout > checkin:
 
     st.sidebar.markdown("### 💰 Rincian Harga")
 
+    malam = (checkout - checkin).days
     total_semua = 0
 
     for k in kamar:
-        total_kamar = hitung_total_kamar(k, checkin, checkout)
+        harga_per_malam = get_harga_per_malam(k)  # buat fungsi ini
+        total_kamar = harga_per_malam * malam
         total_semua += total_kamar
 
         st.sidebar.markdown(
-            f"{k} : Rp {total_kamar:,.0f}".replace(",", ".")
+            f"""
+            🛏 **{k}**
+            - Harga / malam : Rp {harga_per_malam:,.0f}
+            - Jumlah malam  : {malam}
+            - Total kamar   : Rp {total_kamar:,.0f}
+            """.replace(",", ".")
         )
 
     st.sidebar.markdown("---")
     st.sidebar.markdown(
-        f"💵 Total Booking: **Rp {total_semua:,.0f}**".replace(",", ".")
+        f"💵 **Total Booking: Rp {total_semua:,.0f}**".replace(",", ".")
     )
 
-st.sidebar.markdown(f"💳 DP: **Rp {dp:,.0f}**".replace(",", "."))
-
+    st.sidebar.markdown(
+        f"💳 **DP: Rp {dp:,.0f}**".replace(",", ".")
+    )
+    
 if st.sidebar.button("Simpan Booking"):
+
+    if submit:
 
     if not kamar:
         st.sidebar.error("Pilih minimal 1 kamar!")
-    
+
     elif checkout <= checkin:
         st.sidebar.error("Tanggal tidak valid")
 
     else:
-        
+
+        malam = (checkout - checkin).days
         total_semua = 0
 
+        # Cek bentrok dulu
         for k in kamar:
-
             if is_double_booking(k, checkin, checkout):
                 st.sidebar.error(f"❌ {k} sudah dibooking di tanggal tersebut!")
                 st.stop()
 
-        total_kamar = hitung_total_kamar(k, checkin, checkout)
-        total_semua += total_kamar
+        # Hitung total semua kamar
+        for k in kamar:
+            harga_per_malam = get_harga_per_malam(k)
+            total_kamar = harga_per_malam * malam
+            total_semua += total_kamar
 
         sisa = total_semua - dp
         status = get_status(checkin, checkout, sisa)
 
+        # Insert per kamar
         for k in kamar:
+            harga_per_malam = get_harga_per_malam(k)
+            total_kamar = harga_per_malam * malam
 
-            total_kamar = hitung_total_kamar(k, checkin, checkout)
-        
             cursor.execute("""
                 INSERT INTO bookings
                 (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
@@ -1033,7 +1057,7 @@ if st.sidebar.button("Simpan Booking"):
             """, (
                 nama, hp, k,
                 str(checkin), str(checkout),
-                0,  # harga per malam tidak tetap lagi
+                harga_per_malam,
                 total_kamar,
                 dp,
                 sisa,
@@ -1041,9 +1065,9 @@ if st.sidebar.button("Simpan Booking"):
             ))
 
         conn.commit()
-        st.sidebar.success("Booking berhasil!")
+        st.sidebar.success("✅ Booking berhasil ditambahkan!")
         st.rerun()
-
+        
 # ============================
 # LOAD DATA
 # ============================
