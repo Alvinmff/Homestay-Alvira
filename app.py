@@ -1273,6 +1273,18 @@ if not df.empty:
     # =========================
     # SELECT BOOKING
     # =========================
+
+    booking_ids = df["id"].tolist()
+
+    # Kalau data kosong
+    if not booking_ids:
+        st.warning("Belum ada booking.")
+        st.stop()
+    
+    # Kalau selected ID sudah tidak ada (habis dihapus)
+    if st.session_state.selected_booking_id not in booking_ids:
+        st.session_state.selected_booking_id = booking_ids[0]
+        
     selected_id = st.selectbox(
         "Pilih Booking ID",
         booking_ids,
@@ -1281,7 +1293,7 @@ if not df.empty:
     )
     
     st.session_state.selected_booking_id = selected_id
-    
+
     # Ambil data terbaru berdasarkan ID
     selected_data = df[df["id"] == selected_id].iloc[0]
     
@@ -1390,10 +1402,18 @@ if not df.empty:
                             (selected_id,)
                         )
                         conn.commit()
-    
+        
                 st.success("🗑️ Booking berhasil dihapus!")
+        
                 st.cache_data.clear()
+        
+                # 🔥 INI YANG PALING PENTING
+                st.session_state.selected_booking_id = None
+        
                 st.rerun()
+
+    except Exception as e:
+        st.error(f"Gagal menghapus booking: {e}")
     
             except Exception as e:
                 st.error(f"Terjadi error: {e}")
