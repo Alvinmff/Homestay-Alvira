@@ -675,7 +675,7 @@ def generate_invoice(selected_data):
             rupiah(b["total"])
         ])
     
-        grand_total += b["Total", rupiah(grand_total)]
+        grand_total += b["total"]
     
         item_data.append([
             row["kamar"],
