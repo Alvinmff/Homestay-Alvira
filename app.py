@@ -297,11 +297,12 @@ def load_data():
             status
         FROM bookings
         """
-        df = pd.read_sql_query(query, conn)
-        return df
-    except Exception as e:
-        st.error(f"Database error: {e}")
-        return pd.DataFrame()
+     df = pd.read_sql_query(query, conn)
+     return df
+
+except Exception as e:
+    st.error(f"Database error: {e}")
+    return pd.DataFrame()
 
 # ============================
 # EXPORT FUNCTIONS
