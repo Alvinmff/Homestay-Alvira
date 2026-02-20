@@ -532,24 +532,26 @@ def generate_pdf(df):
     buffer.close()
     return pdf
 
-def generate_invoice(selected_data):
+def generate_invoice(bookings):
 
-    with psycopg2.connect(
-        st.secrets["DATABASE_URL"],
-        sslmode="require"
-    ) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("""
-                SELECT *
-                FROM bookings
-                WHERE group_id = %s
-                ORDER BY id
-            """, (selected_data["group_id"],))
+    if not bookings:
+        return None
 
-            columns = [desc[0] for desc in cursor.description]
-            rows = cursor.fetchall()
+    # ambil data utama dari booking pertama
+    first = bookings[0]
 
-    bookings = [dict(zip(columns, row)) for row in rows]
+    group_id = first.get("group_id", first["id"])
+    nama = first["nama"]
+    hp = first["hp"]
+
+    grand_total = 0
+    grand_dp = 0
+
+    for b in bookings:
+        grand_total += b["total"]
+        grand_dp += b["dp"]
+
+    grand_sisa = grand_total - grand_dp
 
     buffer = BytesIO()
 
