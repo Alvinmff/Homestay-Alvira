@@ -1338,7 +1338,7 @@ if not df.empty:
     # FORM EDIT
     # =========================
     with st.form("form_edit_booking"):
-    
+
         col1, col2 = st.columns(2)
     
         with col1:
@@ -1364,9 +1364,6 @@ if not df.empty:
                 min_value=0
             )
     
-        # =========================
-        # HITUNG OTOMATIS
-        # =========================
         malam = (edit_checkout - edit_checkin).days
         edit_total = malam * edit_harga if malam > 0 else 0
         edit_sisa = edit_total - edit_dp
@@ -1377,7 +1374,6 @@ if not df.empty:
         st.write(f"📌 Status: {edit_status}")
     
         col_update, col_delete = st.columns(2)
-    
         update_clicked = col_update.form_submit_button("💾 Update Booking")
         delete_clicked = col_delete.form_submit_button("🗑️ Hapus Booking")
     
@@ -1385,14 +1381,14 @@ if not df.empty:
         # UPDATE LOGIC
         # =========================
         if update_clicked:
-    
+        
             if edit_checkout <= edit_checkin:
                 st.error("❌ Checkout harus setelah checkin!")
-    
+        
             elif is_double_booking(edit_kamar, edit_checkin,
                                    edit_checkout, selected_id):
                 st.error("❌ Jadwal bentrok dengan booking lain!")
-    
+        
             else:
                 try:
                     with psycopg2.connect(
@@ -1416,14 +1412,14 @@ if not df.empty:
                                 selected_id
                             ))
                             conn.commit()
-    
+        
                     st.success("✅ Booking berhasil diupdate!")
                     st.cache_data.clear()
                     st.rerun()
-    
+        
                 except Exception as e:
                     st.error(f"Terjadi error: {e}")
-    
+            
         # =========================
         # DELETE LOGIC
         # =========================
@@ -1441,30 +1437,27 @@ if not df.empty:
                         conn.commit()
         
                 st.success("🗑️ Booking berhasil dihapus!")
-        
                 st.cache_data.clear()
-        
-                # 🔥 INI YANG PALING PENTING
                 st.session_state.selected_booking_id = None
-        
                 st.rerun()
-
+        
             except Exception as e:
                 st.error(f"Gagal menghapus booking: {e}")
+                
+            # =========================
+            # GENERATE INVOICE
+            # =========================
+            if st.button("🧾 Generate Invoice"):
             
-            except Exception as e:
-                st.error(f"Terjadi error: {e}")
-        
-        if st.button("🧾 Generate Invoice"):
-            pdf_file = generate_invoice(selected_data)
-        
-            st.download_button(
-                label="📥 Download Invoice PDF",
-                data=pdf_file,
-                file_name=f"invoice_{selected_data['nama']}.pdf",
-                mime="application/pdf"
-            )
-        
+                pdf_file = generate_invoice(selected_data)
+            
+                st.download_button(
+                    label="📥 Download Invoice PDF",
+                    data=pdf_file,
+                    file_name=f"invoice_{selected_data['nama']}.pdf",
+                    mime="application/pdf"
+                )
+                
     # ============================
     # RESET DATABASE
     # ============================
