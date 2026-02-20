@@ -117,7 +117,7 @@ if "keep_alive" not in st.session_state:
     st.session_state.keep_alive = True
 
 st.set_page_config(page_title="Homestay Pro System", layout="wide")
-st.title("🏠 Homestay Alvira Management")
+st.title("")
 
 # ============================
 # DATABASE
