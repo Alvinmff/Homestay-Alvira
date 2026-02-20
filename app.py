@@ -221,22 +221,25 @@ def hitung_total_kamar(kamar, checkin, checkout):
 
 def get_status(checkin, checkout, sisa):
     today = date.today()
-    
-    if sisa <= 0:
-        return "Lunas"
-    
-    if today < checkin:
-        return "Booked"
-    
-    if checkin <= today < checkout:
-        return "Check-in"
-    
-    if today == checkout:
-        return "Check-out"
-    
+
+    # 1️⃣ PRIORITAS UTAMA → Kalau sudah lewat tanggal
     if today > checkout:
         return "Selesai"
-    
+
+    # 2️⃣ Kalau hari ini checkout
+    if today == checkout:
+        return "Check-out"
+
+    # 3️⃣ Kalau sedang menginap
+    if checkin <= today < checkout:
+        return "Check-in"
+
+    # 4️⃣ Kalau belum masuk tanggal
+    if today < checkin:
+        if sisa <= 0:
+            return "Lunas"
+        return "Booked"
+
     return "Booked"
 
 def is_double_booking(kamar, checkin, checkout, booking_id=None):
