@@ -20,6 +20,7 @@ import pandas as pd
 from datetime import datetime, date, timedelta
 import matplotlib.pyplot as plt
 import streamlit as st
+import uuid
 
 from PIL import Image
 from reportlab.platypus import Image as RLImage
@@ -532,6 +533,7 @@ def generate_pdf(df):
 def generate_invoice(selected_data):
 
     buffer = BytesIO()
+
     doc = SimpleDocTemplate(
         buffer,
         pagesize=pagesizes.A4,
@@ -578,6 +580,10 @@ def generate_invoice(selected_data):
         Paragraph("Telp: 081231646523", info_style),
     ]
 
+    group_id = bookings[0]["group_id"]
+    nama = bookings[0]["nama"]
+    hp = bookings[0]["hp"]
+
     header_right = [
         Paragraph("<b>INVOICE</b>", styles["Title"]),
         Spacer(1, 6),
@@ -605,8 +611,8 @@ def generate_invoice(selected_data):
     # =========================
     bill_to = Table([
         ["Bill To"],
-        [selected_data["nama"]],
-        [selected_data["hp"]],
+        [nama],
+        [hp],
     ], colWidths=[3*inch])
 
     bill_to.setStyle(TableStyle([
@@ -623,28 +629,38 @@ def generate_invoice(selected_data):
     # =========================
     # ITEM TABLE
     # =========================
-    checkin = selected_data["checkin"]
-    checkout = selected_data["checkout"]
-    
-    # kalau dari pandas kadang jadi Timestamp
-    if hasattr(checkin, "date"):
-        checkin = checkin.date()
-    
-    if hasattr(checkout, "date"):
-        checkout = checkout.date()
-    
-    nights = (checkout - checkin).days
+    item_data = [["Kamar", "Check-in", "Check-out", "Nights", "Amount"]]
 
-    item_data = [
-        ["Description", "Qty", "Amount"],
-        [
-            f"Kamar {selected_data['kamar']} ({selected_data['checkin']} - {selected_data['checkout']})",
+    total_all = 0
+    dp_all = 0
+    sisa_all = 0
+
+    for row in bookings:
+
+        checkin = row["checkin"]
+        checkout = row["checkout"]
+
+        if hasattr(checkin, "date"):
+            checkin = checkin.date()
+
+        if hasattr(checkout, "date"):
+            checkout = checkout.date()
+
+        nights = (checkout - checkin).days
+
+        total_all += row["total"]
+        dp_all += row["dp"]
+        sisa_all += row["sisa"]
+
+        item_data.append([
+            row["kamar"],
+            str(checkin),
+            str(checkout),
             str(nights),
-            rupiah(selected_data["total"])
-        ]
-    ]
+            rupiah(row["total"])
+        ])
 
-    item_table = Table(item_data, colWidths=[3.8*inch, 0.8*inch, 1.2*inch])
+    item_table = Table(item_data, colWidths=[1.2*inch, 1.2*inch, 1.2*inch, 0.8*inch, 1.2*inch])
 
     item_table.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#F2F3F4")),
@@ -661,8 +677,10 @@ def generate_invoice(selected_data):
     # =========================
     # TOTAL SECTION
     # =========================
-    total_table = Table([
-        ["Total", rupiah(selected_data["total"])]
+   total_table = Table([
+        ["Total", rupiah(total_all)],
+        ["DP", rupiah(dp_all)],
+        ["Sisa", rupiah(sisa_all)],
     ], colWidths=[4.6*inch, 1.2*inch])
 
     total_table.setStyle(TableStyle([
@@ -1057,53 +1075,62 @@ if st.sidebar.button("Simpan Booking"):
 
     if not kamar:
         st.sidebar.error("Pilih minimal 1 kamar!")
-        st.stop()
-
-    if checkout <= checkin:
+    
+    elif checkout <= checkin:
         st.sidebar.error("Tanggal tidak valid")
-        st.stop()
 
-    # Cek bentrok
-    for k in kamar:
-        if is_double_booking(k, checkin, checkout):
-            st.sidebar.error(f"❌ {k} sudah dibooking di tanggal tersebut!")
-            st.stop()
+    else:
+        try:
+            # 🔥 Buat 1 GROUP ID untuk semua kamar
+            group_id = str(uuid.uuid4())[:8]
 
-    # Hitung total semua kamar
-    total_semua = 0
-    total_per_kamar = {}
+            total_semua = 0
 
-    for k in kamar:
+            # Cek double booking dulu
+            for k in kamar:
+                if is_double_booking(k, checkin, checkout):
+                    st.sidebar.error(f"❌ {k} sudah dibooking di tanggal tersebut!")
+                    st.stop()
 
-        total_kamar = hitung_total_kamar(k, checkin, checkout)
-    
-        # 💎 SPLIT DP PROPORSIONAL
-        dp_kamar = int((total_kamar / total_semua) * dp)
-        sisa_kamar = total_kamar - dp_kamar
-    
-        status = get_status(checkin, checkout, sisa_kamar)
-    
-        cursor.execute("""
-            INSERT INTO bookings
-            (nama, hp, kamar, checkin, checkout,
-             total, dp, sisa, status, group_id)
-            VALUES (%s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s)
-        """, (
-            nama, hp, k,
-            checkin, checkout,
-            total_kamar,
-            dp_kamar,
-            sisa_kamar,
-            status,
-            group_id
-        ))
+                total_kamar = hitung_total_kamar(k, checkin, checkout)
+                total_semua += total_kamar
 
-    conn.commit()
-    st.cache_data.clear()
-    st.sidebar.success("✅ Booking berhasil disimpan!")
-    st.rerun()
+            # 💎 Split DP rata per kamar
+            dp_per_kamar = dp / len(kamar)
+            sisa_group = total_semua - dp
+            status_group = get_status(checkin, checkout, sisa_group)
 
+            # 🔥 Insert per kamar tapi group_id sama
+            for k in kamar:
+                total_kamar = hitung_total_kamar(k, checkin, checkout)
+                sisa_kamar = total_kamar - dp_per_kamar
+
+                cursor.execute("""
+                    INSERT INTO bookings
+                    (nama, hp, kamar, checkin, checkout, harga,
+                     total, dp, sisa, status, group_id)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    nama,
+                    hp,
+                    k,
+                    str(checkin),
+                    str(checkout),
+                    0,
+                    total_kamar,
+                    dp_per_kamar,
+                    sisa_kamar,
+                    status_group,
+                    group_id
+                ))
+
+            conn.commit()
+            st.sidebar.success(f"✅ Booking berhasil! Invoice Group: {group_id}")
+            st.cache_data.clear()
+            st.rerun()
+
+        except Exception as e:
+            st.sidebar.error(f"Terjadi error: {e}")
         
 # ============================
 # LOAD DATA
@@ -1428,16 +1455,27 @@ if not df.empty:
             except Exception as e:
                 st.error(f"Terjadi error: {e}")
         
-    if st.button("🧾 Generate Invoice"):
-        pdf_file = generate_invoice(selected_data)
+   if st.button("🧾 Generate Invoice"):
+
+        group_id = selected_data["group_id"]
+    
+        cursor.execute("""
+            SELECT * FROM bookings
+            WHERE group_id = %s
+            ORDER BY kamar
+        """, (group_id,))
+    
+        bookings = cursor.fetchall()
+    
+        pdf_file = generate_invoice_group(bookings)
     
         st.download_button(
             label="📥 Download Invoice PDF",
             data=pdf_file,
-            file_name=f"invoice_{selected_data['nama']}.pdf",
+            file_name=f"{group_id}.pdf",
             mime="application/pdf"
         )
-    
+        
     # ============================
     # RESET DATABASE
     # ============================
