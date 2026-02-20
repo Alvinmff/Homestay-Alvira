@@ -1473,23 +1473,26 @@ if not df.empty:
     # GENERATE INVOICE
     # =========================
     st.divider()
-    
+
     if st.button("🧾 Generate Invoice"):
     
-        group_id = selected_data["group_id"]
-
-        group_bookings = df[df["group_id"] == group_id]
-
-        group_id = selected_data.get("group_id", selected_data["id"])
-        
-        pdf_file = generate_invoice(group_bookings.to_dict("records"))
+        # 🔐 Ambil group_id dengan fallback
+        group_id = selected_data.get("group_id")
     
-        st.download_button(
-            label="📥 Download Invoice PDF",
-            data=pdf_file,
-            file_name=f"invoice_{selected_data['nama']}.pdf",
-            mime="application/pdf"
-        )
+        # Kalau tidak ada group_id (booking lama)
+        if not group_id:
+            group_bookings = [selected_data.to_dict()]
+        else:
+            group_bookings = df[df["group_id"] == group_id].to_dict("records")
+    
+        pdf_file = generate_invoice(group_bookings)
+
+    st.download_button(
+        label="📥 Download Invoice PDF",
+        data=pdf_file,
+        file_name=f"invoice_{selected_data['nama']}.pdf",
+        mime="application/pdf"
+    )
         
     # ============================
     # RESET DATABASE
