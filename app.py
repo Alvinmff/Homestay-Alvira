@@ -243,23 +243,31 @@ def get_status(checkin, checkout, sisa):
     return "Booked"
 
 def is_double_booking(kamar, checkin, checkout, booking_id=None):
-    # Fungsi ini perlu akses database, jadi panggil di dalam blok try jika digunakan
-    # Untuk sekarang, ini contoh; integrasikan ke blok database jika diperlukan
-    # Misalnya, di dalam try:
-    # query = """
-    # SELECT * FROM bookings
-    # WHERE kamar = %s
-    # AND (%s IS NULL OR id != %s)
-    # AND (
-    #     checkin::date < %s::date
-    #     AND
-    #     checkout::date > %s::date
-    # )
-    # """
-    # cursor.execute(query, (kamar, booking_id, booking_id, checkout, checkin))
-    # result = cursor.fetchall()
-    # return len(result) > 0
-    pass  # Ganti dengan implementasi jika diperlukan
+
+    query = """
+        SELECT 1
+        FROM bookings
+        WHERE kamar = %s
+        AND (%s IS NULL OR id != %s)
+        AND (
+            checkin::date < %s::date
+            AND checkout::date > %s::date
+        )
+        LIMIT 1
+    """
+
+    cursor.execute(
+        query,
+        (
+            kamar,
+            booking_id, booking_id,
+            checkout, checkin
+        )
+    )
+
+    result = cursor.fetchone()
+
+    return result is not None
 
 # ============================
 # LOAD DATA FUNCTION
