@@ -1455,10 +1455,7 @@ if not df.empty:
             except Exception as e:
                 st.error(f"Terjadi error: {e}")
         
-        with st.form("invoice_form"):
-            submitted = st.form_submit_button("🧾 Generate Invoice")
-        
-        if submitted:
+        if st.button("🧾 Generate Invoice"):
             pdf_file = generate_invoice(selected_data)
         
             st.download_button(
