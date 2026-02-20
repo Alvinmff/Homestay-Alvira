@@ -640,25 +640,25 @@ def generate_invoice(selected_data):
         checkin = row["checkin"]
         checkout = row["checkout"]
 
-        if hasattr(checkin, "date"):
-            checkin = checkin.date()
-
-        if hasattr(checkout, "date"):
-            checkout = checkout.date()
-
-        nights = (checkout - checkin).days
-
-        total_all += row["total"]
-        dp_all += row["dp"]
-        sisa_all += row["sisa"]
-
-        item_data.append([
-            row["kamar"],
-            str(checkin),
-            str(checkout),
-            str(nights),
-            rupiah(row["total"])
-        ])
+            if hasattr(checkin, "date"):
+                checkin = checkin.date()
+    
+            if hasattr(checkout, "date"):
+                checkout = checkout.date()
+    
+            nights = (checkout - checkin).days
+    
+            total_all += row["total"]
+            dp_all += row["dp"]
+            sisa_all += row["sisa"]
+    
+            item_data.append([
+                row["kamar"],
+                str(checkin),
+                str(checkout),
+                str(nights),
+                rupiah(row["total"])
+            ])
 
     item_table = Table(item_data, colWidths=[1.2*inch, 1.2*inch, 1.2*inch, 0.8*inch, 1.2*inch])
 
@@ -677,7 +677,7 @@ def generate_invoice(selected_data):
     # =========================
     # TOTAL SECTION
     # =========================
-   total_table = Table([
+    total_table = Table([
         ["Total", rupiah(total_all)],
         ["DP", rupiah(dp_all)],
         ["Sisa", rupiah(sisa_all)],
