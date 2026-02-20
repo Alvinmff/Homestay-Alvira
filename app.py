@@ -1074,30 +1074,29 @@ if st.sidebar.button("Simpan Booking"):
     total_per_kamar = {}
 
     for k in kamar:
+
         total_kamar = hitung_total_kamar(k, checkin, checkout)
-        total_per_kamar[k] = total_kamar
-        total_semua += total_kamar
-
-    sisa = total_semua - dp
-    status = get_status(checkin, checkout, sisa)
-
-    # INSERT ke DB
-    for k in kamar:
+    
+        # 💎 SPLIT DP PROPORSIONAL
+        dp_kamar = int((total_kamar / total_semua) * dp)
+        sisa_kamar = total_kamar - dp_kamar
+    
+        status = get_status(checkin, checkout, sisa_kamar)
+    
         cursor.execute("""
             INSERT INTO bookings
-            (nama, hp, kamar, checkin, checkout, harga, total, dp, sisa, status)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            (nama, hp, kamar, checkin, checkout,
+             total, dp, sisa, status, group_id)
+            VALUES (%s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s)
         """, (
-            nama,
-            hp,
-            k,
-            str(checkin),
-            str(checkout),
-            0,  # harga per malam dinamis
-            total_per_kamar[k],
-            dp,
-            sisa,
-            status
+            nama, hp, k,
+            checkin, checkout,
+            total_kamar,
+            dp_kamar,
+            sisa_kamar,
+            status,
+            group_id
         ))
 
     conn.commit()
