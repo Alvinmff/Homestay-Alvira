@@ -1445,22 +1445,22 @@ if not df.empty:
             except Exception as e:
                 st.error(f"Gagal menghapus booking: {e}")
                 
-            # =========================
-            # GENERATE INVOICE
-            # =========================
-            st.divider()
-
-            if st.button("🧾 Generate Invoice"):
-            
-                pdf_file = generate_invoice(selected_data)
-            
-                st.download_button(
-                    label="📥 Download Invoice PDF",
-                    data=pdf_file,
-                    file_name=f"invoice_{selected_data['nama']}.pdf",
-                    mime="application/pdf"
-                )
-                
+    # =========================
+    # GENERATE INVOICE
+    # =========================
+    st.divider()
+    
+    if st.button("🧾 Generate Invoice"):
+    
+        pdf_file = generate_invoice(selected_data)
+    
+        st.download_button(
+            label="📥 Download Invoice PDF",
+            data=pdf_file,
+            file_name=f"invoice_{selected_data['nama']}.pdf",
+            mime="application/pdf"
+        )
+        
     # ============================
     # RESET DATABASE
     # ============================
