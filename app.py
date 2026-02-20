@@ -300,9 +300,9 @@ def load_data():
         df = pd.read_sql_query(query, conn)
         return df
 
-except Exception as e:
-    st.error(f"Database error: {e}")
-    return pd.DataFrame()
+    except Exception as e:
+        st.error(f"Database error: {e}")
+        return pd.DataFrame()
 
 # ============================
 # EXPORT FUNCTIONS
