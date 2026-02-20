@@ -1455,26 +1455,26 @@ if not df.empty:
             except Exception as e:
                 st.error(f"Terjadi error: {e}")
         
-   if st.button("🧾 Generate Invoice"):
-
-        group_id = selected_data["group_id"]
+       if st.button("🧾 Generate Invoice"):
     
-        cursor.execute("""
-            SELECT * FROM bookings
-            WHERE group_id = %s
-            ORDER BY kamar
-        """, (group_id,))
-    
-        bookings = cursor.fetchall()
-    
-        pdf_file = generate_invoice_group(bookings)
-    
-        st.download_button(
-            label="📥 Download Invoice PDF",
-            data=pdf_file,
-            file_name=f"{group_id}.pdf",
-            mime="application/pdf"
-        )
+            group_id = selected_data["group_id"]
+        
+            cursor.execute("""
+                SELECT * FROM bookings
+                WHERE group_id = %s
+                ORDER BY kamar
+            """, (group_id,))
+        
+            bookings = cursor.fetchall()
+        
+            pdf_file = generate_invoice_group(bookings)
+        
+            st.download_button(
+                label="📥 Download Invoice PDF",
+                data=pdf_file,
+                file_name=f"{group_id}.pdf",
+                mime="application/pdf"
+            )
         
     # ============================
     # RESET DATABASE
