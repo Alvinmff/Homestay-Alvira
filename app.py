@@ -676,13 +676,13 @@ def generate_invoice(selected_data):
     
         grand_total += b["Total", rupiah(grand_total)]
     
-            item_data.append([
-                row["kamar"],
-                str(checkin),
-                str(checkout),
-                str(nights),
-                rupiah(row["total"])
-            ])
+        item_data.append([
+            row["kamar"],
+            str(checkin),
+            str(checkout),
+            str(nights),
+            rupiah(row["total"])
+        ])
 
     item_table = Table(item_data, colWidths=[1.2*inch, 1.2*inch, 1.2*inch, 0.8*inch, 1.2*inch])
 
