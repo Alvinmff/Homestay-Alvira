@@ -1455,24 +1455,16 @@ if not df.empty:
             except Exception as e:
                 st.error(f"Terjadi error: {e}")
         
-        if st.button("🧾 Generate Invoice"):
-    
-            group_id = selected_data["group_id"]
+        with st.form("invoice_form"):
+            submitted = st.form_submit_button("🧾 Generate Invoice")
         
-            cursor.execute("""
-                SELECT * FROM bookings
-                WHERE group_id = %s
-                ORDER BY kamar
-            """, (group_id,))
-        
-            bookings = cursor.fetchall()
-        
-            pdf_file = generate_invoice_group(bookings)
+        if submitted:
+            pdf_file = generate_invoice(selected_data)
         
             st.download_button(
                 label="📥 Download Invoice PDF",
                 data=pdf_file,
-                file_name=f"{group_id}.pdf",
+                file_name=f"invoice_{selected_data['nama']}.pdf",
                 mime="application/pdf"
             )
         
