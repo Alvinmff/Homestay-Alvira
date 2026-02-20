@@ -1476,7 +1476,13 @@ if not df.empty:
     
     if st.button("🧾 Generate Invoice"):
     
-        pdf_file = generate_invoice(selected_data)
+        group_id = selected_data["group_id"]
+
+        group_bookings = df[df["group_id"] == group_id]
+
+        group_id = selected_data.get("group_id", selected_data["id"])
+        
+        pdf_file = generate_invoice(group_bookings.to_dict("records"))
     
         st.download_button(
             label="📥 Download Invoice PDF",
