@@ -640,11 +640,11 @@ def generate_invoice(selected_data):
         checkin = row["checkin"]
         checkout = row["checkout"]
 
-            if hasattr(checkin, "date"):
-                checkin = checkin.date()
+        if hasattr(checkin, "date"):
+             checkin = checkin.date()
     
-            if hasattr(checkout, "date"):
-                checkout = checkout.date()
+        if hasattr(checkout, "date"):
+            checkout = checkout.date()
     
             nights = (checkout - checkin).days
     
