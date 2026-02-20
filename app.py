@@ -703,9 +703,9 @@ def generate_invoice(selected_data):
     # TOTAL SECTION
     # =========================
     total_table = Table([
-        ["Total", rupiah(total_all)],
-        ["DP", rupiah(dp_all)],
-        ["Sisa", rupiah(sisa_all)],
+        ["total", rupiah(total_all)],
+        ["dp", rupiah(dp_all)],
+        ["sisa", rupiah(sisa_all)],
     ], colWidths=[4.6*inch, 1.2*inch])
 
     total_table.setStyle(TableStyle([
