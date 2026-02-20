@@ -533,6 +533,23 @@ def generate_pdf(df):
 
 def generate_invoice(selected_data):
 
+    with psycopg2.connect(
+        st.secrets["DATABASE_URL"],
+        sslmode="require"
+    ) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT *
+                FROM bookings
+                WHERE group_id = %s
+                ORDER BY id
+            """, (selected_data["group_id"],))
+
+            columns = [desc[0] for desc in cursor.description]
+            rows = cursor.fetchall()
+
+    bookings = [dict(zip(columns, row)) for row in rows]
+
     buffer = BytesIO()
 
     doc = SimpleDocTemplate(
@@ -630,28 +647,34 @@ def generate_invoice(selected_data):
     # =========================
     # ITEM TABLE
     # =========================
+    group_id = selected_data.get("group_id")
+
+    if not group_id:
+        bookings = [selected_data]
+        
     item_data = [["Kamar", "Check-in", "Check-out", "Nights", "Amount"]]
 
-    total_all = 0
-    dp_all = 0
-    sisa_all = 0
+    grand_total = 0
 
-    for row in bookings:
-
-        checkin = row["checkin"]
-        checkout = row["checkout"]
-
-        if hasattr(checkin, "date"):
-             checkin = checkin.date()
+    for b in bookings:
     
+        checkin = b["checkin"]
+        checkout = b["checkout"]
+    
+        if hasattr(checkin, "date"):
+            checkin = checkin.date()
         if hasattr(checkout, "date"):
             checkout = checkout.date()
     
-            nights = (checkout - checkin).days
+        nights = (checkout - checkin).days
     
-            total_all += row["total"]
-            dp_all += row["dp"]
-            sisa_all += row["sisa"]
+        item_data.append([
+            f"Kamar {b['kamar']} ({checkin} - {checkout})",
+            str(nights),
+            rupiah(b["total"])
+        ])
+    
+        grand_total += b["Total", rupiah(grand_total)]
     
             item_data.append([
                 row["kamar"],
