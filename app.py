@@ -294,7 +294,8 @@ def load_data():
             total,
             dp,
             sisa,
-            status
+            status,
+            group_id
         FROM bookings
         """
         df = pd.read_sql_query(query, conn)
