@@ -1455,7 +1455,7 @@ if not df.empty:
             except Exception as e:
                 st.error(f"Terjadi error: {e}")
         
-       if st.button("🧾 Generate Invoice"):
+        if st.button("🧾 Generate Invoice"):
     
             group_id = selected_data["group_id"]
         
