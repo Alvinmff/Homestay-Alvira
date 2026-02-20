@@ -788,12 +788,12 @@ def generate_invoice(selected_data):
         
         canvas.restoreState()
     
-    # Kondisi pembangunan dokumen tetap sama
-    if selected_data.get("sisa", 0) <= 0:
-        doc.title = str(selected_data["id"])
-        doc.build(elements, onFirstPage=add_lunas_watermark)
-    else:
-        doc.build(elements)
+        # Kondisi pembangunan dokumen tetap sama
+        if selected_data.get("sisa", 0) <= 0:
+            doc.title = str(selected_data["id"])
+            doc.build(elements, onFirstPage=add_lunas_watermark)
+        else:
+            doc.build(elements)
             
     pdf = buffer.getvalue()
     buffer.close()
