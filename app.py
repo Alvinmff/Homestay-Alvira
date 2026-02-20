@@ -1447,6 +1447,8 @@ if not df.empty:
             # =========================
             # GENERATE INVOICE
             # =========================
+            st.divider()
+
             if st.button("🧾 Generate Invoice"):
             
                 pdf_file = generate_invoice(selected_data)
