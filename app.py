@@ -1457,19 +1457,30 @@ if not df.empty:
     # GENERATE INVOICE
     # =========================
     st.divider()
-
+    
     if "invoice_pdf" not in st.session_state:
         st.session_state.invoice_pdf = None
-
-    if st.button("🧾 Generate Invoice"):
-        group_id = selected_data["group_id"]
-        group_bookings = df[df["group_id"] == group_id]
-        
-        st.session_state.invoice_pdf = generate_invoice(
-            group_bookings.to_dict("records")
-        )
     
-    # tampilkan download button kalau sudah ada file
+    if st.button("🧾 Generate Invoice"):
+        try:
+            # fallback kalau group_id kosong
+            group_id = selected_data.get("group_id") or selected_data["id"]
+    
+            group_bookings = df[
+                df["group_id"].fillna(df["id"]).astype(str)
+                == str(group_id)
+            ]
+    
+            if group_bookings.empty:
+                st.error("Data invoice tidak ditemukan.")
+            else:
+                pdf = generate_invoice(group_bookings.to_dict("records"))
+                st.session_state.invoice_pdf = pdf
+                st.success("Invoice berhasil dibuat!")
+    
+        except Exception as e:
+            st.error(f"Error generate invoice: {e}")
+    
     if st.session_state.invoice_pdf:
         st.download_button(
             label="📥 Download Invoice PDF",
