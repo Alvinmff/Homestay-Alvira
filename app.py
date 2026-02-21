@@ -1459,7 +1459,7 @@ if not df.empty:
     st.divider()
 
     if "invoice_pdf" not in st.session_state:
-    st.session_state.invoice_pdf = None
+        st.session_state.invoice_pdf = None
 
     if st.button("🧾 Generate Invoice"):
         group_id = selected_data["group_id"]
