@@ -539,7 +539,7 @@ def generate_invoice(bookings):
 
     first = bookings[0]
 
-    group_id = first.get("group_id", first["id"])
+    invoice_number = first.get("group_id", first["id"])
     nama = first["nama"]
     hp = first["hp"]
 
