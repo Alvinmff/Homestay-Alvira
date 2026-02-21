@@ -647,6 +647,8 @@ def generate_invoice(bookings):
         
     item_data = [["Kamar", "Check-in", "Check-out", "Nights", "Amount"]]
 
+    grand_total = 0  # reset manual
+
     for b in bookings:
     
         checkin = b["checkin"]
@@ -659,15 +661,17 @@ def generate_invoice(bookings):
     
         nights = (checkout - checkin).days
     
+        amount = nights * b["harga"]   # 🔥 HITUNG ULANG DARI HARGA
+    
         item_data.append([
             f"Kamar {b['kamar']}",
             str(checkin),
             str(checkout),
             str(nights),
-            rupiah(b["total"])
+            rupiah(amount)
         ])
     
-        grand_total += b["total"]
+        grand_total += amount   # ✅ tambah dari amount baru
 
     item_table = Table(item_data, colWidths=[1.2*inch, 1.2*inch, 1.2*inch, 0.8*inch, 1.2*inch])
 
@@ -687,9 +691,9 @@ def generate_invoice(bookings):
     # TOTAL SECTION
     # =========================
     total_table = Table([
-        ["total", rupiah(grand_total)],
-        ["dp", rupiah(grand_dp)],
-        ["sisa", rupiah(grand_sisa)],
+        ["TOTAL", rupiah(grand_total)],
+        ["DP", rupiah(grand_dp)],
+        ["SISA", rupiah(grand_sisa)],
     ], colWidths=[4.6*inch, 1.2*inch])
 
     total_table.setStyle(TableStyle([
