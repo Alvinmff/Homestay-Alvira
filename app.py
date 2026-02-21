@@ -687,9 +687,9 @@ def generate_invoice(bookings):
     # TOTAL SECTION
     # =========================
     total_table = Table([
-        ["Total", rupiah(grand_total)],
-        ["DP", rupiah(grand_dp)],
-        ["Sisa", rupiah(grand_sisa)],
+        ["total", rupiah(grand_total)],
+        ["dp", rupiah(grand_dp)],
+        ["sisa", rupiah(grand_sisa)],
     ], colWidths=[4.6*inch, 1.2*inch])
 
     total_table.setStyle(TableStyle([
@@ -804,9 +804,12 @@ def generate_invoice(bookings):
         else:
             doc.build(elements)
         
-        # Ambil hasil PDF
+        buffer.seek(0)
         pdf = buffer.getvalue()
         buffer.close()
+        
+        if not pdf:
+            return None
         
         return pdf
 
