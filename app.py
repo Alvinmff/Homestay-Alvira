@@ -696,12 +696,6 @@ def generate_invoice(bookings):
         ["SISA", rupiah(grand_sisa)],
     ], colWidths=[4.6*inch, 1.2*inch])
 
-    total_table = Table([
-    ["TOTAL", rupiah(grand_total)],
-    ["DP", rupiah(grand_dp)],
-    ["SISA", rupiah(grand_sisa)],
-], colWidths=[4.6*inch, 1.2*inch])
-
     total_table.setStyle(TableStyle([
         # garis atas
         ('LINEABOVE', (0,0), (-1,0), 1.5, colors.black),
