@@ -643,7 +643,7 @@ def generate_invoice(bookings):
     # ITEM TABLE
     # =========================
         
-   item_data = [["Kamar", "Check-in", "Check-out", "Nights", "Amount"]]
+    item_data = [["Kamar", "Check-in", "Check-out", "Nights", "Amount"]]
 
     for b in bookings:
     
