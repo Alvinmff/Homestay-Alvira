@@ -698,7 +698,7 @@ def generate_invoice(bookings):
 
     total_table.setStyle(TableStyle([
         # garis atas
-        ('LINEABOVE', (0,0), (-1,0), 1.5, colors.black),
+        ('LINEABOVE', (0,0), (-1,-1), 1.5, colors.black),
     
         # font
         ('FONTNAME', (0,0), (-1,-1), 'Helvetica-Bold'),
