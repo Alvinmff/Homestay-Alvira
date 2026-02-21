@@ -537,20 +537,14 @@ def generate_invoice(bookings):
     if not bookings:
         return None
 
-    # ambil data utama dari booking pertama
     first = bookings[0]
 
     group_id = first.get("group_id", first["id"])
     nama = first["nama"]
     hp = first["hp"]
 
-    grand_total = 0
-    grand_dp = 0
-
-    for b in bookings:
-        grand_total += b["total"]
-        grand_dp += b["dp"]
-
+    grand_total = sum(b["total"] for b in bookings)
+    grand_dp = sum(b["dp"] for b in bookings)
     grand_sisa = grand_total - grand_dp
 
     buffer = BytesIO()
@@ -601,14 +595,12 @@ def generate_invoice(bookings):
         Paragraph("Telp: 081231646523", info_style),
     ]
 
-    group_id = bookings[0]["group_id"]
-    nama = bookings[0]["nama"]
-    hp = bookings[0]["hp"]
-
+    group_id = selected_data.get("group_id")
+    
     header_right = [
         Paragraph("<b>INVOICE</b>", styles["Title"]),
         Spacer(1, 6),
-        Paragraph(f"Invoice #: INV-{datetime.now().year}-{int(selected_data['id']):04d}", styles["Normal"]),
+        Paragraph(f"Invoice #: INV-{datetime.now().year}-{invoice_number}", styles["Normal"]),
         Paragraph(f"Date: {datetime.now().strftime('%d %b %Y')}", styles["Normal"]),
     ]
 
@@ -650,14 +642,8 @@ def generate_invoice(bookings):
     # =========================
     # ITEM TABLE
     # =========================
-    group_id = selected_data.get("group_id")
-
-    if not group_id:
-        bookings = [selected_data]
         
-    item_data = [["Kamar", "Check-in", "Check-out", "Nights", "Amount"]]
-
-    grand_total = 0
+   item_data = [["Kamar", "Check-in", "Check-out", "Nights", "Amount"]]
 
     for b in bookings:
     
@@ -672,20 +658,14 @@ def generate_invoice(bookings):
         nights = (checkout - checkin).days
     
         item_data.append([
-            f"Kamar {b['kamar']} ({checkin} - {checkout})",
+            f"Kamar {b['kamar']}",
+            str(checkin),
+            str(checkout),
             str(nights),
             rupiah(b["total"])
         ])
     
         grand_total += b["total"]
-    
-        item_data.append([
-            row["kamar"],
-            str(checkin),
-            str(checkout),
-            str(nights),
-            rupiah(row["total"])
-        ])
 
     item_table = Table(item_data, colWidths=[1.2*inch, 1.2*inch, 1.2*inch, 0.8*inch, 1.2*inch])
 
@@ -705,9 +685,9 @@ def generate_invoice(bookings):
     # TOTAL SECTION
     # =========================
     total_table = Table([
-        ["total", rupiah(total_all)],
-        ["dp", rupiah(dp_all)],
-        ["sisa", rupiah(sisa_all)],
+        ["Total", rupiah(grand_total)],
+        ["DP", rupiah(grand_dp)],
+        ["Sisa", rupiah(grand_sisa)],
     ], colWidths=[4.6*inch, 1.2*inch])
 
     total_table.setStyle(TableStyle([
