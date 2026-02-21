@@ -1481,7 +1481,7 @@ if not df.empty:
         except Exception as e:
             st.error(f"Error generate invoice: {e}")
     
-    if st.session_state.invoice_pdf:
+    if st.session_state.invoice_pdf is not None:
         st.download_button(
             label="📥 Download Invoice PDF",
             data=st.session_state.invoice_pdf,
