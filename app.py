@@ -797,21 +797,21 @@ def generate_invoice(bookings):
         
         canvas.restoreState()
     
-        # Kondisi pembangunan dokumen tetap sama
-        # 🔥 PENTING: build di luar function
-        if grand_sisa <= 0:
-            doc.build(elements, onFirstPage=add_lunas_watermark)
-        else:
-            doc.build(elements)
+    # Kondisi pembangunan dokumen tetap sama
+    # 🔥 PENTING: build di luar function
+    if grand_sisa <= 0:
+        doc.build(elements, onFirstPage=add_lunas_watermark)
+    else:
+        doc.build(elements)
         
-        buffer.seek(0)
-        pdf = buffer.getvalue()
-        buffer.close()
+    buffer.seek(0)
+    pdf = buffer.getvalue()
+    buffer.close()
         
-        if not pdf:
-            return None
+    if not pdf:
+        return None
         
-        return pdf
+    return pdf
 
 def generate_pdf_public(df):
     buffer = BytesIO()
