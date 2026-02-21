@@ -696,11 +696,28 @@ def generate_invoice(bookings):
         ["SISA", rupiah(grand_sisa)],
     ], colWidths=[4.6*inch, 1.2*inch])
 
+    total_table = Table([
+    ["TOTAL", rupiah(grand_total)],
+    ["DP", rupiah(grand_dp)],
+    ["SISA", rupiah(grand_sisa)],
+], colWidths=[4.6*inch, 1.2*inch])
+
     total_table.setStyle(TableStyle([
-        ('LINEABOVE', (0,0), (-1,-1), 1.5, colors.black),
+        # garis atas
+        ('LINEABOVE', (0,0), (-1,0), 1.5, colors.black),
+    
+        # font
         ('FONTNAME', (0,0), (-1,-1), 'Helvetica-Bold'),
         ('FONTSIZE', (0,0), (-1,-1), 11),
-        ('ALIGN', (1,0), (1,0), 'RIGHT'),
+    
+        # 🔥 ALIGN KANAN SEMUA HARGA (kolom ke-1 index 1)
+        ('ALIGN', (1,0), (1,-1), 'RIGHT'),
+    
+        # padding biar rata kanan sempurna
+        ('RIGHTPADDING', (1,0), (1,-1), 0),
+        ('LEFTPADDING', (1,0), (1,-1), 0),
+    
+        # spacing atas bawah
         ('TOPPADDING', (0,0), (-1,-1), 8),
         ('BOTTOMPADDING', (0,0), (-1,-1), 8),
     ]))
