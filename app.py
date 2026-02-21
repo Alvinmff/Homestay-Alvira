@@ -355,6 +355,8 @@ def generate_excel(df):
     return output.getvalue()
 
 def generate_pdf(df):
+
+    buffer = BytesIO()   # ← WAJIB ADA
     
     doc = SimpleDocTemplate(buffer, pagesize=pagesizes.A4)
     elements = []
